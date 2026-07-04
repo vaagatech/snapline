@@ -1,18 +1,18 @@
-import { api, testSuite } from '@vaagatech/reconcile-core';
+import { api, testSuite } from '@vaagatech/snapline-core';
 import {
   apiStatusMapping,
   dateTransform,
   DEMO_EMAIL,
   type ScenarioModule,
-} from '@vaagatech/reconcile-demo-shared';
+} from '@vaagatech/snapline-demo-shared';
 
 const scenario: ScenarioModule = {
-  name: 'Reconcile: combined options (ignoreFields + transformations + dataMapping)',
+  name: 'Snapline: combined options (ignoreFields + transformations + dataMapping)',
   needsServer: true,
   needsDatabase: true,
   async run({ baseUrl, database }) {
     return testSuite(
-      'Reconcile: combined options (ignoreFields + transformations + dataMapping)',
+      'Snapline: combined options (ignoreFields + transformations + dataMapping)',
       {
         baseUrl,
         apiToDb: {

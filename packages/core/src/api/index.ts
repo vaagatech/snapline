@@ -1,4 +1,4 @@
-import { api as apiFactories } from '@vaagatech/reconcile-api-adapters';
+import { api as apiFactories } from '@vaagatech/snapline-api-adapters';
 
 export const api = {
   rest: apiFactories.rest,

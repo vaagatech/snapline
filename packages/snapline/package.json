@@ -1,5 +1,5 @@
 {
-  "name": "@vaagatech/reconcile-engine",
+  "name": "@vaagatech/snapline-engine",
   "version": "0.1.6",
   "description": "Deep data reconciliation engine for declarative snapshot testing — field stripping, transforms, and structural mapping",
   "author": "VaagaTech (https://www.vaagatech.com)",
@@ -7,11 +7,11 @@
   "homepage": "https://www.vaagatech.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vaagatech/reconcile.git",
-    "directory": "packages/reconcile"
+    "url": "git+https://github.com/vaagatech/snapline.git",
+    "directory": "packages/snapline"
   },
   "bugs": {
-    "url": "https://github.com/vaagatech/reconcile/issues"
+    "url": "https://github.com/vaagatech/snapline/issues"
   },
   "keywords": [
     "reconcile",

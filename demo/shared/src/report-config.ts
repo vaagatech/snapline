@@ -1,4 +1,4 @@
-import type { ReportConfig, ReportFormat } from '@vaagatech/reconcile-core';
+import type { ReportConfig, ReportFormat } from '@vaagatech/snapline-core';
 
 const VALID_FORMATS = new Set<ReportFormat>(['json', 'html', 'text']);
 

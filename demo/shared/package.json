@@ -1,5 +1,5 @@
 {
-  "name": "@vaagatech/reconcile-demo-shared",
+  "name": "@vaagatech/snapline-demo-shared",
   "private": true,
   "version": "0.1.6",
   "description": "Shared mock server, SQLite setup, and utilities for demo scenarios",
@@ -17,9 +17,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/reconcile-api-adapters": "0.1.6",
-    "@vaagatech/reconcile-auth-adapters": "0.1.6",
-    "@vaagatech/reconcile-core": "0.1.6",
+    "@vaagatech/snapline-api-adapters": "0.1.6",
+    "@vaagatech/snapline-auth-adapters": "0.1.6",
+    "@vaagatech/snapline-core": "0.1.6",
     "graphql": "^16.11.0"
   }
 }

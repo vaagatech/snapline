@@ -1,5 +1,5 @@
 {
-  "name": "@vaagatech/reconcile-demo-scenario-api-vs-db-rest",
+  "name": "@vaagatech/snapline-demo-scenario-api-vs-db-rest",
   "private": true,
   "version": "0.1.6",
   "description": "Demo scenario: 3. API vs DB (REST + SQLite)",
@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/reconcile-core": "0.1.6",
-    "@vaagatech/reconcile-demo-shared": "0.1.6"
+    "@vaagatech/snapline-core": "0.1.6",
+    "@vaagatech/snapline-demo-shared": "0.1.6"
   }
 }

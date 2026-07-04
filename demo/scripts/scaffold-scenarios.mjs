@@ -12,12 +12,12 @@ const rootVersion = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf
 
 /** Demo run order — ids only. Display order is assigned automatically (1-based index). */
 const SCENARIO_ORDER = [
-  'reconcile-ignore-fields',
-  'reconcile-transformations',
+  'snapline-ignore-fields',
+  'snapline-transformations',
   'db-vs-db-sqlite',
-  'reconcile-data-mapping-function',
+  'snapline-data-mapping-function',
   'db-comparison-transformations',
-  'reconcile-combined-options',
+  'snapline-combined-options',
   'api-vs-file-rest',
   'api-vs-file-graphql',
   'api-vs-file-soap',
@@ -31,14 +31,14 @@ const SCENARIO_ORDER = [
 
 /** Per-scenario metadata — do not prefix titles with numbers. */
 const SCENARIO_META = {
-  'reconcile-ignore-fields': {
-    title: 'Reconcile: ignoreFields (nested paths)',
+  'snapline-ignore-fields': {
+    title: 'Snapline: ignoreFields (nested paths)',
     needsServer: true,
     needsDatabase: false,
     fixtures: ['tracked-expected.json'],
   },
-  'reconcile-transformations': {
-    title: 'Reconcile: transformations (fixture cases)',
+  'snapline-transformations': {
+    title: 'Snapline: transformations (fixture cases)',
     needsServer: false,
     needsDatabase: false,
     fixtures: [],
@@ -49,20 +49,20 @@ const SCENARIO_META = {
     needsDatabase: true,
     fixtures: [],
   },
-  'reconcile-data-mapping-function': {
-    title: 'Reconcile: dataMapping (fixture cases + DB)',
+  'snapline-data-mapping-function': {
+    title: 'Snapline: dataMapping (fixture cases + DB)',
     needsServer: false,
     needsDatabase: true,
     fixtures: [],
   },
   'db-comparison-transformations': {
-    title: 'Reconcile: transformations (DB vs DB + SQLite)',
+    title: 'Snapline: transformations (DB vs DB + SQLite)',
     needsServer: false,
     needsDatabase: true,
     fixtures: [],
   },
-  'reconcile-combined-options': {
-    title: 'Reconcile: combined options',
+  'snapline-combined-options': {
+    title: 'Snapline: combined options',
     needsServer: true,
     needsDatabase: true,
     fixtures: [],
@@ -131,7 +131,7 @@ function idToImportName(id) {
 }
 
 function workspaceName(id) {
-  return `@vaagatech/reconcile-demo-scenario-${id}`;
+  return `@vaagatech/snapline-demo-scenario-${id}`;
 }
 
 function hasFixtureFiles(fixturesDirPath) {
@@ -170,9 +170,9 @@ function syncRootBuildDemos() {
   const rootPkg = JSON.parse(readFileSync(rootPkgPath, 'utf8'));
 
   const buildSteps = [
-    'npm run build --workspace=@vaagatech/reconcile-demo-shared',
+    'npm run build --workspace=@vaagatech/snapline-demo-shared',
     ...SCENARIO_ORDER.map((id) => `npm run build --workspace=${workspaceName(id)}`),
-    'npm run build --workspace=@vaagatech/reconcile-demo-run-all',
+    'npm run build --workspace=@vaagatech/snapline-demo-run-all',
   ];
 
   rootPkg.scripts['build:demos'] = buildSteps.join(' && ');
@@ -185,8 +185,8 @@ function syncRunAllPackageJson() {
   const runAllPkg = JSON.parse(readFileSync(runAllPkgPath, 'utf8'));
 
   runAllPkg.dependencies = runAllPkg.dependencies ?? {};
-  runAllPkg.dependencies['@vaagatech/reconcile-demo-shared'] = rootVersion;
-  runAllPkg.dependencies['@vaagatech/reconcile-core'] = rootVersion;
+  runAllPkg.dependencies['@vaagatech/snapline-demo-shared'] = rootVersion;
+  runAllPkg.dependencies['@vaagatech/snapline-core'] = rootVersion;
 
   for (const id of SCENARIO_ORDER) {
     runAllPkg.dependencies[workspaceName(id)] = rootVersion;
@@ -203,7 +203,7 @@ function syncRunAllSource() {
 
   const scenarioRefs = SCENARIO_ORDER.map((id) => `  ${idToImportName(id)},`).join('\n');
 
-  const source = `import { writeTestReport } from '@vaagatech/reconcile-core';
+  const source = `import { writeTestReport } from '@vaagatech/snapline-core';
 ${imports}
 import {
   closeDemoDatabase,
@@ -211,7 +211,7 @@ import {
   createMockServer,
   resolveReportConfig,
   type ScenarioModule,
-} from '@vaagatech/reconcile-demo-shared';
+} from '@vaagatech/snapline-demo-shared';
 
 const scenarios: ScenarioModule[] = [
 ${scenarioRefs}
@@ -219,12 +219,12 @@ ${scenarioRefs}
 
 async function main(): Promise<void> {
   console.log('═══════════════════════════════════════════════════════');
-  console.log('  @vaagatech/reconcile-engine — Full Integration Demo');
+  console.log('  @vaagatech/snapline-engine — Full Integration Demo');
   console.log('═══════════════════════════════════════════════════════');
   console.log('  Projects: ${SCENARIO_ORDER.length} scenario workspaces under demo/scenarios/');
   console.log('  Modes: API↔file · DB↔DB · API↔DB · DB↔API');
   console.log('  Protocols: REST · GraphQL · SOAP · SQLite · OAuth2');
-  console.log('  Reconcile: ignoreFields · transformations · dataMapping');
+  console.log('  Snapline: ignoreFields · transformations · dataMapping');
   console.log('  Reports: json · html · text (via REPORT_FORMAT env or CLI flags)');
   console.log('  Built by VaagaTech — https://www.vaagatech.com');
   console.log('═══════════════════════════════════════════════════════');
@@ -331,8 +331,8 @@ function scaffoldScenarioProject(id, index) {
             typecheck: 'tsc --noEmit',
           },
           dependencies: {
-            '@vaagatech/reconcile-core': rootVersion,
-            '@vaagatech/reconcile-demo-shared': rootVersion,
+            '@vaagatech/snapline-core': rootVersion,
+            '@vaagatech/snapline-demo-shared': rootVersion,
           },
         },
         null,
@@ -373,7 +373,7 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['@vaagatech/reconcile-core', '@vaagatech/reconcile-demo-shared'],
+  external: ['@vaagatech/snapline-core', '@vaagatech/snapline-demo-shared'],
 });
 `,
     );
@@ -383,7 +383,7 @@ export default defineConfig({
   if (!existsSync(startPath)) {
     writeFileSync(
       startPath,
-      `import { bootstrapScenario } from '@vaagatech/reconcile-demo-shared';
+      `import { bootstrapScenario } from '@vaagatech/snapline-demo-shared';
 import scenario from './scenario.js';
 
 const exitCode = await bootstrapScenario(scenario);
@@ -396,8 +396,8 @@ process.exitCode = exitCode;
   if (!existsSync(scenarioPath)) {
     writeFileSync(
       scenarioPath,
-      `import { testSuite } from '@vaagatech/reconcile-core';
-import { type ScenarioModule } from '@vaagatech/reconcile-demo-shared';
+      `import { testSuite } from '@vaagatech/snapline-core';
+import { type ScenarioModule } from '@vaagatech/snapline-demo-shared';
 
 const scenario: ScenarioModule = {
   name: '${meta.title.replace(/'/g, "\\'")}',

@@ -1,5 +1,5 @@
 {
-  "name": "@vaagatech/reconcile-api-adapters",
+  "name": "@vaagatech/snapline-api-adapters",
   "version": "0.1.6",
   "description": "Minimal API adapters for REST, SOAP, and GraphQL — file-driven test requests",
   "author": "VaagaTech (https://www.vaagatech.com)",
@@ -7,11 +7,11 @@
   "homepage": "https://www.vaagatech.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vaagatech/reconcile.git",
+    "url": "git+https://github.com/vaagatech/snapline.git",
     "directory": "packages/api-adapters"
   },
   "bugs": {
-    "url": "https://github.com/vaagatech/reconcile/issues"
+    "url": "https://github.com/vaagatech/snapline/issues"
   },
   "keywords": [
     "rest",
@@ -50,7 +50,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@vaagatech/reconcile-engine": "^0.1.6"
+    "@vaagatech/snapline-engine": "^0.1.6"
   },
   "publishConfig": {
     "access": "public",

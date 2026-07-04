@@ -1,4 +1,4 @@
-import { auth as authFactories } from '@vaagatech/reconcile-auth-adapters';
+import { auth as authFactories } from '@vaagatech/snapline-auth-adapters';
 
 export const auth = {
   basic: authFactories.basic,

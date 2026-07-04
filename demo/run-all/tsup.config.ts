@@ -8,8 +8,8 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   external: [
-    '@vaagatech/reconcile-core',
-    '@vaagatech/reconcile-demo-shared',
+    '@vaagatech/snapline-core',
+    '@vaagatech/snapline-demo-shared',
     /^@vaagatech\/demo-scenario-/,
   ],
 });

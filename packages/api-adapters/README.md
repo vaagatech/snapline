@@ -1,14 +1,14 @@
-# @vaagatech/reconcile-api-adapters
+# @vaagatech/snapline-api-adapters
 
 Minimal API adapters for REST, SOAP, and GraphQL — file-driven test requests with zero browser dependencies.
 
-[![npm version](https://img.shields.io/npm/v/@vaagatech/reconcile-api-adapters)](https://www.npmjs.com/package/@vaagatech/reconcile-api-adapters)
+[![npm version](https://img.shields.io/npm/v/@vaagatech/snapline-api-adapters)](https://www.npmjs.com/package/@vaagatech/snapline-api-adapters)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## Install
 
 ```bash
-npm install @vaagatech/reconcile-api-adapters
+npm install @vaagatech/snapline-api-adapters
 ```
 
 ## When to use
@@ -26,7 +26,7 @@ Use when you need a single, minimal way to call APIs in tests — without learni
 ### REST
 
 ```javascript
-import { api, executeApi } from '@vaagatech/reconcile-api-adapters';
+import { api, executeApi } from '@vaagatech/snapline-api-adapters';
 
 const result = await executeApi(
   api.rest({
@@ -41,7 +41,7 @@ console.log(result.status, result.data);
 ### SOAP
 
 ```javascript
-import { api, executeApi } from '@vaagatech/reconcile-api-adapters';
+import { api, executeApi } from '@vaagatech/snapline-api-adapters';
 
 const result = await executeApi(
   api.soap({
@@ -57,7 +57,7 @@ console.log(result.data); // parsed XML body as plain object
 ### GraphQL
 
 ```javascript
-import { api, executeApi } from '@vaagatech/reconcile-api-adapters';
+import { api, executeApi } from '@vaagatech/snapline-api-adapters';
 
 const result = await executeApi(
   api.graphql({
@@ -74,7 +74,7 @@ console.log(result.data);
 ## Factory API
 
 ```javascript
-import { api } from '@vaagatech/reconcile-api-adapters';
+import { api } from '@vaagatech/snapline-api-adapters';
 
 api.rest({ endpoint, method?, inputFile?, body?, headers? });
 api.soap({ endpoint, soapAction?, envelope?, inputFile?, headers? });
@@ -130,10 +130,10 @@ await executeApi(apiConfig, {
 ## Examples
 
 ```bash
-npm install @vaagatech/reconcile-api-adapters
-node node_modules/@vaagatech/reconcile-api-adapters/examples/rest.mjs
-node node_modules/@vaagatech/reconcile-api-adapters/examples/soap.mjs
-node node_modules/@vaagatech/reconcile-api-adapters/examples/graphql.mjs
+npm install @vaagatech/snapline-api-adapters
+node node_modules/@vaagatech/snapline-api-adapters/examples/rest.mjs
+node node_modules/@vaagatech/snapline-api-adapters/examples/soap.mjs
+node node_modules/@vaagatech/snapline-api-adapters/examples/graphql.mjs
 ```
 
 From monorepo:
@@ -146,7 +146,7 @@ node packages/api-adapters/examples/rest.mjs
 ## TypeScript
 
 ```typescript
-import { api, executeApi, type ApiRequestConfig, type ApiExecuteResult } from '@vaagatech/reconcile-api-adapters';
+import { api, executeApi, type ApiRequestConfig, type ApiExecuteResult } from '@vaagatech/snapline-api-adapters';
 ```
 
 ## Module formats
@@ -160,8 +160,8 @@ import { api, executeApi, type ApiRequestConfig, type ApiExecuteResult } from '@
 
 | Package | Role |
 |---------|------|
-| [`@vaagatech/reconcile-core`](https://www.npmjs.com/package/@vaagatech/reconcile-core) | Full test orchestration with `api`, `apiToDb`, `dbToApi` |
-| [`@vaagatech/reconcile-engine`](https://www.npmjs.com/package/@vaagatech/reconcile-engine) | Compare API/DB results against fixtures |
+| [`@vaagatech/snapline-core`](https://www.npmjs.com/package/@vaagatech/snapline-core) | Full test orchestration with `api`, `apiToDb`, `dbToApi` |
+| [`@vaagatech/snapline-engine`](https://www.npmjs.com/package/@vaagatech/snapline-engine) | Compare API/DB results against fixtures |
 
 ## License
 

@@ -1,5 +1,5 @@
 {
-  "name": "@vaagatech/reconcile-core",
+  "name": "@vaagatech/snapline-core",
   "version": "0.1.6",
   "description": "Declarative test orchestration DSL — auth, API fixtures, and cross-database reconciliation",
   "author": "VaagaTech (https://www.vaagatech.com)",
@@ -7,11 +7,11 @@
   "homepage": "https://www.vaagatech.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vaagatech/reconcile.git",
+    "url": "git+https://github.com/vaagatech/snapline.git",
     "directory": "packages/core"
   },
   "bugs": {
-    "url": "https://github.com/vaagatech/reconcile/issues"
+    "url": "https://github.com/vaagatech/snapline/issues"
   },
   "keywords": [
     "test-runner",
@@ -53,9 +53,9 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@vaagatech/reconcile-api-adapters": "^0.1.6",
-    "@vaagatech/reconcile-auth-adapters": "^0.1.6",
-    "@vaagatech/reconcile-engine": "^0.1.6",
+    "@vaagatech/snapline-api-adapters": "^0.1.6",
+    "@vaagatech/snapline-auth-adapters": "^0.1.6",
+    "@vaagatech/snapline-engine": "^0.1.6",
     "better-sqlite3": "^11.10.0"
   },
   "publishConfig": {

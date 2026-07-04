@@ -1,4 +1,4 @@
-import { auth } from '@vaagatech/reconcile-auth-adapters';
+import { auth } from '@vaagatech/snapline-auth-adapters';
 
 const adapter = auth.basic({
   username: process.env.API_USERNAME ?? 'demo-user',

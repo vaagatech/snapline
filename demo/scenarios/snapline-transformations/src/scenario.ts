@@ -8,15 +8,15 @@ import {
   statusMappingFunction,
   warehousePlanMapping,
   type ScenarioModule,
-} from '@vaagatech/reconcile-demo-shared';
+} from '@vaagatech/snapline-demo-shared';
 
 const scenario: ScenarioModule = {
-  name: 'Reconcile: transformations (fixture cases: pass + expected failures)',
+  name: 'Snapline: transformations (fixture cases: pass + expected failures)',
   needsServer: false,
   needsDatabase: false,
   async run() {
     return runReconcileFixtureCases({
-      suiteName: 'Reconcile: transformations (fixture cases: pass + expected failures)',
+      suiteName: 'Snapline: transformations (fixture cases: pass + expected failures)',
       fixturesRoot: fixturesDir(import.meta.url),
       presets: {
         transformations: {

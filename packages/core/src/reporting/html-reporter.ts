@@ -50,7 +50,7 @@ export function renderHtmlReport(report: TestRunReport): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>@vaagatech/reconcile-engine Test Report</title>
+  <title>@vaagatech/snapline-engine Test Report</title>
   <style>
     :root {
       color-scheme: light dark;
@@ -125,7 +125,7 @@ export function renderHtmlReport(report: TestRunReport): string {
 </head>
 <body>
   <main>
-    <h1>@vaagatech/reconcile-engine Test Report</h1>
+    <h1>@vaagatech/snapline-engine Test Report</h1>
     <p>Generated at ${escapeHtml(report.generatedAt)}</p>
     <div class="summary">
       <div class="metric"><strong>${report.summary.total}</strong><span>Total suites</span></div>

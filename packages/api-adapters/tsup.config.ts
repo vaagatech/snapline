@@ -8,5 +8,5 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['@vaagatech/reconcile-engine'],
+  external: ['@vaagatech/snapline-engine'],
 });

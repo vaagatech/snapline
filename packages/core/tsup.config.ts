@@ -9,9 +9,9 @@ export default defineConfig({
   clean: true,
   treeshake: true,
   external: [
-    '@vaagatech/reconcile-api-adapters',
-    '@vaagatech/reconcile-auth-adapters',
-    '@vaagatech/reconcile-engine',
+    '@vaagatech/snapline-api-adapters',
+    '@vaagatech/snapline-auth-adapters',
+    '@vaagatech/snapline-engine',
     'better-sqlite3',
   ],
 });

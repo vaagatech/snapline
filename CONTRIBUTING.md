@@ -1,10 +1,10 @@
-# Contributing to @vaagatech/reconcile-engine
+# Contributing to @vaagatech/snapline-engine
 
 Thank you for your interest in contributing. This project is open source under the [MIT License](LICENSE). Anyone may use, fork, modify, and contribute.
 
 ## Ways to contribute
 
-- Report bugs via [GitHub Issues](https://github.com/vaagatech/reconcile/issues)
+- Report bugs via [GitHub Issues](https://github.com/vaagatech/snapline/issues)
 - Propose features or discuss design in Issues before large changes
 - Submit pull requests with focused, tested changes
 - Improve documentation and examples
@@ -13,8 +13,8 @@ Thank you for your interest in contributing. This project is open source under t
 ## Development setup
 
 ```bash
-git clone https://github.com/vaagatech/reconcile.git
-cd reconcile
+git clone https://github.com/vaagatech/snapline.git
+cd snapline
 npm install
 npm run build
 npm run typecheck
@@ -35,10 +35,10 @@ The demo runs all 6 integration modes and must pass before submitting a PR.
 
 | Path | Package |
 |------|---------|
-| `packages/reconcile` | `@vaagatech/reconcile-engine` |
-| `packages/auth-adapters` | `@vaagatech/reconcile-auth-adapters` |
-| `packages/api-adapters` | `@vaagatech/reconcile-api-adapters` |
-| `packages/core` | `@vaagatech/reconcile-core` |
+| `packages/snapline` | `@vaagatech/snapline-engine` |
+| `packages/auth-adapters` | `@vaagatech/snapline-auth-adapters` |
+| `packages/api-adapters` | `@vaagatech/snapline-api-adapters` |
+| `packages/core` | `@vaagatech/snapline-core` |
 | `demo/` | Integration demo (not published) |
 
 ## Publishing (maintainers)
@@ -47,10 +47,10 @@ Packages publish to npm in dependency order:
 
 ```bash
 npm run build
-npm publish --workspace=@vaagatech/reconcile-engine --access public
-npm publish --workspace=@vaagatech/reconcile-auth-adapters --access public
-npm publish --workspace=@vaagatech/reconcile-api-adapters --access public
-npm publish --workspace=@vaagatech/reconcile-core --access public
+npm publish --workspace=@vaagatech/snapline-engine --access public
+npm publish --workspace=@vaagatech/snapline-auth-adapters --access public
+npm publish --workspace=@vaagatech/snapline-api-adapters --access public
+npm publish --workspace=@vaagatech/snapline-core --access public
 ```
 
 Or: `npm run publish:packages`

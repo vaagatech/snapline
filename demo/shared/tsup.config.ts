@@ -7,5 +7,5 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['@vaagatech/reconcile-core', '@vaagatech/reconcile-api-adapters', 'graphql'],
+  external: ['@vaagatech/snapline-core', '@vaagatech/snapline-api-adapters', 'graphql'],
 });

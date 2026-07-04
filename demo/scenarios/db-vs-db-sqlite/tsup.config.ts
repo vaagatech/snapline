@@ -7,5 +7,5 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['@vaagatech/reconcile-core', '@vaagatech/reconcile-demo-shared'],
+  external: ['@vaagatech/snapline-core', '@vaagatech/snapline-demo-shared'],
 });

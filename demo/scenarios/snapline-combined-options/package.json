@@ -1,8 +1,8 @@
 {
-  "name": "@vaagatech/reconcile-demo-scenario-reconcile-ignore-fields",
+  "name": "@vaagatech/snapline-demo-scenario-snapline-combined-options",
   "private": true,
   "version": "0.1.6",
-  "description": "Demo scenario: reconcile-ignore-fields",
+  "description": "Demo scenario: snapline-combined-options",
   "type": "module",
   "main": "./dist/scenario.js",
   "types": "./dist/scenario.d.ts",
@@ -14,12 +14,12 @@
     "./start": "./dist/start.js"
   },
   "scripts": {
-    "build": "tsup && cp -R fixtures dist/",
+    "build": "tsup",
     "start": "node dist/start.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/reconcile-core": "0.1.6",
-    "@vaagatech/reconcile-demo-shared": "0.1.6"
+    "@vaagatech/snapline-core": "0.1.6",
+    "@vaagatech/snapline-demo-shared": "0.1.6"
   }
 }

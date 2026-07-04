@@ -1,4 +1,4 @@
-import { api, executeApi } from '@vaagatech/reconcile-api-adapters';
+import { api, executeApi } from '@vaagatech/snapline-api-adapters';
 
 const envelope = [
   '<?xml version="1.0"?>',

@@ -1,34 +1,34 @@
-import { writeTestReport } from '@vaagatech/reconcile-core';
-import reconcileIgnoreFields from '@vaagatech/reconcile-demo-scenario-reconcile-ignore-fields';
-import reconcileTransformations from '@vaagatech/reconcile-demo-scenario-reconcile-transformations';
-import dbVsDbSqlite from '@vaagatech/reconcile-demo-scenario-db-vs-db-sqlite';
-import reconcileDataMappingFunction from '@vaagatech/reconcile-demo-scenario-reconcile-data-mapping-function';
-import dbComparisonTransformations from '@vaagatech/reconcile-demo-scenario-db-comparison-transformations';
-import reconcileCombinedOptions from '@vaagatech/reconcile-demo-scenario-reconcile-combined-options';
-import apiVsFileRest from '@vaagatech/reconcile-demo-scenario-api-vs-file-rest';
-import apiVsFileGraphql from '@vaagatech/reconcile-demo-scenario-api-vs-file-graphql';
-import apiVsFileSoap from '@vaagatech/reconcile-demo-scenario-api-vs-file-soap';
-import apiVsDbRest from '@vaagatech/reconcile-demo-scenario-api-vs-db-rest';
-import apiVsDbGraphql from '@vaagatech/reconcile-demo-scenario-api-vs-db-graphql';
-import apiVsDbSoap from '@vaagatech/reconcile-demo-scenario-api-vs-db-soap';
-import dbVsApiRest from '@vaagatech/reconcile-demo-scenario-db-vs-api-rest';
-import dbVsApiGraphql from '@vaagatech/reconcile-demo-scenario-db-vs-api-graphql';
-import dbVsApiSoap from '@vaagatech/reconcile-demo-scenario-db-vs-api-soap';
+import { writeTestReport } from '@vaagatech/snapline-core';
+import snaplineIgnoreFields from '@vaagatech/snapline-demo-scenario-snapline-ignore-fields';
+import snaplineTransformations from '@vaagatech/snapline-demo-scenario-snapline-transformations';
+import dbVsDbSqlite from '@vaagatech/snapline-demo-scenario-db-vs-db-sqlite';
+import snaplineDataMappingFunction from '@vaagatech/snapline-demo-scenario-snapline-data-mapping-function';
+import dbComparisonTransformations from '@vaagatech/snapline-demo-scenario-db-comparison-transformations';
+import snaplineCombinedOptions from '@vaagatech/snapline-demo-scenario-snapline-combined-options';
+import apiVsFileRest from '@vaagatech/snapline-demo-scenario-api-vs-file-rest';
+import apiVsFileGraphql from '@vaagatech/snapline-demo-scenario-api-vs-file-graphql';
+import apiVsFileSoap from '@vaagatech/snapline-demo-scenario-api-vs-file-soap';
+import apiVsDbRest from '@vaagatech/snapline-demo-scenario-api-vs-db-rest';
+import apiVsDbGraphql from '@vaagatech/snapline-demo-scenario-api-vs-db-graphql';
+import apiVsDbSoap from '@vaagatech/snapline-demo-scenario-api-vs-db-soap';
+import dbVsApiRest from '@vaagatech/snapline-demo-scenario-db-vs-api-rest';
+import dbVsApiGraphql from '@vaagatech/snapline-demo-scenario-db-vs-api-graphql';
+import dbVsApiSoap from '@vaagatech/snapline-demo-scenario-db-vs-api-soap';
 import {
   closeDemoDatabase,
   createDemoDatabase,
   createMockServer,
   resolveReportConfig,
   type ScenarioModule,
-} from '@vaagatech/reconcile-demo-shared';
+} from '@vaagatech/snapline-demo-shared';
 
 const scenarios: ScenarioModule[] = [
-  reconcileIgnoreFields,
-  reconcileTransformations,
+  snaplineIgnoreFields,
+  snaplineTransformations,
   dbVsDbSqlite,
-  reconcileDataMappingFunction,
+  snaplineDataMappingFunction,
   dbComparisonTransformations,
-  reconcileCombinedOptions,
+  snaplineCombinedOptions,
   apiVsFileRest,
   apiVsFileGraphql,
   apiVsFileSoap,
@@ -42,12 +42,12 @@ const scenarios: ScenarioModule[] = [
 
 async function main(): Promise<void> {
   console.log('═══════════════════════════════════════════════════════');
-  console.log('  @vaagatech/reconcile-engine — Full Integration Demo');
+  console.log('  @vaagatech/snapline-engine — Full Integration Demo');
   console.log('═══════════════════════════════════════════════════════');
   console.log('  Projects: 15 scenario workspaces under demo/scenarios/');
   console.log('  Modes: API↔file · DB↔DB · API↔DB · DB↔API');
   console.log('  Protocols: REST · GraphQL · SOAP · SQLite · OAuth2');
-  console.log('  Reconcile: ignoreFields · transformations · dataMapping');
+  console.log('  Snapline: ignoreFields · transformations · dataMapping');
   console.log('  Reports: json · html · text (via REPORT_FORMAT env or CLI flags)');
   console.log('  Built by VaagaTech — https://www.vaagatech.com');
   console.log('═══════════════════════════════════════════════════════');

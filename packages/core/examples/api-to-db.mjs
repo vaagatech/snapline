@@ -1,4 +1,4 @@
-import { api, db, seedDb, testSuite } from '@vaagatech/reconcile-core';
+import { api, db, seedDb, testSuite } from '@vaagatech/snapline-core';
 
 seedDb('postgresql://localhost:5432/app', [
   { email: 'alice@example.com', status: 'SYNCED' },

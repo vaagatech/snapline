@@ -1,6 +1,6 @@
 import { join } from 'node:path';
-import { api, testSuite } from '@vaagatech/reconcile-core';
-import { dbStatusMapping, DEMO_EMAIL, fixturesDir, type ScenarioModule } from '@vaagatech/reconcile-demo-shared';
+import { api, testSuite } from '@vaagatech/snapline-core';
+import { dbStatusMapping, DEMO_EMAIL, fixturesDir, type ScenarioModule } from '@vaagatech/snapline-demo-shared';
 
 const scenario: ScenarioModule = {
   name: 'DB vs API (multi-table SQLite JOIN vs SOAP user)',

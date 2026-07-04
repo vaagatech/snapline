@@ -1,16 +1,16 @@
-# Reconcile
+# Snapline
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org/)
 
 **Declarative Snapshot and Reconciliation Testing** for Node.js — an open-source product by [VaagaTech](https://www.vaagatech.com).
 
-Published under the `@vaagatech` npm scope with a `reconcile-*` prefix so other VaagaTech products can coexist (e.g. `@vaagatech/other-product-core`).
+Published under the `@vaagatech` npm scope with a `snapline-*` prefix so other VaagaTech products can coexist (e.g. `@vaagatech/other-product-core`).
 
 Compare APIs, databases, and JSON fixtures as data — no imperative assertion chains. Install from npm and point tests at **your** services.
 
 ```bash
-npm install @vaagatech/reconcile-core
+npm install @vaagatech/snapline-core
 ```
 
 ## Getting started in 5 minutes
@@ -26,7 +26,7 @@ Requires **Node.js 18+**.
 ```bash
 mkdir my-app-integration-tests && cd my-app-integration-tests
 npm init -y
-npm install @vaagatech/reconcile-core
+npm install @vaagatech/snapline-core
 ```
 
 Add `"type": "module"` to `package.json` (or use `.mjs` files).
@@ -86,7 +86,7 @@ Use placeholder values like `"VALID_DATE"` for fields you will normalize with `t
 `tests/user-sync.test.mjs`:
 
 ```javascript
-import { testSuite, auth } from '@vaagatech/reconcile-core';
+import { testSuite, auth } from '@vaagatech/snapline-core';
 
 const baseUrl = process.env.API_BASE_URL ?? 'https://your-api.com';
 
@@ -137,7 +137,7 @@ On failure you get a structured diff (field path, actual vs expected). On succes
 When your API should match a row in Postgres, MySQL, or SQLite:
 
 ```javascript
-import { testSuite, auth, api, db } from '@vaagatech/reconcile-core';
+import { testSuite, auth, api, db } from '@vaagatech/snapline-core';
 
 await testSuite('Profile — API matches DB', {
   auth: auth.oauth2({ tokenUrl: '...', clientId: '...', clientSecret: '...' }),
@@ -180,7 +180,7 @@ Pick the mode that matches what you are validating:
 **HTML/JSON reports** for dashboards:
 
 ```javascript
-import { writeTestReport } from '@vaagatech/reconcile-core';
+import { writeTestReport } from '@vaagatech/snapline-core';
 
 const result = await testSuite('User sync', { /* ... */ });
 
@@ -202,7 +202,7 @@ api: {
 }
 ```
 
-**More examples:** [`packages/core/README.md`](./packages/core/README.md) · [`packages/reconcile/README.md`](./packages/reconcile/README.md)
+**More examples:** [`packages/core/README.md`](./packages/core/README.md) · [`packages/snapline/README.md`](./packages/snapline/README.md)
 
 ---
 
@@ -217,7 +217,7 @@ api: {
 
 Combine multiple modes in one `testSuite` — they run in sequence.
 
-## Reconcile options
+## Snapline options
 
 Every comparison accepts:
 
@@ -230,7 +230,7 @@ Every comparison accepts:
 Processing order: **ignore → transform → map → deep compare**.
 
 ```javascript
-import { reconcile } from '@vaagatech/reconcile-core';
+import { reconcile } from '@vaagatech/snapline-core';
 
 const { match, diff } = reconcile(liveData, expectedData, {
   ignoreFields: ['metadata.requestId'],
@@ -244,7 +244,7 @@ const { match, diff } = reconcile(liveData, expectedData, {
 ### REST — API vs file
 
 ```javascript
-import { testSuite, auth } from '@vaagatech/reconcile-core';
+import { testSuite, auth } from '@vaagatech/snapline-core';
 
 await testSuite('REST snapshot', {
   auth: auth.oauth2({ tokenUrl: '...', clientId: '...', clientSecret: '...' }),
@@ -262,7 +262,7 @@ await testSuite('REST snapshot', {
 ### GraphQL — API vs file
 
 ```javascript
-import { testSuite, auth, api } from '@vaagatech/reconcile-core';
+import { testSuite, auth, api } from '@vaagatech/snapline-core';
 
 await testSuite('GraphQL snapshot', {
   auth: auth.oauth2({ tokenUrl: '...', clientId: '...', clientSecret: '...' }),
@@ -288,7 +288,7 @@ await testSuite('GraphQL snapshot', {
 ### SOAP — API vs file
 
 ```javascript
-import { testSuite, api } from '@vaagatech/reconcile-core';
+import { testSuite, api } from '@vaagatech/snapline-core';
 
 await testSuite('SOAP snapshot', {
   baseUrl: 'https://api.example.com',
@@ -306,7 +306,7 @@ await testSuite('SOAP snapshot', {
 ### DB vs DB
 
 ```javascript
-import { testSuite, db } from '@vaagatech/reconcile-core';
+import { testSuite, db } from '@vaagatech/snapline-core';
 
 await testSuite('Warehouse sync', {
   dbComparison: {
@@ -322,7 +322,7 @@ await testSuite('Warehouse sync', {
 ### DB vs API (`inputFromDb`)
 
 ```javascript
-import { testSuite, api, db } from '@vaagatech/reconcile-core';
+import { testSuite, api, db } from '@vaagatech/snapline-core';
 
 await testSuite('DB row matches API', {
   baseUrl: 'https://api.example.com',
@@ -342,7 +342,7 @@ await testSuite('DB row matches API', {
 ### Auth adapters
 
 ```javascript
-import { auth } from '@vaagatech/reconcile-core';
+import { auth } from '@vaagatech/snapline-core';
 
 auth.oauth2({ tokenUrl, clientId, clientSecret });
 auth.openid({ /* ... */ });
@@ -365,14 +365,14 @@ auth.basic({ username, password });
 
 | Package | npm | Description |
 |---------|-----|-------------|
-| [`@vaagatech/reconcile-core`](./packages/core) | [`@vaagatech/reconcile-core`](https://www.npmjs.com/package/@vaagatech/reconcile-core) | **Start here** — `testSuite`, DB helpers, reporting |
-| [`@vaagatech/reconcile-engine`](./packages/reconcile) | [`@vaagatech/reconcile-engine`](https://www.npmjs.com/package/@vaagatech/reconcile-engine) | Reconciliation engine — `reconcile`, `assertAgainstFile` |
-| [`@vaagatech/reconcile-api-adapters`](./packages/api-adapters) | [`@vaagatech/reconcile-api-adapters`](https://www.npmjs.com/package/@vaagatech/reconcile-api-adapters) | REST, SOAP, GraphQL executors |
-| [`@vaagatech/reconcile-auth-adapters`](./packages/auth-adapters) | [`@vaagatech/reconcile-auth-adapters`](https://www.npmjs.com/package/@vaagatech/reconcile-auth-adapters) | OAuth2, OpenID Connect, Basic Auth |
+| [`@vaagatech/snapline-core`](./packages/core) | [`@vaagatech/snapline-core`](https://www.npmjs.com/package/@vaagatech/snapline-core) | **Start here** — `testSuite`, DB helpers, reporting |
+| [`@vaagatech/snapline-engine`](./packages/snapline) | [`@vaagatech/snapline-engine`](https://www.npmjs.com/package/@vaagatech/snapline-engine) | Reconciliation engine — `reconcile`, `assertAgainstFile` |
+| [`@vaagatech/snapline-api-adapters`](./packages/api-adapters) | [`@vaagatech/snapline-api-adapters`](https://www.npmjs.com/package/@vaagatech/snapline-api-adapters) | REST, SOAP, GraphQL executors |
+| [`@vaagatech/snapline-auth-adapters`](./packages/auth-adapters) | [`@vaagatech/snapline-auth-adapters`](https://www.npmjs.com/package/@vaagatech/snapline-auth-adapters) | OAuth2, OpenID Connect, Basic Auth |
 
-Install `@vaagatech/reconcile-core` only — it re-exports the rest.
+Install `@vaagatech/snapline-core` only — it re-exports the rest.
 
-## Why reconcile?
+## Why Snapline?
 
 Traditional integration tests chain many field assertions that break when schemas evolve:
 
@@ -382,14 +382,14 @@ expect(response.body.email).toBe('alice@example.com');
 expect(response.body.status).toBe('synced');
 ```
 
-Reconcile lets you declare **what** should match and **how** to normalize differences in one config object — the framework handles HTTP, auth, deep compare, and structured diffs.
+Snapline lets you declare **what** should match and **how** to normalize differences in one config object — the framework handles HTTP, auth, deep compare, and structured diffs.
 
 ## Documentation
 
 | Resource | Description |
 |----------|-------------|
 | [`packages/core/README.md`](./packages/core/README.md) | Full `testSuite` API and examples |
-| [`packages/reconcile/README.md`](./packages/reconcile/README.md) | Reconcile options and diff format |
+| [`packages/snapline/README.md`](./packages/snapline/README.md) | Snapline options and diff format |
 | [`packages/api-adapters/README.md`](./packages/api-adapters/README.md) | REST, SOAP, GraphQL config |
 | [`packages/auth-adapters/README.md`](./packages/auth-adapters/README.md) | OAuth2, OpenID, Basic Auth |
 
@@ -400,8 +400,8 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 ## Development (maintainers)
 
 ```bash
-git clone https://github.com/vaagatech/reconcile.git
-cd reconcile
+git clone https://github.com/vaagatech/snapline.git
+cd snapline
 npm install
 npm run build
 npm run typecheck
@@ -415,26 +415,26 @@ Monorepo layout: `packages/` (published) · `demo/` (private, not on npm) · `sc
 The repo includes a **15-scenario demo** with a mock REST/GraphQL/SOAP server and SQLite seeds. It is reference material only — **not required** for using the npm packages.
 
 ```bash
-git clone https://github.com/vaagatech/reconcile.git
-cd reconcile
+git clone https://github.com/vaagatech/snapline.git
+cd snapline
 npm install
 npm run demo
 ```
 
 | # | Scenario | Mode | Highlights |
 |---|----------|------|------------|
-| 1 | `reconcile-ignore-fields` | API ↔ file | Nested `ignoreFields` |
-| 2 | `reconcile-transformations` | Fixture cases | Pass + expected transformation failures |
+| 1 | `snapline-ignore-fields` | API ↔ file | Nested `ignoreFields` |
+| 2 | `snapline-transformations` | Fixture cases | Pass + expected transformation failures |
 | 3 | `db-vs-db-sqlite` | DB ↔ DB | Multi-table JOIN, lookup mapping |
-| 4 | `reconcile-data-mapping-function` | Fixture + DB | Function mapper |
+| 4 | `snapline-data-mapping-function` | Fixture + DB | Function mapper |
 | 5 | `db-comparison-transformations` | DB ↔ DB | Date normalization |
-| 6 | `reconcile-combined-options` | API ↔ DB | All reconcile options combined |
+| 6 | `snapline-combined-options` | API ↔ DB | All reconcile options combined |
 | 7 | `api-vs-file-rest` | API ↔ file | OAuth2 REST |
 | 8 | `api-vs-file-graphql` | API ↔ file | OAuth2 GraphQL, 7 fixture cases |
 | 9 | `api-vs-file-soap` | API ↔ file | SOAP vs JSON |
 | 10–15 | `api-vs-db-*`, `db-vs-api-*` | Cross-system | REST, GraphQL, SOAP vs SQLite |
 
-Run one scenario: `npm run start --workspace=@vaagatech/reconcile-demo-scenario-api-vs-file-graphql`
+Run one scenario: `npm run start --workspace=@vaagatech/snapline-demo-scenario-api-vs-file-graphql`
 
 Copy fixture patterns from `demo/scenarios/*/fixtures/` into your own project.
 

@@ -1,13 +1,13 @@
-import type { AuthAdapter } from '@vaagatech/reconcile-auth-adapters';
-import type { ApiRequestConfig } from '@vaagatech/reconcile-api-adapters';
+import type { AuthAdapter } from '@vaagatech/snapline-auth-adapters';
+import type { ApiRequestConfig } from '@vaagatech/snapline-api-adapters';
 import type {
   DataMappingMap,
   DiffResult,
   ReconcileOptions,
   TransformationMap,
-} from '@vaagatech/reconcile-engine';
+} from '@vaagatech/snapline-engine';
 
-export type { ApiRequestConfig } from '@vaagatech/reconcile-api-adapters';
+export type { ApiRequestConfig } from '@vaagatech/snapline-api-adapters';
 
 export type FetchImpl = typeof fetch;
 

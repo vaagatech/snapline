@@ -8,9 +8,9 @@ import {
   toApiRequestConfig,
   type TestStepResult,
   type TestSuiteResult,
-} from '@vaagatech/reconcile-core';
-import type { AuthAdapter } from '@vaagatech/reconcile-auth-adapters';
-import type { ReconcileOptions } from '@vaagatech/reconcile-engine';
+} from '@vaagatech/snapline-core';
+import type { AuthAdapter } from '@vaagatech/snapline-auth-adapters';
+import type { ReconcileOptions } from '@vaagatech/snapline-engine';
 
 export interface FixtureCaseMeta extends ReconcileOptions {
   name: string;

@@ -9,7 +9,7 @@ function formatDiff(diff: unknown): string {
 
 export function renderTextReport(report: TestRunReport): string {
   const lines: string[] = [
-    '@vaagatech/reconcile-engine — Test Run Report',
+    '@vaagatech/snapline-engine — Test Run Report',
     '=====================================',
     `Generated: ${report.generatedAt}`,
     `Duration:  ${report.summary.durationMs ?? 0}ms`,

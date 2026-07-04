@@ -1,4 +1,4 @@
-import { testSuite } from '@vaagatech/reconcile-core';
+import { testSuite } from '@vaagatech/snapline-core';
 import {
   apiStatusMapping,
   DEMO_EMAIL,
@@ -7,15 +7,15 @@ import {
   statusMappingFunction,
   warehousePlanMapping,
   type ScenarioModule,
-} from '@vaagatech/reconcile-demo-shared';
+} from '@vaagatech/snapline-demo-shared';
 
 const scenario: ScenarioModule = {
-  name: 'Reconcile: dataMapping (fixture cases + DB function mapper)',
+  name: 'Snapline: dataMapping (fixture cases + DB function mapper)',
   needsServer: false,
   needsDatabase: true,
   async run({ database }) {
     const fixtureResult = await runReconcileFixtureCases({
-      suiteName: 'Reconcile: dataMapping fixture cases (pass + expected failures)',
+      suiteName: 'Snapline: dataMapping fixture cases (pass + expected failures)',
       fixturesRoot: fixturesDir(import.meta.url),
       presets: {
         dataMapping: {
@@ -26,7 +26,7 @@ const scenario: ScenarioModule = {
       },
     });
 
-    const dbResult = await testSuite('Reconcile: dataMapping (DB function mapper on warehouse)', {
+    const dbResult = await testSuite('Snapline: dataMapping (DB function mapper on warehouse)', {
       dbComparison: {
         sourceDb: database.sourceDb,
         targetDb: database.targetDb,
@@ -41,7 +41,7 @@ const scenario: ScenarioModule = {
     });
 
     return {
-      name: 'Reconcile: dataMapping (fixture cases + DB function mapper)',
+      name: 'Snapline: dataMapping (fixture cases + DB function mapper)',
       passed: fixtureResult.passed && dbResult.passed,
       results: [...fixtureResult.results, ...dbResult.results],
     };

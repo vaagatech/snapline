@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { loadJsonFile } from '@vaagatech/reconcile-engine';
+import { loadJsonFile } from '@vaagatech/snapline-engine';
 import type { ApiExecuteContext, ApiExecuteResult, GraphqlApiConfig } from '../types.js';
 import { resolveUrl } from '../resolve-url.js';
 

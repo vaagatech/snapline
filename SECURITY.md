@@ -24,10 +24,10 @@ We will acknowledge your report, investigate promptly, and coordinate a fix and 
 
 This policy covers:
 
-- `@vaagatech/reconcile-engine`
-- `@vaagatech/reconcile-auth-adapters`
-- `@vaagatech/reconcile-api-adapters`
-- `@vaagatech/reconcile-core`
+- `@vaagatech/snapline-engine`
+- `@vaagatech/snapline-auth-adapters`
+- `@vaagatech/snapline-api-adapters`
+- `@vaagatech/snapline-core`
 
 ## Best practices for consumers
 
