@@ -1,6 +1,7 @@
 import { createServer, type Server } from 'node:http';
 import { URL } from 'node:url';
 import { buildSoapEnvelope } from '@vaagatech/api-adapters';
+import { demoDomain, volatileTraceId } from './demo-domain.js';
 import { executeDemoGraphql } from './graphql-schema.js';
 
 export const PORT = 3847;
@@ -61,8 +62,8 @@ export function createMockServer(): Promise<MockServerHandle> {
       res.end(
         JSON.stringify({
           id: input.id ?? 'usr_001',
-          email: input.email ?? 'alice@vaagatech.com',
-          status: 'synced',
+          email: input.email ?? demoDomain.email,
+          status: demoDomain.apiStatus,
           currentdate: new Date().toISOString(),
           pincode: `${Math.floor(100000 + Math.random() * 900000)}`,
         }),
@@ -72,13 +73,46 @@ export function createMockServer(): Promise<MockServerHandle> {
 
     if (url.pathname === '/api/v1/users/profile' && req.method === 'GET') {
       res.setHeader('Content-Type', 'application/json');
-      const email = url.searchParams.get('email') ?? 'alice@vaagatech.com';
+      const email = url.searchParams.get('email') ?? demoDomain.email;
       res.writeHead(200);
       res.end(
         JSON.stringify({
           email,
-          status: 'SYNCED',
-          role: 'member',
+          status: demoDomain.apiStatus,
+          role: demoDomain.role,
+          currentdate: new Date().toISOString(),
+          traceId: volatileTraceId(),
+        }),
+      );
+      return;
+    }
+
+    if (url.pathname === '/api/v1/users/enriched' && req.method === 'GET') {
+      res.setHeader('Content-Type', 'application/json');
+      const email = url.searchParams.get('email') ?? demoDomain.email;
+      res.writeHead(200);
+      res.end(
+        JSON.stringify({
+          email,
+          role: demoDomain.role,
+          tier: demoDomain.tier,
+          lastLogin: new Date(demoDomain.lastLogin).toISOString(),
+        }),
+      );
+      return;
+    }
+
+    if (url.pathname === '/api/v1/events/tracked' && req.method === 'GET') {
+      res.setHeader('Content-Type', 'application/json');
+      res.writeHead(200);
+      res.end(
+        JSON.stringify({
+          email: demoDomain.email,
+          status: 'delivered',
+          metadata: {
+            trackedAt: new Date().toISOString(),
+            requestId: `req_${Math.floor(Math.random() * 1_000_000)}`,
+          },
         }),
       );
       return;
@@ -86,6 +120,13 @@ export function createMockServer(): Promise<MockServerHandle> {
 
     if (url.pathname === '/graphql' && req.method === 'POST') {
       res.setHeader('Content-Type', 'application/json');
+      const authHeader = req.headers.authorization ?? '';
+      if (!authHeader.startsWith('Bearer ')) {
+        res.writeHead(401);
+        res.end(JSON.stringify({ errors: [{ message: 'Unauthorized' }] }));
+        return;
+      }
+
       const body = await readBody(req);
       let query = '';
       let variables: Record<string, unknown> = {};
@@ -118,13 +159,13 @@ export function createMockServer(): Promise<MockServerHandle> {
     if (url.pathname === '/soap/user' && req.method === 'POST') {
       const body = await readBody(req);
       const emailMatch = body.match(/<email>([^<]+)<\/email>/i);
-      const email = emailMatch?.[1] ?? 'alice@vaagatech.com';
+      const email = emailMatch?.[1] ?? demoDomain.email;
 
       res.setHeader('Content-Type', 'text/xml; charset=utf-8');
       res.writeHead(200);
       res.end(
         buildSoapEnvelope(
-          `<GetUserResponse><email>${email}</email><status>synced</status><role>member</role></GetUserResponse>`,
+          `<GetUserResponse><email>${email}</email><status>${demoDomain.apiStatus}</status><role>${demoDomain.role}</role></GetUserResponse>`,
         ),
       );
       return;

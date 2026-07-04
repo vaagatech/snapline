@@ -1,0 +1,25 @@
+{
+  "name": "@vaagatech/demo-scenario-reconcile-combined-options",
+  "private": true,
+  "version": "0.1.3",
+  "description": "Demo scenario: reconcile-combined-options",
+  "type": "module",
+  "main": "./dist/scenario.js",
+  "types": "./dist/scenario.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/scenario.d.ts",
+      "default": "./dist/scenario.js"
+    },
+    "./start": "./dist/start.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "start": "node dist/start.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vaagatech/core": "0.1.3",
+    "@vaagatech/demo-shared": "0.1.3"
+  }
+}

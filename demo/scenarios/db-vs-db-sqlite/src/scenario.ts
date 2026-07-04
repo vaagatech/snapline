@@ -1,26 +1,45 @@
 import { testSuite } from '@vaagatech/core';
-import { DEMO_EMAIL, type ScenarioModule } from '@vaagatech/demo-shared';
+import {
+  DEMO_EMAIL,
+  statusMappingLookup,
+  warehouseCustomerJoinQuery,
+  warehouseOrderJoinQuery,
+  warehouseOrderStatusMapping,
+  type ScenarioModule,
+} from '@vaagatech/demo-shared';
 
 const scenario: ScenarioModule = {
-  name: '2. DB vs DB (SQLite)',
+  name: 'DB vs DB (SQLite multi-table warehouse + dataMapping)',
   needsServer: false,
   needsDatabase: true,
   async run({ database }) {
     const { sourceDb, targetDb } = database;
 
-    return testSuite('2. DB vs DB (SQLite)', {
+    const customerResult = await testSuite('DB vs DB: customer domain (profiles + subscriptions)', {
       dbComparison: {
         sourceDb,
         targetDb,
-        query: `
-          SELECT status, email
-          FROM users
-          WHERE email = :email
-        `,
+        query: warehouseCustomerJoinQuery,
         params: { email: DEMO_EMAIL },
-        dataMapping: { status: { ABC: 'CBA' } },
+        dataMapping: statusMappingLookup,
       },
     });
+
+    const ordersResult = await testSuite('DB vs DB: orders (fulfillment status codes)', {
+      dbComparison: {
+        sourceDb,
+        targetDb,
+        query: warehouseOrderJoinQuery,
+        params: { email: DEMO_EMAIL },
+        dataMapping: warehouseOrderStatusMapping,
+      },
+    });
+
+    return {
+      name: 'DB vs DB (SQLite multi-table warehouse + dataMapping)',
+      passed: customerResult.passed && ordersResult.passed,
+      results: [...customerResult.results, ...ordersResult.results],
+    };
   },
 };
 

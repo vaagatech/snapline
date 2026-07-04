@@ -1,0 +1,10 @@
+{
+  "name": "Fail: missing planCode dataMapping (expected mismatch at subscription.planCode)",
+  "expectMatch": false,
+  "failureType": "dataMapping",
+  "expectedDiffPath": "subscription.planCode",
+  "dataPath": "customerAccount",
+  "ignoreFields": ["metadata.traceId", "metadata.syncedAt"],
+  "transformations": "graphqlAccount",
+  "dataMapping": "statusOnly"
+}

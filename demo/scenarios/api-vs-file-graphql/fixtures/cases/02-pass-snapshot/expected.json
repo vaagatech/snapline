@@ -1,0 +1,10 @@
+{
+  "email": "alice@vaagatech.com",
+  "status": "ACTIVE",
+  "tier": "GOLD",
+  "role": "MEMBER",
+  "department": "engineering",
+  "planCode": "premium",
+  "renewsAt": "VALID_DATE",
+  "lastLogin": "VALID_DATE"
+}

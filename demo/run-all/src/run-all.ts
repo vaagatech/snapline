@@ -5,10 +5,15 @@ import apiVsDbSoap from '@vaagatech/demo-scenario-api-vs-db-soap';
 import apiVsFileGraphql from '@vaagatech/demo-scenario-api-vs-file-graphql';
 import apiVsFileRest from '@vaagatech/demo-scenario-api-vs-file-rest';
 import apiVsFileSoap from '@vaagatech/demo-scenario-api-vs-file-soap';
+import dbComparisonTransformations from '@vaagatech/demo-scenario-db-comparison-transformations';
 import dbVsApiGraphql from '@vaagatech/demo-scenario-db-vs-api-graphql';
 import dbVsApiRest from '@vaagatech/demo-scenario-db-vs-api-rest';
 import dbVsApiSoap from '@vaagatech/demo-scenario-db-vs-api-soap';
 import dbVsDbSqlite from '@vaagatech/demo-scenario-db-vs-db-sqlite';
+import reconcileCombinedOptions from '@vaagatech/demo-scenario-reconcile-combined-options';
+import reconcileDataMappingFunction from '@vaagatech/demo-scenario-reconcile-data-mapping-function';
+import reconcileIgnoreFields from '@vaagatech/demo-scenario-reconcile-ignore-fields';
+import reconcileTransformations from '@vaagatech/demo-scenario-reconcile-transformations';
 import {
   closeDemoDatabase,
   createDemoDatabase,
@@ -18,15 +23,20 @@ import {
 } from '@vaagatech/demo-shared';
 
 const scenarios: ScenarioModule[] = [
-  apiVsFileRest,
+  reconcileIgnoreFields,
+  reconcileTransformations,
   dbVsDbSqlite,
-  apiVsDbRest,
-  dbVsApiRest,
+  reconcileDataMappingFunction,
+  dbComparisonTransformations,
+  reconcileCombinedOptions,
+  apiVsFileRest,
   apiVsFileGraphql,
-  apiVsDbGraphql,
-  dbVsApiGraphql,
   apiVsFileSoap,
+  apiVsDbRest,
+  apiVsDbGraphql,
   apiVsDbSoap,
+  dbVsApiRest,
+  dbVsApiGraphql,
   dbVsApiSoap,
 ];
 
@@ -34,9 +44,10 @@ async function main(): Promise<void> {
   console.log('═══════════════════════════════════════════════════════');
   console.log('  @vaagatech/reconcile — Full Integration Demo');
   console.log('═══════════════════════════════════════════════════════');
-  console.log('  Projects: 10 scenario workspaces under demo/scenarios/');
+  console.log('  Projects: 15 scenario workspaces under demo/scenarios/');
   console.log('  Modes: API↔file · DB↔DB · API↔DB · DB↔API');
-  console.log('  Protocols: REST · GraphQL · SOAP · SQLite');
+  console.log('  Protocols: REST · GraphQL · SOAP · SQLite · OAuth2');
+  console.log('  Reconcile: ignoreFields · transformations · dataMapping');
   console.log('  Reports: json · html · text (via REPORT_FORMAT env or CLI flags)');
   console.log('  Built by VaagaTech — https://www.vaagatech.com');
   console.log('═══════════════════════════════════════════════════════');

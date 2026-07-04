@@ -1,0 +1,23 @@
+{
+  "email": "alice@vaagatech.com",
+  "status": "ACTIVE",
+  "tier": "GOLD",
+  "lastLogin": "VALID_DATE",
+  "profile": {
+    "role": "MEMBER",
+    "department": "engineering"
+  },
+  "subscription": {
+    "planCode": "premium",
+    "renewsAt": "VALID_DATE"
+  },
+  "orders": [
+    {
+      "orderId": "ord_1001",
+      "status": "SHIPPED",
+      "total": 149.99,
+      "shippedAt": "VALID_DATE"
+    }
+  ],
+  "metadata": {}
+}

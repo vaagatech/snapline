@@ -1,0 +1,26 @@
+query CustomerAccount($email: String!) {
+  customerAccount(email: $email) {
+    email
+    status
+    tier
+    lastLogin
+    profile {
+      role
+      department
+    }
+    subscription {
+      planCode
+      renewsAt
+    }
+    orders {
+      orderId
+      status
+      total
+      shippedAt
+    }
+    metadata {
+      traceId
+      syncedAt
+    }
+  }
+}

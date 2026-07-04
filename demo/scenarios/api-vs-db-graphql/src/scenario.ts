@@ -1,38 +1,57 @@
 import { join } from 'node:path';
 import { api, testSuite } from '@vaagatech/core';
-import { DEMO_EMAIL, fixturesDir, type ScenarioModule } from '@vaagatech/demo-shared';
+import {
+  apiPlanMapping,
+  apiStatusMapping,
+  appCustomerJoinQuery,
+  createDemoAuth,
+  DEMO_EMAIL,
+  fixturesDir,
+  type ScenarioModule,
+} from '@vaagatech/demo-shared';
 
 const scenario: ScenarioModule = {
-  name: '6. API vs DB (GraphQL + SQLite)',
+  name: 'API vs DB (GraphQL + OAuth2 snapshot vs multi-table SQLite JOIN)',
   needsServer: true,
   needsDatabase: true,
   async run({ baseUrl, database }) {
     const fixtures = fixturesDir(import.meta.url);
 
-    return testSuite('6. API vs DB (GraphQL + SQLite)', {
+    return testSuite('API vs DB (GraphQL + OAuth2 snapshot vs multi-table SQLite JOIN)', {
+      auth: createDemoAuth(baseUrl),
       baseUrl,
       apiToDb: {
         api: {
           ...api.graphql({
             endpoint: '/graphql',
-            query:
-              'query GetUser($email: String!) { user(email: $email) { email status role currentdate } }',
+            query: `
+              query CustomerSnapshot($email: String!) {
+                customerSnapshot(email: $email) {
+                  email
+                  status
+                  tier
+                  role
+                  department
+                  planCode
+                  renewsAt
+                  lastLogin
+                }
+              }
+            `,
             variablesFile: join(fixtures, 'graphql-variables.json'),
-            dataPath: 'user',
+            dataPath: 'customerSnapshot',
           }),
           expectedStatus: 200,
         },
         db: {
           db: database.appDb,
-          query: `
-            SELECT email, status, role
-            FROM users_app
-            WHERE email = :email
-          `,
+          query: appCustomerJoinQuery,
           params: { email: DEMO_EMAIL },
         },
-        ignoreFields: ['currentdate'],
-        dataMapping: { status: { synced: 'SYNCED' } },
+        dataMapping: {
+          ...apiStatusMapping,
+          ...apiPlanMapping,
+        },
       },
     });
   },

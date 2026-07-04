@@ -1,0 +1,8 @@
+{
+  "name": "Fail: missing OAuth2 token (expected HTTP 401)",
+  "expectMatch": false,
+  "failureType": "auth",
+  "skipAuth": true,
+  "expectStatus": 401,
+  "dataPath": "customerAccount"
+}

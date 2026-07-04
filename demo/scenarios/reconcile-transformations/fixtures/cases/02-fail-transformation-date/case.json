@@ -1,0 +1,7 @@
+{
+  "name": "Fail: missing date transformation (expected mismatch at lastLogin)",
+  "expectMatch": false,
+  "failureType": "transformation",
+  "expectedDiffPath": "lastLogin",
+  "transformations": "roleTierOnly"
+}

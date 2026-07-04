@@ -8,13 +8,13 @@ import {
 } from '@vaagatech/demo-shared';
 
 const scenario: ScenarioModule = {
-  name: '1. API vs file (REST)',
+  name: 'API vs file (REST + OAuth2 + ignoreFields + transformations)',
   needsServer: true,
   needsDatabase: false,
   async run({ baseUrl }) {
     const fixtures = fixturesDir(import.meta.url);
 
-    return testSuite('1. API vs file (REST)', {
+    return testSuite('API vs file (REST + OAuth2 + ignoreFields + transformations)', {
       auth: createDemoAuth(baseUrl),
       baseUrl,
       api: {

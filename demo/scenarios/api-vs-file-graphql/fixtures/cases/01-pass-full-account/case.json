@@ -1,0 +1,8 @@
+{
+  "name": "Pass: full customer account (ignoreFields + transformations + dataMapping)",
+  "expectMatch": true,
+  "dataPath": "customerAccount",
+  "ignoreFields": ["metadata.traceId", "metadata.syncedAt"],
+  "transformations": "graphqlAccount",
+  "dataMapping": "graphqlAccount"
+}

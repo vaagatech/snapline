@@ -1,0 +1,10 @@
+{
+  "name": "Fail: missing status dataMapping (expected mismatch at status)",
+  "expectMatch": false,
+  "failureType": "dataMapping",
+  "expectedDiffPath": "status",
+  "dataPath": "customerAccount",
+  "ignoreFields": ["metadata.traceId", "metadata.syncedAt"],
+  "transformations": "graphqlAccount",
+  "dataMapping": "planOnly"
+}

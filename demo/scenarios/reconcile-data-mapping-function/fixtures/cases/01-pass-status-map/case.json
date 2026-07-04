@@ -1,0 +1,5 @@
+{
+  "name": "Pass: warehouse status mapped with function mapper",
+  "expectMatch": true,
+  "dataMapping": "warehouseStatus"
+}

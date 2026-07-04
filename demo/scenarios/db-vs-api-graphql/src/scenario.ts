@@ -1,33 +1,53 @@
 import { api, testSuite } from '@vaagatech/core';
-import { DEMO_EMAIL, type ScenarioModule } from '@vaagatech/demo-shared';
+import {
+  appCustomerJoinQuery,
+  createDemoAuth,
+  dbPlanMapping,
+  dbStatusMapping,
+  DEMO_EMAIL,
+  type ScenarioModule,
+} from '@vaagatech/demo-shared';
 
 const scenario: ScenarioModule = {
-  name: '7. DB vs API (GraphQL + SQLite)',
+  name: 'DB vs API (OAuth2 GraphQL snapshot vs multi-table SQLite JOIN)',
   needsServer: true,
   needsDatabase: true,
   async run({ baseUrl, database }) {
-    return testSuite('7. DB vs API (GraphQL + SQLite)', {
+    return testSuite('DB vs API (OAuth2 GraphQL snapshot vs multi-table SQLite JOIN)', {
+      auth: createDemoAuth(baseUrl),
       baseUrl,
       dbToApi: {
         db: {
           db: database.appDb,
-          query: `
-            SELECT email, status, role
-            FROM users_app
-            WHERE email = :email
-          `,
+          query: appCustomerJoinQuery,
           params: { email: DEMO_EMAIL },
         },
         api: {
           ...api.graphql({
             endpoint: '/graphql',
-            query: 'query GetUser($email: String!) { user(email: $email) { email status role } }',
-            dataPath: 'user',
+            query: `
+              query CustomerSnapshot($email: String!) {
+                customerSnapshot(email: $email) {
+                  email
+                  status
+                  tier
+                  role
+                  department
+                  planCode
+                  renewsAt
+                  lastLogin
+                }
+              }
+            `,
+            dataPath: 'customerSnapshot',
           }),
           expectedStatus: 200,
         },
         inputFromDb: true,
-        dataMapping: { status: { SYNCED: 'synced' } },
+        dataMapping: {
+          ...dbStatusMapping,
+          ...dbPlanMapping,
+        },
       },
     });
   },

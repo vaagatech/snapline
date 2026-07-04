@@ -1,20 +1,21 @@
 import { api, testSuite } from '@vaagatech/core';
-import { DEMO_EMAIL, type ScenarioModule } from '@vaagatech/demo-shared';
+import { dbStatusMapping, DEMO_EMAIL, type ScenarioModule } from '@vaagatech/demo-shared';
 
 const scenario: ScenarioModule = {
-  name: '4. DB vs API (REST + SQLite)',
+  name: 'DB vs API (multi-table SQLite JOIN vs REST profile)',
   needsServer: true,
   needsDatabase: true,
   async run({ baseUrl, database }) {
-    return testSuite('4. DB vs API (REST + SQLite)', {
+    return testSuite('DB vs API (multi-table SQLite JOIN vs REST profile)', {
       baseUrl,
       dbToApi: {
         db: {
           db: database.appDb,
           query: `
-            SELECT email, status, role
-            FROM users_app
-            WHERE email = :email
+            SELECT c.email, c.status, p.role
+            FROM customers c
+            INNER JOIN customer_profiles p ON c.email = p.email
+            WHERE c.email = :email
           `,
           params: { email: DEMO_EMAIL },
         },
@@ -23,6 +24,8 @@ const scenario: ScenarioModule = {
           method: 'GET',
         }),
         inputFromDb: true,
+        ignoreFields: ['traceId', 'currentdate'],
+        dataMapping: dbStatusMapping,
       },
     });
   },

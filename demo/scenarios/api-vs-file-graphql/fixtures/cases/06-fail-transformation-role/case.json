@@ -1,0 +1,10 @@
+{
+  "name": "Fail: missing role transformation (expected mismatch at profile.role)",
+  "expectMatch": false,
+  "failureType": "transformation",
+  "expectedDiffPath": "profile.role",
+  "dataPath": "customerAccount",
+  "ignoreFields": ["metadata.traceId", "metadata.syncedAt"],
+  "transformations": "datesOnly",
+  "dataMapping": "graphqlAccount"
+}

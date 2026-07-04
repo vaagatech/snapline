@@ -1,0 +1,7 @@
+{
+  "name": "Fail: wrong status dataMapping (expected mismatch at status)",
+  "expectMatch": false,
+  "failureType": "dataMapping",
+  "expectedDiffPath": "status",
+  "dataMapping": "apiStatusOnly"
+}

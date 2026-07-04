@@ -1,0 +1,7 @@
+{
+  "name": "Fail: wrong plan dataMapping (expected mismatch at planCode)",
+  "expectMatch": false,
+  "failureType": "dataMapping",
+  "expectedDiffPath": "planCode",
+  "dataMapping": "warehouseStatus"
+}

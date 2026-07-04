@@ -1,15 +1,15 @@
 import { join } from 'node:path';
 import { api, testSuite } from '@vaagatech/core';
-import { DEMO_EMAIL, fixturesDir, type ScenarioModule } from '@vaagatech/demo-shared';
+import { apiStatusMapping, DEMO_EMAIL, fixturesDir, type ScenarioModule } from '@vaagatech/demo-shared';
 
 const scenario: ScenarioModule = {
-  name: '9. API vs DB (SOAP + SQLite)',
+  name: 'API vs DB (SOAP user vs multi-table SQLite JOIN)',
   needsServer: true,
   needsDatabase: true,
   async run({ baseUrl, database }) {
     const fixtures = fixturesDir(import.meta.url);
 
-    return testSuite('9. API vs DB (SOAP + SQLite)', {
+    return testSuite('API vs DB (SOAP user vs multi-table SQLite JOIN)', {
       baseUrl,
       apiToDb: {
         api: {
@@ -23,13 +23,14 @@ const scenario: ScenarioModule = {
         db: {
           db: database.appDb,
           query: `
-            SELECT email, status, role
-            FROM users_app
-            WHERE email = :email
+            SELECT c.email, c.status, p.role
+            FROM customers c
+            INNER JOIN customer_profiles p ON c.email = p.email
+            WHERE c.email = :email
           `,
           params: { email: DEMO_EMAIL },
         },
-        dataMapping: { status: { synced: 'SYNCED' } },
+        dataMapping: apiStatusMapping,
       },
     });
   },

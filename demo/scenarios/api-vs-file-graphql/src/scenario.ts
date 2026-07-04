@@ -1,25 +1,45 @@
-import { join } from 'node:path';
-import { api, testSuite } from '@vaagatech/core';
-import { dateTransform, fixturesDir, type ScenarioModule } from '@vaagatech/demo-shared';
+import {
+  createDemoAuth,
+  dateFieldTransforms,
+  fixturesDir,
+  graphqlAccountTransforms,
+  graphqlPlanMapping,
+  graphqlSnapshotTransforms,
+  graphqlStatusMapping,
+  roleTierOnlyTransforms,
+  runApiFixtureCases,
+  type ScenarioModule,
+} from '@vaagatech/demo-shared';
 
 const scenario: ScenarioModule = {
-  name: '5. API vs file (GraphQL)',
+  name: 'API vs file (GraphQL + OAuth2 fixture cases: pass + expected failures)',
   needsServer: true,
   needsDatabase: false,
   async run({ baseUrl }) {
-    const fixtures = fixturesDir(import.meta.url);
-
-    return testSuite('5. API vs file (GraphQL)', {
+    return runApiFixtureCases({
+      suiteName: 'API vs file (GraphQL + OAuth2 fixture cases: pass + expected failures)',
+      fixturesRoot: fixturesDir(import.meta.url),
       baseUrl,
-      api: {
-        ...api.graphql({
-          endpoint: '/graphql',
-          queryFile: join(fixtures, 'graphql-query.graphql'),
-          variablesFile: join(fixtures, 'graphql-variables.json'),
-          dataPath: 'user',
-        }),
-        expectedFile: join(fixtures, 'graphql-expected.json'),
-        transformations: dateTransform,
+      auth: createDemoAuth(baseUrl),
+      defaults: {
+        endpoint: '/graphql',
+        protocol: 'graphql',
+      },
+      presets: {
+        transformations: {
+          graphqlAccount: graphqlAccountTransforms,
+          graphqlSnapshot: graphqlSnapshotTransforms,
+          roleTierOnly: roleTierOnlyTransforms,
+          datesOnly: dateFieldTransforms,
+        },
+        dataMapping: {
+          graphqlAccount: {
+            ...graphqlStatusMapping,
+            ...graphqlPlanMapping,
+          },
+          planOnly: graphqlPlanMapping,
+          statusOnly: graphqlStatusMapping,
+        },
       },
     });
   },

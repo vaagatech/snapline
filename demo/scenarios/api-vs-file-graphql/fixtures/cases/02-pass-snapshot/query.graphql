@@ -1,0 +1,12 @@
+query CustomerSnapshot($email: String!) {
+  customerSnapshot(email: $email) {
+    email
+    status
+    tier
+    role
+    department
+    planCode
+    renewsAt
+    lastLogin
+  }
+}

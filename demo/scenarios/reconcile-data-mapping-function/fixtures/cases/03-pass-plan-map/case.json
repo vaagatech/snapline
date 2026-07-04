@@ -1,0 +1,5 @@
+{
+  "name": "Pass: plan code mapped with lookup table",
+  "expectMatch": true,
+  "dataMapping": "warehousePlan"
+}

@@ -1,23 +1,24 @@
 import { join } from 'node:path';
 import { api, testSuite } from '@vaagatech/core';
-import { DEMO_EMAIL, fixturesDir, type ScenarioModule } from '@vaagatech/demo-shared';
+import { dbStatusMapping, DEMO_EMAIL, fixturesDir, type ScenarioModule } from '@vaagatech/demo-shared';
 
 const scenario: ScenarioModule = {
-  name: '10. DB vs API (SOAP + SQLite)',
+  name: 'DB vs API (multi-table SQLite JOIN vs SOAP user)',
   needsServer: true,
   needsDatabase: true,
   async run({ baseUrl, database }) {
     const fixtures = fixturesDir(import.meta.url);
 
-    return testSuite('10. DB vs API (SOAP + SQLite)', {
+    return testSuite('DB vs API (multi-table SQLite JOIN vs SOAP user)', {
       baseUrl,
       dbToApi: {
         db: {
           db: database.appDb,
           query: `
-            SELECT email, status, role
-            FROM users_app
-            WHERE email = :email
+            SELECT c.email, c.status, p.role
+            FROM customers c
+            INNER JOIN customer_profiles p ON c.email = p.email
+            WHERE c.email = :email
           `,
           params: { email: DEMO_EMAIL },
         },
@@ -30,7 +31,7 @@ const scenario: ScenarioModule = {
           expectedStatus: 200,
         },
         inputFromDb: true,
-        dataMapping: { status: { SYNCED: 'synced' } },
+        dataMapping: dbStatusMapping,
       },
     });
   },

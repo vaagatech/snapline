@@ -1,0 +1,7 @@
+{
+  "name": "Fail: missing role transformation (expected mismatch at role)",
+  "expectMatch": false,
+  "failureType": "transformation",
+  "expectedDiffPath": "role",
+  "transformations": "datesOnly"
+}
