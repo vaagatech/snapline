@@ -1,7 +1,7 @@
 {
   "name": "@vaagatech/reconcile-workspace",
   "private": true,
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Declarative Snapshot and Reconciliation Testing — open-source monorepo by VaagaTech",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",
