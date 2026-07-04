@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -8,21 +8,40 @@ const root = join(__dirname, "..");
 
 const VERSION_PATTERN = /^\d{1,3}\.\d{1,3}\.\d{1,3}$/;
 
-const PACKAGE_PATHS = [
-  "package.json",
-  "packages/core/package.json",
-  "packages/auth-adapters/package.json",
-  "packages/reconcile/package.json",
-  "packages/api-adapters/package.json",
-  "demo/package.json",
-];
+const SKIP_DIRS = new Set(["node_modules", "dist", ".git"]);
 
-const VAAGA_PACKAGES = [
-  "@vaagatech/api-adapters",
-  "@vaagatech/auth-adapters",
-  "@vaagatech/reconcile",
-  "@vaagatech/core",
-];
+function discoverPackagePaths(baseDir = root) {
+  const results = [];
+
+  function walk(currentDir) {
+    for (const entry of readdirSync(currentDir, { withFileTypes: true })) {
+      if (entry.name.startsWith(".") || SKIP_DIRS.has(entry.name)) {
+        continue;
+      }
+
+      const fullPath = join(currentDir, entry.name);
+      if (entry.isDirectory()) {
+        walk(fullPath);
+        continue;
+      }
+
+      if (entry.name === "package.json") {
+        results.push(relative(root, fullPath));
+      }
+    }
+  }
+
+  walk(baseDir);
+  return results.sort();
+}
+
+function isVaagaDependency(name) {
+  return name.startsWith("@vaagatech/");
+}
+
+function dependencyVersion(relativePath, version) {
+  return relativePath.startsWith("demo/") ? version : `^${version}`;
+}
 
 function readPackage(relativePath) {
   const path = join(root, relativePath);
@@ -34,32 +53,32 @@ function writePackage(relativePath, pkg) {
   writeFileSync(path, `${JSON.stringify(pkg, null, 2)}\n`);
 }
 
-function dependencyVersion(relativePath, version) {
-  return relativePath.startsWith("demo/") ? version : `^${version}`;
+function syncPackageVersion(relativePath, version) {
+  const { pkg } = readPackage(relativePath);
+  pkg.version = version;
+
+  if (pkg.dependencies) {
+    for (const name of Object.keys(pkg.dependencies)) {
+      if (isVaagaDependency(name)) {
+        pkg.dependencies[name] = dependencyVersion(relativePath, version);
+      }
+    }
+  }
+
+  writePackage(relativePath, pkg);
+  console.log(`Updated ${relativePath} to ${version}`);
 }
 
 function syncVersion(version) {
-  for (const relativePath of PACKAGE_PATHS) {
-    const { pkg } = readPackage(relativePath);
-    pkg.version = version;
-
-    if (pkg.dependencies) {
-      for (const name of VAAGA_PACKAGES) {
-        if (name in pkg.dependencies) {
-          pkg.dependencies[name] = dependencyVersion(relativePath, version);
-        }
-      }
-    }
-
-    writePackage(relativePath, pkg);
-    console.log(`Updated ${relativePath} to ${version}`);
+  for (const relativePath of discoverPackagePaths()) {
+    syncPackageVersion(relativePath, version);
   }
 }
 
 function verifyVersion(expectedVersion) {
   const mismatches = [];
 
-  for (const relativePath of PACKAGE_PATHS) {
+  for (const relativePath of discoverPackagePaths()) {
     const { pkg } = readPackage(relativePath);
 
     if (pkg.version !== expectedVersion) {
@@ -67,8 +86,8 @@ function verifyVersion(expectedVersion) {
     }
 
     if (pkg.dependencies) {
-      for (const name of VAAGA_PACKAGES) {
-        if (!(name in pkg.dependencies)) {
+      for (const name of Object.keys(pkg.dependencies)) {
+        if (!isVaagaDependency(name)) {
           continue;
         }
 

@@ -1,7 +1,7 @@
 {
   "name": "@vaagatech/demo-shared",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Shared mock server, SQLite setup, and utilities for demo scenarios",
   "type": "module",
   "main": "./dist/index.js",
@@ -17,8 +17,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/api-adapters": "0.1.0",
-    "@vaagatech/core": "0.1.0",
+    "@vaagatech/api-adapters": "0.1.1",
+    "@vaagatech/core": "0.1.1",
     "graphql": "^16.11.0"
   }
 }

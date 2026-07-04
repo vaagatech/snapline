@@ -1,6 +1,6 @@
 {
   "name": "@vaagatech/api-adapters",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Minimal API adapters for REST, SOAP, and GraphQL — file-driven test requests",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",
@@ -50,7 +50,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@vaagatech/reconcile": "^0.1.0"
+    "@vaagatech/reconcile": "^0.1.1"
   },
   "publishConfig": {
     "access": "public",

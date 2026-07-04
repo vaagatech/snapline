@@ -33,7 +33,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           registry-url: "https://registry.npmjs.org"
           cache: npm
 
@@ -63,11 +63,10 @@ jobs:
           npm install
 
           git add package.json package-lock.json \
-            packages/core/package.json \
-            packages/auth-adapters/package.json \
-            packages/reconcile/package.json \
-            packages/api-adapters/package.json \
-            demo/package.json
+            packages/*/package.json \
+            demo/shared/package.json \
+            demo/run-all/package.json \
+            demo/scenarios/*/package.json
 
           git commit -m "chore: bump version to ${NEXT_VERSION} after v${RELEASE_VERSION} release"
           git push origin main
