@@ -1,0 +1,37 @@
+{
+  "name": "@vaagatech/reconcile-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Declarative Snapshot and Reconciliation Testing — open-source monorepo by VaagaTech",
+  "author": "VaagaTech (https://www.vaagatech.com)",
+  "license": "MIT",
+  "homepage": "https://github.com/vaagatech/reconcile#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vaagatech/reconcile.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vaagatech/reconcile/issues"
+  },
+  "workspaces": [
+    "packages/*",
+    "demo"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=@vaagatech/reconcile --workspace=@vaagatech/auth-adapters --workspace=@vaagatech/api-adapters --workspace=@vaagatech/core --workspace=@vaagatech/demo",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "demo": "npm run build && npm run start --workspace=@vaagatech/demo",
+    "test": "npm run demo",
+    "publish:packages": "npm run build && npm publish --workspace=@vaagatech/reconcile --access public && npm publish --workspace=@vaagatech/auth-adapters --access public && npm publish --workspace=@vaagatech/api-adapters --access public && npm publish --workspace=@vaagatech/core --access public",
+    "version:sync": "node scripts/sync-versions.mjs",
+    "version:verify": "node scripts/sync-versions.mjs --check"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

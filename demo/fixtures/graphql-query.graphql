@@ -1,0 +1,7 @@
+query GetUser($email: String!) {
+  user(email: $email) {
+    email
+    status
+    currentdate
+  }
+}

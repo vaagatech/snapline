@@ -1,0 +1,67 @@
+{
+  "name": "@vaagatech/core",
+  "version": "0.1.0",
+  "description": "Declarative test orchestration DSL — auth, API fixtures, and cross-database reconciliation",
+  "author": "VaagaTech (https://www.vaagatech.com)",
+  "license": "MIT",
+  "homepage": "https://www.vaagatech.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vaagatech/reconcile.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/vaagatech/reconcile/issues"
+  },
+  "keywords": [
+    "test-runner",
+    "integration-testing",
+    "declarative-testing",
+    "snapshot-testing",
+    "api-testing",
+    "database-testing",
+    "reconciliation",
+    "vaagatech",
+    "testing-framework"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "examples"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@vaagatech/api-adapters": "^0.1.0",
+    "@vaagatech/auth-adapters": "^0.1.0",
+    "@vaagatech/reconcile": "^0.1.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

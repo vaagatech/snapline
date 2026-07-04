@@ -1,0 +1,62 @@
+{
+  "name": "@vaagatech/api-adapters",
+  "version": "0.1.0",
+  "description": "Minimal API adapters for REST, SOAP, and GraphQL — file-driven test requests",
+  "author": "VaagaTech (https://www.vaagatech.com)",
+  "license": "MIT",
+  "homepage": "https://www.vaagatech.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vaagatech/reconcile.git",
+    "directory": "packages/api-adapters"
+  },
+  "bugs": {
+    "url": "https://github.com/vaagatech/reconcile/issues"
+  },
+  "keywords": [
+    "rest",
+    "soap",
+    "graphql",
+    "api-adapter",
+    "integration-testing",
+    "vaagatech"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "examples"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@vaagatech/reconcile": "^0.1.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

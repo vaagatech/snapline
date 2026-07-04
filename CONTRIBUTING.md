@@ -1,0 +1,68 @@
+# Contributing to @vaagatech/reconcile
+
+Thank you for your interest in contributing. This project is open source under the [MIT License](LICENSE). Anyone may use, fork, modify, and contribute.
+
+## Ways to contribute
+
+- Report bugs via [GitHub Issues](https://github.com/vaagatech/reconcile/issues)
+- Propose features or discuss design in Issues before large changes
+- Submit pull requests with focused, tested changes
+- Improve documentation and examples
+- Share feedback from production usage
+
+## Development setup
+
+```bash
+git clone https://github.com/vaagatech/reconcile.git
+cd reconcile
+npm install
+npm run build
+npm run typecheck
+npm run demo
+```
+
+The demo runs all 6 integration modes and must pass before submitting a PR.
+
+## Pull request guidelines
+
+1. **One concern per PR** — keep changes focused and reviewable
+2. **Build must pass** — run `npm run build && npm run typecheck && npm run demo` before submitting
+3. **Follow existing style** — TypeScript strict mode, modular files, dual CJS/ESM exports
+4. **Update docs** — if you change public API, update the relevant package README and CHANGELOG
+5. **No breaking changes without discussion** — open an Issue for API changes that affect consumers
+
+## Monorepo structure
+
+| Path | Package |
+|------|---------|
+| `packages/reconcile` | `@vaagatech/reconcile` |
+| `packages/auth-adapters` | `@vaagatech/auth-adapters` |
+| `packages/api-adapters` | `@vaagatech/api-adapters` |
+| `packages/core` | `@vaagatech/core` |
+| `demo/` | Integration demo (not published) |
+
+## Publishing (maintainers)
+
+Packages publish to npm in dependency order:
+
+```bash
+npm run build
+npm publish --workspace=@vaagatech/reconcile --access public
+npm publish --workspace=@vaagatech/auth-adapters --access public
+npm publish --workspace=@vaagatech/api-adapters --access public
+npm publish --workspace=@vaagatech/core --access public
+```
+
+Or: `npm run publish:packages`
+
+## Code of conduct
+
+Be respectful and constructive. We welcome contributors of all experience levels.
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+
+---
+
+Maintained by [VaagaTech](https://www.vaagatech.com).
