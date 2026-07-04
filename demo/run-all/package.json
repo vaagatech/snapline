@@ -1,7 +1,7 @@
 {
   "name": "@vaagatech/reconcile-demo-run-all",
   "private": true,
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Runs all @vaagatech demo scenarios end-to-end",
   "type": "module",
   "scripts": {
@@ -13,22 +13,22 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/reconcile-core": "0.1.5",
-    "@vaagatech/reconcile-demo-shared": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-api-vs-db-graphql": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-api-vs-db-rest": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-api-vs-db-soap": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-api-vs-file-graphql": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-api-vs-file-rest": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-api-vs-file-soap": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-db-comparison-transformations": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-db-vs-api-graphql": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-db-vs-api-rest": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-db-vs-api-soap": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-db-vs-db-sqlite": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-reconcile-combined-options": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-reconcile-data-mapping-function": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-reconcile-ignore-fields": "0.1.5",
-    "@vaagatech/reconcile-demo-scenario-reconcile-transformations": "0.1.5"
+    "@vaagatech/reconcile-core": "0.1.6",
+    "@vaagatech/reconcile-demo-shared": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-api-vs-db-graphql": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-api-vs-db-rest": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-api-vs-db-soap": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-api-vs-file-graphql": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-api-vs-file-rest": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-api-vs-file-soap": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-db-comparison-transformations": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-db-vs-api-graphql": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-db-vs-api-rest": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-db-vs-api-soap": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-db-vs-db-sqlite": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-reconcile-combined-options": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-reconcile-data-mapping-function": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-reconcile-ignore-fields": "0.1.6",
+    "@vaagatech/reconcile-demo-scenario-reconcile-transformations": "0.1.6"
   }
 }
