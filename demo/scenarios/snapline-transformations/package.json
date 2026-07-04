@@ -1,7 +1,7 @@
 {
   "name": "@vaagatech/snapline-demo-scenario-snapline-transformations",
   "private": true,
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Demo scenario: snapline-transformations",
   "type": "module",
   "main": "./dist/scenario.js",
@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/snapline-core": "0.1.6",
-    "@vaagatech/snapline-demo-shared": "0.1.6"
+    "@vaagatech/snapline-core": "0.1.7",
+    "@vaagatech/snapline-demo-shared": "0.1.7"
   }
 }
