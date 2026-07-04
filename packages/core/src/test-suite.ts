@@ -1,5 +1,5 @@
-import { executeApi } from '@vaagatech/api-adapters';
-import { assertAgainstFile } from '@vaagatech/reconcile';
+import { executeApi } from '@vaagatech/reconcile-api-adapters';
+import { assertAgainstFile } from '@vaagatech/reconcile-engine';
 import { runApiToDb } from './cross-system/run-api-to-db.js';
 import { runDbToApi } from './cross-system/run-db-to-api.js';
 import { runDbComparison } from './db-comparison/run-db-comparison.js';

@@ -1,10 +1,10 @@
-import { api, testSuite } from '@vaagatech/core';
+import { api, testSuite } from '@vaagatech/reconcile-core';
 import {
   apiStatusMapping,
   dateTransform,
   DEMO_EMAIL,
   type ScenarioModule,
-} from '@vaagatech/demo-shared';
+} from '@vaagatech/reconcile-demo-shared';
 
 const scenario: ScenarioModule = {
   name: 'API vs DB (REST profile vs multi-table SQLite JOIN)',

@@ -1,4 +1,4 @@
-import { api, testSuite } from '@vaagatech/core';
+import { api, testSuite } from '@vaagatech/reconcile-core';
 
 await testSuite('SOAP snapshot', {
   baseUrl: 'https://api.example.com',

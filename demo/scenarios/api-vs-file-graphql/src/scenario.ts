@@ -9,7 +9,7 @@ import {
   roleTierOnlyTransforms,
   runApiFixtureCases,
   type ScenarioModule,
-} from '@vaagatech/demo-shared';
+} from '@vaagatech/reconcile-demo-shared';
 
 const scenario: ScenarioModule = {
   name: 'API vs file (GraphQL + OAuth2 fixture cases: pass + expected failures)',

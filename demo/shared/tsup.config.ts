@@ -7,5 +7,5 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['@vaagatech/core', '@vaagatech/api-adapters', 'graphql'],
+  external: ['@vaagatech/reconcile-core', '@vaagatech/reconcile-api-adapters', 'graphql'],
 });

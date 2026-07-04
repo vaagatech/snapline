@@ -1,7 +1,7 @@
 {
-  "name": "@vaagatech/demo-scenario-api-vs-db-soap",
+  "name": "@vaagatech/reconcile-demo-scenario-api-vs-db-soap",
   "private": true,
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Demo scenario: 9. API vs DB (SOAP + SQLite)",
   "type": "module",
   "main": "./dist/scenario.js",
@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/core": "0.1.4",
-    "@vaagatech/demo-shared": "0.1.4"
+    "@vaagatech/reconcile-core": "0.1.5",
+    "@vaagatech/reconcile-demo-shared": "0.1.5"
   }
 }

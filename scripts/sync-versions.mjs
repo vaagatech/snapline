@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { spawnSync } from 'node:child_process';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -109,11 +110,30 @@ function syncPackageVersion(relativePath, version) {
   console.log(`Updated ${relativePath} to ${version}`);
 }
 
+function syncPackageLock() {
+  console.log('Updating package-lock.json...');
+  const result = spawnSync('npm', ['install', '--package-lock-only'], {
+    cwd: root,
+    stdio: 'inherit',
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (result.status !== 0) {
+    throw new Error('Failed to update package-lock.json (npm install --package-lock-only)');
+  }
+
+  console.log('Updated package-lock.json');
+}
+
 function syncVersion(version) {
   assertValidVersion(version);
   for (const relativePath of discoverPackagePaths()) {
     syncPackageVersion(relativePath, version);
   }
+  syncPackageLock();
 }
 
 function verifyVersion(expectedVersion) {

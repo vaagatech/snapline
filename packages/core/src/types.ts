@@ -1,13 +1,13 @@
-import type { AuthAdapter } from '@vaagatech/auth-adapters';
-import type { ApiRequestConfig } from '@vaagatech/api-adapters';
+import type { AuthAdapter } from '@vaagatech/reconcile-auth-adapters';
+import type { ApiRequestConfig } from '@vaagatech/reconcile-api-adapters';
 import type {
   DataMappingMap,
   DiffResult,
   ReconcileOptions,
   TransformationMap,
-} from '@vaagatech/reconcile';
+} from '@vaagatech/reconcile-engine';
 
-export type { ApiRequestConfig } from '@vaagatech/api-adapters';
+export type { ApiRequestConfig } from '@vaagatech/reconcile-api-adapters';
 
 export type FetchImpl = typeof fetch;
 

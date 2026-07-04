@@ -1,7 +1,7 @@
 {
   "name": "@vaagatech/reconcile-workspace",
   "private": true,
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Declarative Snapshot and Reconciliation Testing — open-source monorepo by VaagaTech",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",
@@ -20,15 +20,16 @@
     "demo/scenarios/*"
   ],
   "scripts": {
-    "build:packages": "npm run build --workspace=@vaagatech/reconcile && npm run build --workspace=@vaagatech/auth-adapters && npm run build --workspace=@vaagatech/api-adapters && npm run build --workspace=@vaagatech/core",
-    "build:demos": "npm run build --workspace=@vaagatech/demo-shared && npm run build --workspace=@vaagatech/demo-scenario-reconcile-ignore-fields && npm run build --workspace=@vaagatech/demo-scenario-reconcile-transformations && npm run build --workspace=@vaagatech/demo-scenario-db-vs-db-sqlite && npm run build --workspace=@vaagatech/demo-scenario-reconcile-data-mapping-function && npm run build --workspace=@vaagatech/demo-scenario-db-comparison-transformations && npm run build --workspace=@vaagatech/demo-scenario-reconcile-combined-options && npm run build --workspace=@vaagatech/demo-scenario-api-vs-file-rest && npm run build --workspace=@vaagatech/demo-scenario-api-vs-file-graphql && npm run build --workspace=@vaagatech/demo-scenario-api-vs-file-soap && npm run build --workspace=@vaagatech/demo-scenario-api-vs-db-rest && npm run build --workspace=@vaagatech/demo-scenario-api-vs-db-graphql && npm run build --workspace=@vaagatech/demo-scenario-api-vs-db-soap && npm run build --workspace=@vaagatech/demo-scenario-db-vs-api-rest && npm run build --workspace=@vaagatech/demo-scenario-db-vs-api-graphql && npm run build --workspace=@vaagatech/demo-scenario-db-vs-api-soap && npm run build --workspace=@vaagatech/demo-run-all",
+    "build:packages": "npm run build --workspace=@vaagatech/reconcile-engine && npm run build --workspace=@vaagatech/reconcile-auth-adapters && npm run build --workspace=@vaagatech/reconcile-api-adapters && npm run build --workspace=@vaagatech/reconcile-core",
+    "build:demos": "npm run build --workspace=@vaagatech/reconcile-demo-shared && npm run build --workspace=@vaagatech/reconcile-demo-scenario-reconcile-ignore-fields && npm run build --workspace=@vaagatech/reconcile-demo-scenario-reconcile-transformations && npm run build --workspace=@vaagatech/reconcile-demo-scenario-db-vs-db-sqlite && npm run build --workspace=@vaagatech/reconcile-demo-scenario-reconcile-data-mapping-function && npm run build --workspace=@vaagatech/reconcile-demo-scenario-db-comparison-transformations && npm run build --workspace=@vaagatech/reconcile-demo-scenario-reconcile-combined-options && npm run build --workspace=@vaagatech/reconcile-demo-scenario-api-vs-file-rest && npm run build --workspace=@vaagatech/reconcile-demo-scenario-api-vs-file-graphql && npm run build --workspace=@vaagatech/reconcile-demo-scenario-api-vs-file-soap && npm run build --workspace=@vaagatech/reconcile-demo-scenario-api-vs-db-rest && npm run build --workspace=@vaagatech/reconcile-demo-scenario-api-vs-db-graphql && npm run build --workspace=@vaagatech/reconcile-demo-scenario-api-vs-db-soap && npm run build --workspace=@vaagatech/reconcile-demo-scenario-db-vs-api-rest && npm run build --workspace=@vaagatech/reconcile-demo-scenario-db-vs-api-graphql && npm run build --workspace=@vaagatech/reconcile-demo-scenario-db-vs-api-soap && npm run build --workspace=@vaagatech/reconcile-demo-run-all",
     "build": "npm run build:packages && npm run build:demos",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "demo": "npm run build && npm run start --workspace=@vaagatech/demo-run-all",
+    "demo": "npm run build && npm run start --workspace=@vaagatech/reconcile-demo-run-all",
     "test": "npm run demo",
-    "publish:packages": "npm run build:packages && npm publish --workspace=@vaagatech/reconcile --access public && npm publish --workspace=@vaagatech/auth-adapters --access public && npm publish --workspace=@vaagatech/api-adapters --access public && npm publish --workspace=@vaagatech/core --access public",
+    "publish:packages": "npm run build:packages && npm publish --workspace=@vaagatech/reconcile-engine --access public && npm publish --workspace=@vaagatech/reconcile-auth-adapters --access public && npm publish --workspace=@vaagatech/reconcile-api-adapters --access public && npm publish --workspace=@vaagatech/reconcile-core --access public",
     "version:sync": "node scripts/sync-versions.mjs",
     "version:verify": "node scripts/sync-versions.mjs --check",
+    "version:bump": "node scripts/sync-versions.mjs --bump-patch",
     "scaffold:sync": "node demo/scripts/scaffold-scenarios.mjs --sync"
   },
   "devDependencies": {

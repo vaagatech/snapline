@@ -1,4 +1,4 @@
-# Contributing to @vaagatech/reconcile
+# Contributing to @vaagatech/reconcile-engine
 
 Thank you for your interest in contributing. This project is open source under the [MIT License](LICENSE). Anyone may use, fork, modify, and contribute.
 
@@ -35,10 +35,10 @@ The demo runs all 6 integration modes and must pass before submitting a PR.
 
 | Path | Package |
 |------|---------|
-| `packages/reconcile` | `@vaagatech/reconcile` |
-| `packages/auth-adapters` | `@vaagatech/auth-adapters` |
-| `packages/api-adapters` | `@vaagatech/api-adapters` |
-| `packages/core` | `@vaagatech/core` |
+| `packages/reconcile` | `@vaagatech/reconcile-engine` |
+| `packages/auth-adapters` | `@vaagatech/reconcile-auth-adapters` |
+| `packages/api-adapters` | `@vaagatech/reconcile-api-adapters` |
+| `packages/core` | `@vaagatech/reconcile-core` |
 | `demo/` | Integration demo (not published) |
 
 ## Publishing (maintainers)
@@ -47,10 +47,10 @@ Packages publish to npm in dependency order:
 
 ```bash
 npm run build
-npm publish --workspace=@vaagatech/reconcile --access public
-npm publish --workspace=@vaagatech/auth-adapters --access public
-npm publish --workspace=@vaagatech/api-adapters --access public
-npm publish --workspace=@vaagatech/core --access public
+npm publish --workspace=@vaagatech/reconcile-engine --access public
+npm publish --workspace=@vaagatech/reconcile-auth-adapters --access public
+npm publish --workspace=@vaagatech/reconcile-api-adapters --access public
+npm publish --workspace=@vaagatech/reconcile-core --access public
 ```
 
 Or: `npm run publish:packages`

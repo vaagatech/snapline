@@ -1,4 +1,4 @@
-import type { ReportConfig, ReportFormat } from '@vaagatech/core';
+import type { ReportConfig, ReportFormat } from '@vaagatech/reconcile-core';
 
 const VALID_FORMATS = new Set<ReportFormat>(['json', 'html', 'text']);
 

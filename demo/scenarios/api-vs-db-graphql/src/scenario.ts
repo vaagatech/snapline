@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { api, testSuite } from '@vaagatech/core';
+import { api, testSuite } from '@vaagatech/reconcile-core';
 import {
   apiPlanMapping,
   apiStatusMapping,
@@ -8,7 +8,7 @@ import {
   DEMO_EMAIL,
   fixturesDir,
   type ScenarioModule,
-} from '@vaagatech/demo-shared';
+} from '@vaagatech/reconcile-demo-shared';
 
 const scenario: ScenarioModule = {
   name: 'API vs DB (GraphQL + OAuth2 snapshot vs multi-table SQLite JOIN)',

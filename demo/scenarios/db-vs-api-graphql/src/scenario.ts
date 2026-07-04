@@ -1,4 +1,4 @@
-import { api, testSuite } from '@vaagatech/core';
+import { api, testSuite } from '@vaagatech/reconcile-core';
 import {
   appCustomerJoinQuery,
   createDemoAuth,
@@ -6,7 +6,7 @@ import {
   dbStatusMapping,
   DEMO_EMAIL,
   type ScenarioModule,
-} from '@vaagatech/demo-shared';
+} from '@vaagatech/reconcile-demo-shared';
 
 const scenario: ScenarioModule = {
   name: 'DB vs API (OAuth2 GraphQL snapshot vs multi-table SQLite JOIN)',

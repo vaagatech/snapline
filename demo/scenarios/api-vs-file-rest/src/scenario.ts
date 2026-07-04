@@ -1,11 +1,11 @@
 import { join } from 'node:path';
-import { testSuite } from '@vaagatech/core';
+import { testSuite } from '@vaagatech/reconcile-core';
 import {
   createDemoAuth,
   dateTransform,
   fixturesDir,
   type ScenarioModule,
-} from '@vaagatech/demo-shared';
+} from '@vaagatech/reconcile-demo-shared';
 
 const scenario: ScenarioModule = {
   name: 'API vs file (REST + OAuth2 + ignoreFields + transformations)',

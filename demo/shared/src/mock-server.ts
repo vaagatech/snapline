@@ -1,6 +1,6 @@
 import { createServer, type Server } from 'node:http';
 import { URL } from 'node:url';
-import { buildSoapEnvelope } from '@vaagatech/api-adapters';
+import { buildSoapEnvelope } from '@vaagatech/reconcile-api-adapters';
 import { demoDomain, volatileTraceId } from './demo-domain.js';
 import { executeDemoGraphql } from './graphql-schema.js';
 

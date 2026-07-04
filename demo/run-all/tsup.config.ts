@@ -8,8 +8,8 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   external: [
-    '@vaagatech/core',
-    '@vaagatech/demo-shared',
+    '@vaagatech/reconcile-core',
+    '@vaagatech/reconcile-demo-shared',
     /^@vaagatech\/demo-scenario-/,
   ],
 });

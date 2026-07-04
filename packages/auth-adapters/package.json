@@ -1,6 +1,6 @@
 {
-  "name": "@vaagatech/auth-adapters",
-  "version": "0.1.4",
+  "name": "@vaagatech/reconcile-auth-adapters",
+  "version": "0.1.5",
   "description": "Pluggable authentication adapters for OAuth2, OpenID Connect, and Basic Auth in test automation",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",

@@ -1,6 +1,6 @@
 import { join } from 'node:path';
-import { api, testSuite } from '@vaagatech/core';
-import { fixturesDir, type ScenarioModule } from '@vaagatech/demo-shared';
+import { api, testSuite } from '@vaagatech/reconcile-core';
+import { fixturesDir, type ScenarioModule } from '@vaagatech/reconcile-demo-shared';
 
 const scenario: ScenarioModule = {
   name: 'API vs file (SOAP)',

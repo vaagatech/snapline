@@ -1,14 +1,14 @@
-# @vaagatech/core
+# @vaagatech/reconcile-core
 
 Declarative test orchestration — configure auth, API calls, and cross-system comparisons as data.
 
-[![npm version](https://img.shields.io/npm/v/@vaagatech/core)](https://www.npmjs.com/package/@vaagatech/core)
+[![npm version](https://img.shields.io/npm/v/@vaagatech/reconcile-core)](https://www.npmjs.com/package/@vaagatech/reconcile-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## Install
 
 ```bash
-npm install @vaagatech/core
+npm install @vaagatech/reconcile-core
 ```
 
 ## Test modes (pick one per `testSuite`)
@@ -27,7 +27,7 @@ Combine modes in one `testSuite` — they run in sequence.
 Use flat REST config (default) or explicit factories:
 
 ```javascript
-import { testSuite, api } from '@vaagatech/core';
+import { testSuite, api } from '@vaagatech/reconcile-core';
 
 // REST (default — no factory needed)
 api: { endpoint: '/users', method: 'GET', expectedFile: './out.json' }
@@ -44,7 +44,7 @@ api: { ...api.graphql({ endpoint: '/graphql', queryFile: './q.graphql' }), expec
 ### 1. API vs file (REST)
 
 ```javascript
-import { testSuite, auth } from '@vaagatech/core';
+import { testSuite, auth } from '@vaagatech/reconcile-core';
 
 await testSuite('User sync', {
   auth: auth.oauth2({ tokenUrl: '...', clientId: '...', clientSecret: '...' }),
@@ -66,7 +66,7 @@ await testSuite('User sync', {
 ### 2. DB vs DB
 
 ```javascript
-import { testSuite, db, seedDb } from '@vaagatech/core';
+import { testSuite, db, seedDb } from '@vaagatech/reconcile-core';
 
 seedDb('postgresql://localhost/src', [{ status: 'ABC', email: 'alice@example.com' }]);
 seedDb('mysql://localhost/target', [{ status: 'CBA', email: 'alice@example.com' }]);
@@ -85,7 +85,7 @@ await testSuite('DB sync', {
 ### 3. API vs DB
 
 ```javascript
-import { testSuite, api, db, seedDb } from '@vaagatech/core';
+import { testSuite, api, db, seedDb } from '@vaagatech/reconcile-core';
 
 seedDb('postgresql://localhost/app', [{ email: 'alice@example.com', status: 'SYNCED' }]);
 
@@ -105,7 +105,7 @@ await testSuite('API matches DB', {
 ### 4. DB vs API
 
 ```javascript
-import { testSuite, api, db, seedDb } from '@vaagatech/core';
+import { testSuite, api, db, seedDb } from '@vaagatech/reconcile-core';
 
 seedDb('postgresql://localhost/app', [{ email: 'alice@example.com', status: 'SYNCED', role: 'member' }]);
 
@@ -126,7 +126,7 @@ await testSuite('DB matches API', {
 ### 5. API vs file (GraphQL)
 
 ```javascript
-import { testSuite, api } from '@vaagatech/core';
+import { testSuite, api } from '@vaagatech/reconcile-core';
 
 await testSuite('GraphQL snapshot', {
   baseUrl: 'https://api.example.com',
@@ -145,7 +145,7 @@ await testSuite('GraphQL snapshot', {
 ### 6. API vs file (SOAP)
 
 ```javascript
-import { testSuite, api } from '@vaagatech/core';
+import { testSuite, api } from '@vaagatech/reconcile-core';
 
 await testSuite('SOAP snapshot', {
   baseUrl: 'https://api.example.com',
@@ -172,7 +172,7 @@ await testSuite('SOAP snapshot', {
 | `dbToApi` | DB ↔ API test |
 | `fetchImpl` | Custom `fetch` for mocking |
 
-All comparison modes support `ignoreFields`, `transformations`, and `dataMapping` from `@vaagatech/reconcile`.
+All comparison modes support `ignoreFields`, `transformations`, and `dataMapping` from `@vaagatech/reconcile-engine`.
 
 ## Examples
 
@@ -197,9 +197,9 @@ npm run demo
 
 | Package | Role |
 |---------|------|
-| [`@vaagatech/api-adapters`](https://www.npmjs.com/package/@vaagatech/api-adapters) | REST, SOAP, GraphQL executors |
-| [`@vaagatech/reconcile`](https://www.npmjs.com/package/@vaagatech/reconcile) | Data reconciliation engine |
-| [`@vaagatech/auth-adapters`](https://www.npmjs.com/package/@vaagatech/auth-adapters) | OAuth2, OpenID, Basic Auth |
+| [`@vaagatech/reconcile-api-adapters`](https://www.npmjs.com/package/@vaagatech/reconcile-api-adapters) | REST, SOAP, GraphQL executors |
+| [`@vaagatech/reconcile-engine`](https://www.npmjs.com/package/@vaagatech/reconcile-engine) | Data reconciliation engine |
+| [`@vaagatech/reconcile-auth-adapters`](https://www.npmjs.com/package/@vaagatech/reconcile-auth-adapters) | OAuth2, OpenID, Basic Auth |
 
 ## License
 

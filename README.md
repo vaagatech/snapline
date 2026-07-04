@@ -1,14 +1,16 @@
-# @vaagatech/reconcile
+# Reconcile
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org/)
 
-**Declarative Snapshot and Reconciliation Testing** for Node.js — an open-source testing framework by [VaagaTech](https://www.vaagatech.com).
+**Declarative Snapshot and Reconciliation Testing** for Node.js — an open-source product by [VaagaTech](https://www.vaagatech.com).
+
+Published under the `@vaagatech` npm scope with a `reconcile-*` prefix so other VaagaTech products can coexist (e.g. `@vaagatech/other-product-core`).
 
 Compare APIs, databases, and JSON fixtures as data — no imperative assertion chains. Install from npm and point tests at **your** services.
 
 ```bash
-npm install @vaagatech/core
+npm install @vaagatech/reconcile-core
 ```
 
 ## Getting started in 5 minutes
@@ -24,7 +26,7 @@ Requires **Node.js 18+**.
 ```bash
 mkdir my-app-integration-tests && cd my-app-integration-tests
 npm init -y
-npm install @vaagatech/core
+npm install @vaagatech/reconcile-core
 ```
 
 Add `"type": "module"` to `package.json` (or use `.mjs` files).
@@ -84,7 +86,7 @@ Use placeholder values like `"VALID_DATE"` for fields you will normalize with `t
 `tests/user-sync.test.mjs`:
 
 ```javascript
-import { testSuite, auth } from '@vaagatech/core';
+import { testSuite, auth } from '@vaagatech/reconcile-core';
 
 const baseUrl = process.env.API_BASE_URL ?? 'https://your-api.com';
 
@@ -135,7 +137,7 @@ On failure you get a structured diff (field path, actual vs expected). On succes
 When your API should match a row in Postgres, MySQL, or SQLite:
 
 ```javascript
-import { testSuite, auth, api, db } from '@vaagatech/core';
+import { testSuite, auth, api, db } from '@vaagatech/reconcile-core';
 
 await testSuite('Profile — API matches DB', {
   auth: auth.oauth2({ tokenUrl: '...', clientId: '...', clientSecret: '...' }),
@@ -178,7 +180,7 @@ Pick the mode that matches what you are validating:
 **HTML/JSON reports** for dashboards:
 
 ```javascript
-import { writeTestReport } from '@vaagatech/core';
+import { writeTestReport } from '@vaagatech/reconcile-core';
 
 const result = await testSuite('User sync', { /* ... */ });
 
@@ -228,7 +230,7 @@ Every comparison accepts:
 Processing order: **ignore → transform → map → deep compare**.
 
 ```javascript
-import { reconcile } from '@vaagatech/core';
+import { reconcile } from '@vaagatech/reconcile-core';
 
 const { match, diff } = reconcile(liveData, expectedData, {
   ignoreFields: ['metadata.requestId'],
@@ -242,7 +244,7 @@ const { match, diff } = reconcile(liveData, expectedData, {
 ### REST — API vs file
 
 ```javascript
-import { testSuite, auth } from '@vaagatech/core';
+import { testSuite, auth } from '@vaagatech/reconcile-core';
 
 await testSuite('REST snapshot', {
   auth: auth.oauth2({ tokenUrl: '...', clientId: '...', clientSecret: '...' }),
@@ -260,7 +262,7 @@ await testSuite('REST snapshot', {
 ### GraphQL — API vs file
 
 ```javascript
-import { testSuite, auth, api } from '@vaagatech/core';
+import { testSuite, auth, api } from '@vaagatech/reconcile-core';
 
 await testSuite('GraphQL snapshot', {
   auth: auth.oauth2({ tokenUrl: '...', clientId: '...', clientSecret: '...' }),
@@ -286,7 +288,7 @@ await testSuite('GraphQL snapshot', {
 ### SOAP — API vs file
 
 ```javascript
-import { testSuite, api } from '@vaagatech/core';
+import { testSuite, api } from '@vaagatech/reconcile-core';
 
 await testSuite('SOAP snapshot', {
   baseUrl: 'https://api.example.com',
@@ -304,7 +306,7 @@ await testSuite('SOAP snapshot', {
 ### DB vs DB
 
 ```javascript
-import { testSuite, db } from '@vaagatech/core';
+import { testSuite, db } from '@vaagatech/reconcile-core';
 
 await testSuite('Warehouse sync', {
   dbComparison: {
@@ -320,7 +322,7 @@ await testSuite('Warehouse sync', {
 ### DB vs API (`inputFromDb`)
 
 ```javascript
-import { testSuite, api, db } from '@vaagatech/core';
+import { testSuite, api, db } from '@vaagatech/reconcile-core';
 
 await testSuite('DB row matches API', {
   baseUrl: 'https://api.example.com',
@@ -340,7 +342,7 @@ await testSuite('DB row matches API', {
 ### Auth adapters
 
 ```javascript
-import { auth } from '@vaagatech/core';
+import { auth } from '@vaagatech/reconcile-core';
 
 auth.oauth2({ tokenUrl, clientId, clientSecret });
 auth.openid({ /* ... */ });
@@ -363,12 +365,12 @@ auth.basic({ username, password });
 
 | Package | npm | Description |
 |---------|-----|-------------|
-| [`@vaagatech/core`](./packages/core) | [`@vaagatech/core`](https://www.npmjs.com/package/@vaagatech/core) | **Start here** — `testSuite`, DB helpers, reporting |
-| [`@vaagatech/reconcile`](./packages/reconcile) | [`@vaagatech/reconcile`](https://www.npmjs.com/package/@vaagatech/reconcile) | Reconciliation engine — `reconcile`, `assertAgainstFile` |
-| [`@vaagatech/api-adapters`](./packages/api-adapters) | [`@vaagatech/api-adapters`](https://www.npmjs.com/package/@vaagatech/api-adapters) | REST, SOAP, GraphQL executors |
-| [`@vaagatech/auth-adapters`](./packages/auth-adapters) | [`@vaagatech/auth-adapters`](https://www.npmjs.com/package/@vaagatech/auth-adapters) | OAuth2, OpenID Connect, Basic Auth |
+| [`@vaagatech/reconcile-core`](./packages/core) | [`@vaagatech/reconcile-core`](https://www.npmjs.com/package/@vaagatech/reconcile-core) | **Start here** — `testSuite`, DB helpers, reporting |
+| [`@vaagatech/reconcile-engine`](./packages/reconcile) | [`@vaagatech/reconcile-engine`](https://www.npmjs.com/package/@vaagatech/reconcile-engine) | Reconciliation engine — `reconcile`, `assertAgainstFile` |
+| [`@vaagatech/reconcile-api-adapters`](./packages/api-adapters) | [`@vaagatech/reconcile-api-adapters`](https://www.npmjs.com/package/@vaagatech/reconcile-api-adapters) | REST, SOAP, GraphQL executors |
+| [`@vaagatech/reconcile-auth-adapters`](./packages/auth-adapters) | [`@vaagatech/reconcile-auth-adapters`](https://www.npmjs.com/package/@vaagatech/reconcile-auth-adapters) | OAuth2, OpenID Connect, Basic Auth |
 
-Install `@vaagatech/core` only — it re-exports the rest.
+Install `@vaagatech/reconcile-core` only — it re-exports the rest.
 
 ## Why reconcile?
 
@@ -432,7 +434,7 @@ npm run demo
 | 9 | `api-vs-file-soap` | API ↔ file | SOAP vs JSON |
 | 10–15 | `api-vs-db-*`, `db-vs-api-*` | Cross-system | REST, GraphQL, SOAP vs SQLite |
 
-Run one scenario: `npm run start --workspace=@vaagatech/demo-scenario-api-vs-file-graphql`
+Run one scenario: `npm run start --workspace=@vaagatech/reconcile-demo-scenario-api-vs-file-graphql`
 
 Copy fixture patterns from `demo/scenarios/*/fixtures/` into your own project.
 

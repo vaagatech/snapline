@@ -1,5 +1,5 @@
-import { testSuite } from '@vaagatech/core';
-import { DEMO_EMAIL, dateTransform, type ScenarioModule } from '@vaagatech/demo-shared';
+import { testSuite } from '@vaagatech/reconcile-core';
+import { DEMO_EMAIL, dateTransform, type ScenarioModule } from '@vaagatech/reconcile-demo-shared';
 
 const scenario: ScenarioModule = {
   name: 'Reconcile: transformations (DB vs DB + SQLite)',

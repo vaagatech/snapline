@@ -1,6 +1,6 @@
-import { executeApi } from '@vaagatech/api-adapters';
-import type { ApiRequestConfig } from '@vaagatech/api-adapters';
-import { reconcile } from '@vaagatech/reconcile';
+import { executeApi } from '@vaagatech/reconcile-api-adapters';
+import type { ApiRequestConfig } from '@vaagatech/reconcile-api-adapters';
+import { reconcile } from '@vaagatech/reconcile-engine';
 import type { CrossSystemResult, DbToApiConfig, FetchImpl } from '../types.js';
 
 export async function runDbToApi(

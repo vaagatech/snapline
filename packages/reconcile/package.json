@@ -1,6 +1,6 @@
 {
-  "name": "@vaagatech/reconcile",
-  "version": "0.1.4",
+  "name": "@vaagatech/reconcile-engine",
+  "version": "0.1.5",
   "description": "Deep data reconciliation engine for declarative snapshot testing — field stripping, transforms, and structural mapping",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",

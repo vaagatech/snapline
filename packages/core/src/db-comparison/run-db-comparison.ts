@@ -1,4 +1,4 @@
-import { reconcile } from '@vaagatech/reconcile';
+import { reconcile } from '@vaagatech/reconcile-engine';
 import type { CrossSystemResult, DbComparisonConfig } from '../types.js';
 
 export async function runDbComparison(

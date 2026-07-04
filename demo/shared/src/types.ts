@@ -1,4 +1,4 @@
-import type { TestSuiteResult } from '@vaagatech/core';
+import type { TestSuiteResult } from '@vaagatech/reconcile-core';
 import type { DemoDatabase } from './sqlite-setup.js';
 
 export interface ScenarioContext {

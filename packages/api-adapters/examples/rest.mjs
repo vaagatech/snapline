@@ -1,4 +1,4 @@
-import { api, executeApi } from '@vaagatech/api-adapters';
+import { api, executeApi } from '@vaagatech/reconcile-api-adapters';
 
 const result = await executeApi(
   api.rest({

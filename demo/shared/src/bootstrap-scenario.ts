@@ -1,4 +1,4 @@
-import { auth, writeTestReport } from '@vaagatech/core';
+import { auth, writeTestReport } from '@vaagatech/reconcile-core';
 import { createMockServer } from './mock-server.js';
 import { resolveReportConfig } from './report-config.js';
 import { closeDemoDatabase, createDemoDatabase } from './sqlite-setup.js';

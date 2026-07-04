@@ -1,4 +1,4 @@
-import { testSuite } from '@vaagatech/core';
+import { testSuite } from '@vaagatech/reconcile-core';
 import {
   DEMO_EMAIL,
   statusMappingLookup,
@@ -6,7 +6,7 @@ import {
   warehouseOrderJoinQuery,
   warehouseOrderStatusMapping,
   type ScenarioModule,
-} from '@vaagatech/demo-shared';
+} from '@vaagatech/reconcile-demo-shared';
 
 const scenario: ScenarioModule = {
   name: 'DB vs DB (SQLite multi-table warehouse + dataMapping)',

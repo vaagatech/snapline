@@ -9,9 +9,9 @@ export default defineConfig({
   clean: true,
   treeshake: true,
   external: [
-    '@vaagatech/api-adapters',
-    '@vaagatech/auth-adapters',
-    '@vaagatech/reconcile',
+    '@vaagatech/reconcile-api-adapters',
+    '@vaagatech/reconcile-auth-adapters',
+    '@vaagatech/reconcile-engine',
     'better-sqlite3',
   ],
 });

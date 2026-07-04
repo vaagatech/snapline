@@ -131,7 +131,7 @@ function idToImportName(id) {
 }
 
 function workspaceName(id) {
-  return `@vaagatech/demo-scenario-${id}`;
+  return `@vaagatech/reconcile-demo-scenario-${id}`;
 }
 
 function hasFixtureFiles(fixturesDirPath) {
@@ -170,9 +170,9 @@ function syncRootBuildDemos() {
   const rootPkg = JSON.parse(readFileSync(rootPkgPath, 'utf8'));
 
   const buildSteps = [
-    'npm run build --workspace=@vaagatech/demo-shared',
+    'npm run build --workspace=@vaagatech/reconcile-demo-shared',
     ...SCENARIO_ORDER.map((id) => `npm run build --workspace=${workspaceName(id)}`),
-    'npm run build --workspace=@vaagatech/demo-run-all',
+    'npm run build --workspace=@vaagatech/reconcile-demo-run-all',
   ];
 
   rootPkg.scripts['build:demos'] = buildSteps.join(' && ');
@@ -185,8 +185,8 @@ function syncRunAllPackageJson() {
   const runAllPkg = JSON.parse(readFileSync(runAllPkgPath, 'utf8'));
 
   runAllPkg.dependencies = runAllPkg.dependencies ?? {};
-  runAllPkg.dependencies['@vaagatech/demo-shared'] = rootVersion;
-  runAllPkg.dependencies['@vaagatech/core'] = rootVersion;
+  runAllPkg.dependencies['@vaagatech/reconcile-demo-shared'] = rootVersion;
+  runAllPkg.dependencies['@vaagatech/reconcile-core'] = rootVersion;
 
   for (const id of SCENARIO_ORDER) {
     runAllPkg.dependencies[workspaceName(id)] = rootVersion;
@@ -203,7 +203,7 @@ function syncRunAllSource() {
 
   const scenarioRefs = SCENARIO_ORDER.map((id) => `  ${idToImportName(id)},`).join('\n');
 
-  const source = `import { writeTestReport } from '@vaagatech/core';
+  const source = `import { writeTestReport } from '@vaagatech/reconcile-core';
 ${imports}
 import {
   closeDemoDatabase,
@@ -211,7 +211,7 @@ import {
   createMockServer,
   resolveReportConfig,
   type ScenarioModule,
-} from '@vaagatech/demo-shared';
+} from '@vaagatech/reconcile-demo-shared';
 
 const scenarios: ScenarioModule[] = [
 ${scenarioRefs}
@@ -219,7 +219,7 @@ ${scenarioRefs}
 
 async function main(): Promise<void> {
   console.log('═══════════════════════════════════════════════════════');
-  console.log('  @vaagatech/reconcile — Full Integration Demo');
+  console.log('  @vaagatech/reconcile-engine — Full Integration Demo');
   console.log('═══════════════════════════════════════════════════════');
   console.log('  Projects: ${SCENARIO_ORDER.length} scenario workspaces under demo/scenarios/');
   console.log('  Modes: API↔file · DB↔DB · API↔DB · DB↔API');
@@ -331,8 +331,8 @@ function scaffoldScenarioProject(id, index) {
             typecheck: 'tsc --noEmit',
           },
           dependencies: {
-            '@vaagatech/core': rootVersion,
-            '@vaagatech/demo-shared': rootVersion,
+            '@vaagatech/reconcile-core': rootVersion,
+            '@vaagatech/reconcile-demo-shared': rootVersion,
           },
         },
         null,
@@ -373,7 +373,7 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['@vaagatech/core', '@vaagatech/demo-shared'],
+  external: ['@vaagatech/reconcile-core', '@vaagatech/reconcile-demo-shared'],
 });
 `,
     );
@@ -383,7 +383,7 @@ export default defineConfig({
   if (!existsSync(startPath)) {
     writeFileSync(
       startPath,
-      `import { bootstrapScenario } from '@vaagatech/demo-shared';
+      `import { bootstrapScenario } from '@vaagatech/reconcile-demo-shared';
 import scenario from './scenario.js';
 
 const exitCode = await bootstrapScenario(scenario);
@@ -396,8 +396,8 @@ process.exitCode = exitCode;
   if (!existsSync(scenarioPath)) {
     writeFileSync(
       scenarioPath,
-      `import { testSuite } from '@vaagatech/core';
-import { type ScenarioModule } from '@vaagatech/demo-shared';
+      `import { testSuite } from '@vaagatech/reconcile-core';
+import { type ScenarioModule } from '@vaagatech/reconcile-demo-shared';
 
 const scenario: ScenarioModule = {
   name: '${meta.title.replace(/'/g, "\\'")}',

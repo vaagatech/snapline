@@ -6,7 +6,7 @@ import { renderJsonReport } from './json-reporter.js';
 import { renderTextReport } from './text-reporter.js';
 import type { ReportConfig, TestRunReport, TestRunReportMeta } from './types.js';
 
-const FRAMEWORK_NAME = '@vaagatech/reconcile';
+const FRAMEWORK_NAME = '@vaagatech/reconcile-engine';
 
 function buildReport(
   suites: TestSuiteResult[],

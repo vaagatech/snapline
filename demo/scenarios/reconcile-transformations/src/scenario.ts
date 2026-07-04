@@ -8,7 +8,7 @@ import {
   statusMappingFunction,
   warehousePlanMapping,
   type ScenarioModule,
-} from '@vaagatech/demo-shared';
+} from '@vaagatech/reconcile-demo-shared';
 
 const scenario: ScenarioModule = {
   name: 'Reconcile: transformations (fixture cases: pass + expected failures)',

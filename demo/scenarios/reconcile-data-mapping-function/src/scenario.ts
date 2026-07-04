@@ -1,4 +1,4 @@
-import { testSuite } from '@vaagatech/core';
+import { testSuite } from '@vaagatech/reconcile-core';
 import {
   apiStatusMapping,
   DEMO_EMAIL,
@@ -7,7 +7,7 @@ import {
   statusMappingFunction,
   warehousePlanMapping,
   type ScenarioModule,
-} from '@vaagatech/demo-shared';
+} from '@vaagatech/reconcile-demo-shared';
 
 const scenario: ScenarioModule = {
   name: 'Reconcile: dataMapping (fixture cases + DB function mapper)',

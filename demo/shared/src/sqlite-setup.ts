@@ -1,4 +1,4 @@
-import { db, type SqliteConnection } from '@vaagatech/core';
+import { db, type SqliteConnection } from '@vaagatech/reconcile-core';
 import { demoDomain } from './demo-domain.js';
 
 function seedWarehouseTables(connection: SqliteConnection, variant: 'source' | 'target'): void {

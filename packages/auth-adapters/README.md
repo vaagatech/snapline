@@ -1,34 +1,34 @@
-# @vaagatech/auth-adapters
+# @vaagatech/reconcile-auth-adapters
 
 Pluggable authentication adapters for test automation and API clients. Initialize OAuth2, OpenID, or Basic Auth credentials and receive ready-to-use HTTP headers.
 
-[![npm version](https://img.shields.io/npm/v/@vaagatech/auth-adapters)](https://www.npmjs.com/package/@vaagatech/auth-adapters)
+[![npm version](https://img.shields.io/npm/v/@vaagatech/reconcile-auth-adapters)](https://www.npmjs.com/package/@vaagatech/reconcile-auth-adapters)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## Install
 
 ```bash
-npm install @vaagatech/auth-adapters
+npm install @vaagatech/reconcile-auth-adapters
 ```
 
 Supports **ESM**, **CommonJS**, and **TypeScript** out of the box.
 
 ## When to use
 
-Use `@vaagatech/auth-adapters` when your tests or scripts need to:
+Use `@vaagatech/reconcile-auth-adapters` when your tests or scripts need to:
 
 - Attach **Basic Auth** headers to HTTP requests
 - Obtain **OAuth2** access tokens via client credentials grant
 - Forward **OpenID** tokens or exchange identity assertions
 
-Works standalone or as part of [`@vaagatech/core`](https://www.npmjs.com/package/@vaagatech/core) test suites.
+Works standalone or as part of [`@vaagatech/reconcile-core`](https://www.npmjs.com/package/@vaagatech/reconcile-core) test suites.
 
 ## Quick demo
 
 ### Basic Auth
 
 ```javascript
-import { auth } from '@vaagatech/auth-adapters';
+import { auth } from '@vaagatech/reconcile-auth-adapters';
 
 const adapter = auth.basic({
   username: 'service-account',
@@ -47,7 +47,7 @@ console.log(response.status);
 ### OAuth2 client credentials
 
 ```javascript
-import { auth } from '@vaagatech/auth-adapters';
+import { auth } from '@vaagatech/reconcile-auth-adapters';
 
 const adapter = auth.oauth2({
   tokenUrl: 'https://auth.example.com/oauth/token',
@@ -70,7 +70,7 @@ console.log(response.status);
 ### OpenID token passthrough
 
 ```javascript
-import { auth } from '@vaagatech/auth-adapters';
+import { auth } from '@vaagatech/reconcile-auth-adapters';
 
 const adapter = auth.openid({
   idToken: process.env.OPENID_ID_TOKEN,
@@ -84,7 +84,7 @@ await fetch('https://api.example.com/v1/profile', { headers });
 ### OpenID assertion exchange
 
 ```javascript
-import { auth } from '@vaagatech/auth-adapters';
+import { auth } from '@vaagatech/reconcile-auth-adapters';
 
 const adapter = auth.openid({
   assertion: {
@@ -102,7 +102,7 @@ console.log('Token acquired:', token ? 'yes' : 'no');
 ### CommonJS
 
 ```javascript
-const { auth } = require('@vaagatech/auth-adapters');
+const { auth } = require('@vaagatech/reconcile-auth-adapters');
 
 (async () => {
   const adapter = auth.basic({ username: 'admin', password: 'secret' });
@@ -133,7 +133,7 @@ For custom extensions, use or subclass the adapter classes directly:
 | `OpenIdAdapter` | Token passthrough or assertion exchange |
 
 ```typescript
-import { AuthAdapter, type AuthResult } from '@vaagatech/auth-adapters';
+import { AuthAdapter, type AuthResult } from '@vaagatech/reconcile-auth-adapters';
 
 class ApiKeyAdapter extends AuthAdapter<{ apiKey: string }> {
   async initialize(): Promise<AuthResult> {
@@ -182,10 +182,10 @@ class ApiKeyAdapter extends AuthAdapter<{ apiKey: string }> {
 | `privateKey` | No | Assertion signing key |
 | `tokenUrl` | No | Assertion exchange endpoint |
 
-## Using with @vaagatech/core
+## Using with @vaagatech/reconcile-core
 
 ```javascript
-import { testSuite, auth } from '@vaagatech/core';
+import { testSuite, auth } from '@vaagatech/reconcile-core';
 
 await testSuite('Authenticated API Test', {
   auth: auth.oauth2({
@@ -209,7 +209,7 @@ import {
   OAuth2Adapter,
   type OAuth2Config,
   type AuthResult,
-} from '@vaagatech/auth-adapters';
+} from '@vaagatech/reconcile-auth-adapters';
 ```
 
 ## Module formats
@@ -228,8 +228,8 @@ import {
 Runnable examples ship with the package:
 
 ```bash
-npm install @vaagatech/auth-adapters
-node node_modules/@vaagatech/auth-adapters/examples/basic-auth.mjs
+npm install @vaagatech/reconcile-auth-adapters
+node node_modules/@vaagatech/reconcile-auth-adapters/examples/basic-auth.mjs
 ```
 
 Or from a cloned monorepo:
@@ -243,8 +243,8 @@ node packages/auth-adapters/examples/basic-auth.mjs
 
 | Package | Role |
 |---------|------|
-| [`@vaagatech/core`](https://www.npmjs.com/package/@vaagatech/core) | Test orchestration with built-in auth |
-| [`@vaagatech/reconcile`](https://www.npmjs.com/package/@vaagatech/reconcile) | Data reconciliation engine |
+| [`@vaagatech/reconcile-core`](https://www.npmjs.com/package/@vaagatech/reconcile-core) | Test orchestration with built-in auth |
+| [`@vaagatech/reconcile-engine`](https://www.npmjs.com/package/@vaagatech/reconcile-engine) | Data reconciliation engine |
 
 ## License
 

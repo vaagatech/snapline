@@ -1,7 +1,7 @@
 {
-  "name": "@vaagatech/demo-scenario-reconcile-data-mapping-function",
+  "name": "@vaagatech/reconcile-demo-scenario-reconcile-data-mapping-function",
   "private": true,
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Demo scenario: reconcile-data-mapping-function",
   "type": "module",
   "main": "./dist/scenario.js",
@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/core": "0.1.4",
-    "@vaagatech/demo-shared": "0.1.4"
+    "@vaagatech/reconcile-core": "0.1.5",
+    "@vaagatech/reconcile-demo-shared": "0.1.5"
   }
 }

@@ -1,4 +1,4 @@
-import { testSuite, auth, db, seedDb } from '@vaagatech/core';
+import { testSuite, auth, db, seedDb } from '@vaagatech/reconcile-core';
 
 seedDb('postgresql://localhost:5432/src_db', [
   { status: 'ABC', email: 'alice@example.com' },

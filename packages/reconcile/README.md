@@ -1,21 +1,21 @@
-# @vaagatech/reconcile
+# @vaagatech/reconcile-engine
 
 Deep data reconciliation engine for declarative snapshot testing. Compare live API or database payloads against JSON fixtures while ignoring volatile fields, normalizing dynamic values, and mapping cross-system schema differences.
 
-[![npm version](https://img.shields.io/npm/v/@vaagatech/reconcile)](https://www.npmjs.com/package/@vaagatech/reconcile)
+[![npm version](https://img.shields.io/npm/v/@vaagatech/reconcile-engine)](https://www.npmjs.com/package/@vaagatech/reconcile-engine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## Install
 
 ```bash
-npm install @vaagatech/reconcile
+npm install @vaagatech/reconcile-engine
 ```
 
 Supports **ESM**, **CommonJS**, and **TypeScript** out of the box.
 
 ## When to use
 
-Use `@vaagatech/reconcile` when you need to:
+Use `@vaagatech/reconcile-engine` when you need to:
 
 - Compare API responses or database rows against JSON golden files
 - Ignore fields that change every run (`pincode`, transaction IDs, internal metadata)
@@ -29,7 +29,7 @@ Use `@vaagatech/reconcile` when you need to:
 Save as `reconcile-demo.mjs` and run with `node reconcile-demo.mjs`.
 
 ```javascript
-import { reconcile, assertAgainstFile } from '@vaagatech/reconcile';
+import { reconcile, assertAgainstFile } from '@vaagatech/reconcile-engine';
 import { writeFileSync } from 'node:fs';
 
 // --- Live response from your API (dynamic fields included) ---
@@ -81,7 +81,7 @@ console.log(fileResult.match ? 'File assertion PASS' : 'File assertion FAIL');
 ### CommonJS
 
 ```javascript
-const { reconcile } = require('@vaagatech/reconcile');
+const { reconcile } = require('@vaagatech/reconcile-engine');
 
 const result = reconcile(
   { id: 1, updatedAt: '2026-07-04T10:00:00Z', traceId: 'abc' },
@@ -186,7 +186,7 @@ import {
   type ReconcileOptions,
   type ReconcileResult,
   type DiffResult,
-} from '@vaagatech/reconcile';
+} from '@vaagatech/reconcile-engine';
 ```
 
 ## Module formats
@@ -205,8 +205,8 @@ import {
 Runnable examples ship with the package:
 
 ```bash
-npm install @vaagatech/reconcile
-node node_modules/@vaagatech/reconcile/examples/basic-reconcile.mjs
+npm install @vaagatech/reconcile-engine
+node node_modules/@vaagatech/reconcile-engine/examples/basic-reconcile.mjs
 ```
 
 Or from a cloned monorepo:
@@ -220,8 +220,8 @@ node packages/reconcile/examples/basic-reconcile.mjs
 
 | Package | Role |
 |---------|------|
-| [`@vaagatech/core`](https://www.npmjs.com/package/@vaagatech/core) | Full test orchestration DSL |
-| [`@vaagatech/auth-adapters`](https://www.npmjs.com/package/@vaagatech/auth-adapters) | OAuth2, OpenID, Basic Auth |
+| [`@vaagatech/reconcile-core`](https://www.npmjs.com/package/@vaagatech/reconcile-core) | Full test orchestration DSL |
+| [`@vaagatech/reconcile-auth-adapters`](https://www.npmjs.com/package/@vaagatech/reconcile-auth-adapters) | OAuth2, OpenID, Basic Auth |
 
 ## License
 

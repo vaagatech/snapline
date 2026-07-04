@@ -1,7 +1,7 @@
 {
-  "name": "@vaagatech/demo-shared",
+  "name": "@vaagatech/reconcile-demo-shared",
   "private": true,
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Shared mock server, SQLite setup, and utilities for demo scenarios",
   "type": "module",
   "main": "./dist/index.js",
@@ -17,9 +17,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/api-adapters": "0.1.4",
-    "@vaagatech/auth-adapters": "0.1.4",
-    "@vaagatech/core": "0.1.4",
+    "@vaagatech/reconcile-api-adapters": "0.1.5",
+    "@vaagatech/reconcile-auth-adapters": "0.1.5",
+    "@vaagatech/reconcile-core": "0.1.5",
     "graphql": "^16.11.0"
   }
 }
