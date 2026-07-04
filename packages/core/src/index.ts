@@ -30,7 +30,16 @@ export { executeApi } from '@vaagatech/api-adapters';
 export { auth } from './auth/index.js';
 export { runDbComparison } from './db-comparison/run-db-comparison.js';
 export { DbConnection } from './db/db-connection.js';
-export { db, seedDb } from './db/index.js';
+export {
+  createSqliteConnection,
+  db,
+  execSqliteFile,
+  execSqliteSql,
+  seedDb,
+  SqliteConnection,
+} from './db/index.js';
+export type { ReportConfig, ReportFormat, TestRunReport, TestRunReportMeta } from './reporting/types.js';
+export { buildReport, renderReport, writeTestReport } from './reporting/write-report.js';
 export { testSuite } from './test-suite.js';
 
 export {

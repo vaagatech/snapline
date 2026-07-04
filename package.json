@@ -15,18 +15,21 @@
   },
   "workspaces": [
     "packages/*",
-    "demo"
+    "demo/shared",
+    "demo/run-all",
+    "demo/scenarios/*"
   ],
   "scripts": {
-    "build": "npm run build --workspace=@vaagatech/reconcile --workspace=@vaagatech/auth-adapters --workspace=@vaagatech/api-adapters --workspace=@vaagatech/core --workspace=@vaagatech/demo",
+    "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "demo": "npm run build && npm run start --workspace=@vaagatech/demo",
+    "demo": "npm run build && npm run start --workspace=@vaagatech/demo-run-all",
     "test": "npm run demo",
     "publish:packages": "npm run build && npm publish --workspace=@vaagatech/reconcile --access public && npm publish --workspace=@vaagatech/auth-adapters --access public && npm publish --workspace=@vaagatech/api-adapters --access public && npm publish --workspace=@vaagatech/core --access public",
     "version:sync": "node scripts/sync-versions.mjs",
     "version:verify": "node scripts/sync-versions.mjs --check"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.15.29",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3"

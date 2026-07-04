@@ -55,7 +55,8 @@
   "dependencies": {
     "@vaagatech/api-adapters": "^0.1.0",
     "@vaagatech/auth-adapters": "^0.1.0",
-    "@vaagatech/reconcile": "^0.1.0"
+    "@vaagatech/reconcile": "^0.1.0",
+    "better-sqlite3": "^11.10.0"
   },
   "publishConfig": {
     "access": "public",

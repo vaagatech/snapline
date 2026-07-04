@@ -1,5 +1,8 @@
 node_modules/
 dist/
+demo/reports/
+demo/run-all/reports/
+demo/scenarios/*/reports/
 *.log
 .DS_Store
 .env

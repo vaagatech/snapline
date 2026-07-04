@@ -1,0 +1,25 @@
+{
+  "name": "@vaagatech/demo-scenario-db-vs-db-sqlite",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Demo scenario: 2. DB vs DB (SQLite)",
+  "type": "module",
+  "main": "./dist/scenario.js",
+  "types": "./dist/scenario.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/scenario.d.ts",
+      "default": "./dist/scenario.js"
+    },
+    "./start": "./dist/start.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "start": "node dist/start.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vaagatech/core": "0.1.0",
+    "@vaagatech/demo-shared": "0.1.0"
+  }
+}

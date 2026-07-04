@@ -12,5 +12,6 @@ export default defineConfig({
     '@vaagatech/api-adapters',
     '@vaagatech/auth-adapters',
     '@vaagatech/reconcile',
+    'better-sqlite3',
   ],
 });

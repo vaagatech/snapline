@@ -1,5 +1,11 @@
 import type { DbRow } from '../types.js';
 import { DbConnection } from './db-connection.js';
+import {
+  createSqliteConnection,
+  execSqliteFile,
+  execSqliteSql,
+  SqliteConnection,
+} from './sqlite-connection.js';
 
 const dbRegistry = new Map<string, DbRow[]>();
 
@@ -22,5 +28,15 @@ export const db = {
   mysql(connectionString: string) {
     return createDbConnection('mysql', connectionString);
   },
+  sqlite(path: string | ':memory:' = ':memory:') {
+    return createSqliteConnection(path);
+  },
   seed: seedDb,
+};
+
+export {
+  createSqliteConnection,
+  execSqliteFile,
+  execSqliteSql,
+  SqliteConnection,
 };

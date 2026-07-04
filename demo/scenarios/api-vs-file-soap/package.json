@@ -1,0 +1,25 @@
+{
+  "name": "@vaagatech/demo-scenario-api-vs-file-soap",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Demo scenario: 8. API vs file (SOAP)",
+  "type": "module",
+  "main": "./dist/scenario.js",
+  "types": "./dist/scenario.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/scenario.d.ts",
+      "default": "./dist/scenario.js"
+    },
+    "./start": "./dist/start.js"
+  },
+  "scripts": {
+    "build": "tsup && cp -R fixtures dist/",
+    "start": "node dist/start.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vaagatech/core": "0.1.0",
+    "@vaagatech/demo-shared": "0.1.0"
+  }
+}
