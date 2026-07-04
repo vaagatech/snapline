@@ -3,7 +3,7 @@ import { api, testSuite } from '@vaagatech/core';
 import { fixturesDir, type ScenarioModule } from '@vaagatech/demo-shared';
 
 const scenario: ScenarioModule = {
-  name: '8. API vs file (SOAP)',
+  name: 'API vs file (SOAP)',
   needsServer: true,
   needsDatabase: false,
   async run({ baseUrl }) {

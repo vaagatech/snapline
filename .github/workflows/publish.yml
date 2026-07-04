@@ -41,7 +41,9 @@ jobs:
         run: npm ci
 
       - name: Verify package versions match tag
-        run: node scripts/sync-versions.mjs --check "${{ steps.tag.outputs.version }}"
+        run: node scripts/sync-versions.mjs --check
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
 
       - name: Publish packages to npm
         run: npm run publish:packages
@@ -56,11 +58,10 @@ jobs:
           git fetch origin main
           git checkout main
 
-          RELEASE_VERSION="${{ steps.tag.outputs.version }}"
-          NEXT_VERSION="$(node scripts/sync-versions.mjs --bump-patch "$RELEASE_VERSION")"
-
-          node scripts/sync-versions.mjs "$NEXT_VERSION"
+          node scripts/sync-versions.mjs --bump-patch
           npm install
+
+          NEXT_VERSION="$(node -p "require('./package.json').version")"
 
           git add package.json package-lock.json \
             packages/*/package.json \
@@ -68,5 +69,5 @@ jobs:
             demo/run-all/package.json \
             demo/scenarios/*/package.json
 
-          git commit -m "chore: bump version to ${NEXT_VERSION} after v${RELEASE_VERSION} release"
+          git commit -m "chore: bump version to ${NEXT_VERSION} after ${{ steps.tag.outputs.version }} release"
           git push origin main

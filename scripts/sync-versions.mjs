@@ -1,21 +1,22 @@
 #!/usr/bin/env node
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, relative } from "node:path";
-import { fileURLToPath } from "node:url";
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = join(__dirname, "..");
+const root = join(__dirname, '..');
+const ROOT_PACKAGE = 'package.json';
 
 const VERSION_PATTERN = /^\d{1,3}\.\d{1,3}\.\d{1,3}$/;
 
-const SKIP_DIRS = new Set(["node_modules", "dist", ".git"]);
+const SKIP_DIRS = new Set(['node_modules', 'dist', '.git']);
 
 function discoverPackagePaths(baseDir = root) {
   const results = [];
 
   function walk(currentDir) {
     for (const entry of readdirSync(currentDir, { withFileTypes: true })) {
-      if (entry.name.startsWith(".") || SKIP_DIRS.has(entry.name)) {
+      if (entry.name.startsWith('.') || SKIP_DIRS.has(entry.name)) {
         continue;
       }
 
@@ -25,7 +26,7 @@ function discoverPackagePaths(baseDir = root) {
         continue;
       }
 
-      if (entry.name === "package.json") {
+      if (entry.name === 'package.json') {
         results.push(relative(root, fullPath));
       }
     }
@@ -36,21 +37,60 @@ function discoverPackagePaths(baseDir = root) {
 }
 
 function isVaagaDependency(name) {
-  return name.startsWith("@vaagatech/");
+  return name.startsWith('@vaagatech/');
 }
 
 function dependencyVersion(relativePath, version) {
-  return relativePath.startsWith("demo/") ? version : `^${version}`;
+  return relativePath.startsWith('demo/') ? version : `^${version}`;
 }
 
 function readPackage(relativePath) {
   const path = join(root, relativePath);
-  return { path, pkg: JSON.parse(readFileSync(path, "utf8")) };
+  return { path, pkg: JSON.parse(readFileSync(path, 'utf8')) };
 }
 
 function writePackage(relativePath, pkg) {
   const path = join(root, relativePath);
   writeFileSync(path, `${JSON.stringify(pkg, null, 2)}\n`);
+}
+
+export function bumpPatch(version) {
+  const [major, minor, patch] = version.split('.').map(Number);
+  return `${major}.${minor}.${patch + 1}`;
+}
+
+function assertValidVersion(version, label = 'version') {
+  if (!version || !VERSION_PATTERN.test(version)) {
+    throw new Error(`Invalid ${label}: ${version ?? '(empty)'}`);
+  }
+}
+
+function readRootVersion() {
+  const { pkg } = readPackage(ROOT_PACKAGE);
+  assertValidVersion(pkg.version, 'root package.json version');
+  return pkg.version;
+}
+
+/** Prefer CI tag (v1.2.3), then explicit VERSION env, then root package.json. */
+function resolveExpectedVersion(explicit) {
+  if (explicit) {
+    assertValidVersion(explicit);
+    return explicit;
+  }
+
+  const tag = process.env.GITHUB_REF_NAME ?? process.env.GIT_TAG ?? '';
+  if (tag.startsWith('v')) {
+    const fromTag = tag.slice(1);
+    assertValidVersion(fromTag, `tag ${tag}`);
+    return fromTag;
+  }
+
+  if (process.env.RELEASE_VERSION) {
+    assertValidVersion(process.env.RELEASE_VERSION, 'RELEASE_VERSION');
+    return process.env.RELEASE_VERSION;
+  }
+
+  return readRootVersion();
 }
 
 function syncPackageVersion(relativePath, version) {
@@ -70,12 +110,14 @@ function syncPackageVersion(relativePath, version) {
 }
 
 function syncVersion(version) {
+  assertValidVersion(version);
   for (const relativePath of discoverPackagePaths()) {
     syncPackageVersion(relativePath, version);
   }
 }
 
 function verifyVersion(expectedVersion) {
+  assertValidVersion(expectedVersion);
   const mismatches = [];
 
   for (const relativePath of discoverPackagePaths()) {
@@ -102,7 +144,7 @@ function verifyVersion(expectedVersion) {
   }
 
   if (mismatches.length > 0) {
-    console.error("Version mismatch:");
+    console.error('Version mismatch:');
     for (const mismatch of mismatches) {
       console.error(`  - ${mismatch}`);
     }
@@ -112,31 +154,28 @@ function verifyVersion(expectedVersion) {
   console.log(`All package.json files match version ${expectedVersion}`);
 }
 
-export function bumpPatch(version) {
-  const [major, minor, patch] = version.split(".").map(Number);
-  return `${major}.${minor}.${patch + 1}`;
-}
+const args = process.argv.slice(2);
+const mode = args[0];
 
-const [mode, value] = process.argv.slice(2);
-
-if (mode === "--check") {
-  if (!value || !VERSION_PATTERN.test(value)) {
-    console.error("Usage: node scripts/sync-versions.mjs --check <version>");
-    process.exit(1);
-  }
-  verifyVersion(value);
-} else if (mode === "--bump-patch") {
-  if (!value || !VERSION_PATTERN.test(value)) {
-    console.error("Usage: node scripts/sync-versions.mjs --bump-patch <version>");
-    process.exit(1);
-  }
-  console.log(bumpPatch(value));
-} else if (mode && VERSION_PATTERN.test(mode)) {
+if (mode === '--check') {
+  verifyVersion(resolveExpectedVersion(args[1]));
+} else if (mode === '--bump-patch') {
+  const current = args[1] ?? readRootVersion();
+  assertValidVersion(current);
+  const next = bumpPatch(current);
+  syncVersion(next);
+  console.log(`Bumped monorepo version ${current} → ${next}`);
+} else if (mode === '--sync' || mode === undefined) {
+  const version = readRootVersion();
+  syncVersion(version);
+  console.log(`Synced all package.json files to ${version}`);
+} else if (VERSION_PATTERN.test(mode)) {
   syncVersion(mode);
 } else {
-  console.error("Usage:");
-  console.error("  node scripts/sync-versions.mjs <version>");
-  console.error("  node scripts/sync-versions.mjs --check <version>");
-  console.error("  node scripts/sync-versions.mjs --bump-patch <version>");
+  console.error('Usage:');
+  console.error('  node scripts/sync-versions.mjs              # sync all to root package.json version');
+  console.error('  node scripts/sync-versions.mjs --sync       # same as default');
+  console.error('  node scripts/sync-versions.mjs --check      # verify (tag env or root version)');
+  console.error('  node scripts/sync-versions.mjs --bump-patch # bump root patch and sync all');
   process.exit(1);
 }

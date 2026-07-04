@@ -1,19 +1,19 @@
 import { writeTestReport } from '@vaagatech/core';
-import apiVsDbGraphql from '@vaagatech/demo-scenario-api-vs-db-graphql';
-import apiVsDbRest from '@vaagatech/demo-scenario-api-vs-db-rest';
-import apiVsDbSoap from '@vaagatech/demo-scenario-api-vs-db-soap';
-import apiVsFileGraphql from '@vaagatech/demo-scenario-api-vs-file-graphql';
-import apiVsFileRest from '@vaagatech/demo-scenario-api-vs-file-rest';
-import apiVsFileSoap from '@vaagatech/demo-scenario-api-vs-file-soap';
-import dbComparisonTransformations from '@vaagatech/demo-scenario-db-comparison-transformations';
-import dbVsApiGraphql from '@vaagatech/demo-scenario-db-vs-api-graphql';
-import dbVsApiRest from '@vaagatech/demo-scenario-db-vs-api-rest';
-import dbVsApiSoap from '@vaagatech/demo-scenario-db-vs-api-soap';
-import dbVsDbSqlite from '@vaagatech/demo-scenario-db-vs-db-sqlite';
-import reconcileCombinedOptions from '@vaagatech/demo-scenario-reconcile-combined-options';
-import reconcileDataMappingFunction from '@vaagatech/demo-scenario-reconcile-data-mapping-function';
 import reconcileIgnoreFields from '@vaagatech/demo-scenario-reconcile-ignore-fields';
 import reconcileTransformations from '@vaagatech/demo-scenario-reconcile-transformations';
+import dbVsDbSqlite from '@vaagatech/demo-scenario-db-vs-db-sqlite';
+import reconcileDataMappingFunction from '@vaagatech/demo-scenario-reconcile-data-mapping-function';
+import dbComparisonTransformations from '@vaagatech/demo-scenario-db-comparison-transformations';
+import reconcileCombinedOptions from '@vaagatech/demo-scenario-reconcile-combined-options';
+import apiVsFileRest from '@vaagatech/demo-scenario-api-vs-file-rest';
+import apiVsFileGraphql from '@vaagatech/demo-scenario-api-vs-file-graphql';
+import apiVsFileSoap from '@vaagatech/demo-scenario-api-vs-file-soap';
+import apiVsDbRest from '@vaagatech/demo-scenario-api-vs-db-rest';
+import apiVsDbGraphql from '@vaagatech/demo-scenario-api-vs-db-graphql';
+import apiVsDbSoap from '@vaagatech/demo-scenario-api-vs-db-soap';
+import dbVsApiRest from '@vaagatech/demo-scenario-db-vs-api-rest';
+import dbVsApiGraphql from '@vaagatech/demo-scenario-db-vs-api-graphql';
+import dbVsApiSoap from '@vaagatech/demo-scenario-db-vs-api-soap';
 import {
   closeDemoDatabase,
   createDemoDatabase,

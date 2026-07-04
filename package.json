@@ -21,14 +21,15 @@
   ],
   "scripts": {
     "build:packages": "npm run build --workspace=@vaagatech/reconcile && npm run build --workspace=@vaagatech/auth-adapters && npm run build --workspace=@vaagatech/api-adapters && npm run build --workspace=@vaagatech/core",
-    "build:demos": "npm run build --workspace=@vaagatech/demo-shared && npm run build --workspace=@vaagatech/demo-scenario-reconcile-ignore-fields --workspace=@vaagatech/demo-scenario-reconcile-transformations --workspace=@vaagatech/demo-scenario-db-vs-db-sqlite --workspace=@vaagatech/demo-scenario-reconcile-data-mapping-function --workspace=@vaagatech/demo-scenario-db-comparison-transformations --workspace=@vaagatech/demo-scenario-reconcile-combined-options --workspace=@vaagatech/demo-scenario-api-vs-file-rest --workspace=@vaagatech/demo-scenario-api-vs-file-graphql --workspace=@vaagatech/demo-scenario-api-vs-file-soap --workspace=@vaagatech/demo-scenario-api-vs-db-rest --workspace=@vaagatech/demo-scenario-api-vs-db-graphql --workspace=@vaagatech/demo-scenario-api-vs-db-soap --workspace=@vaagatech/demo-scenario-db-vs-api-rest --workspace=@vaagatech/demo-scenario-db-vs-api-graphql --workspace=@vaagatech/demo-scenario-db-vs-api-soap --workspace=@vaagatech/demo-run-all",
+    "build:demos": "npm run build --workspace=@vaagatech/demo-shared && npm run build --workspace=@vaagatech/demo-scenario-reconcile-ignore-fields && npm run build --workspace=@vaagatech/demo-scenario-reconcile-transformations && npm run build --workspace=@vaagatech/demo-scenario-db-vs-db-sqlite && npm run build --workspace=@vaagatech/demo-scenario-reconcile-data-mapping-function && npm run build --workspace=@vaagatech/demo-scenario-db-comparison-transformations && npm run build --workspace=@vaagatech/demo-scenario-reconcile-combined-options && npm run build --workspace=@vaagatech/demo-scenario-api-vs-file-rest && npm run build --workspace=@vaagatech/demo-scenario-api-vs-file-graphql && npm run build --workspace=@vaagatech/demo-scenario-api-vs-file-soap && npm run build --workspace=@vaagatech/demo-scenario-api-vs-db-rest && npm run build --workspace=@vaagatech/demo-scenario-api-vs-db-graphql && npm run build --workspace=@vaagatech/demo-scenario-api-vs-db-soap && npm run build --workspace=@vaagatech/demo-scenario-db-vs-api-rest && npm run build --workspace=@vaagatech/demo-scenario-db-vs-api-graphql && npm run build --workspace=@vaagatech/demo-scenario-db-vs-api-soap && npm run build --workspace=@vaagatech/demo-run-all",
     "build": "npm run build:packages && npm run build:demos",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "demo": "npm run build && npm run start --workspace=@vaagatech/demo-run-all",
     "test": "npm run demo",
     "publish:packages": "npm run build:packages && npm publish --workspace=@vaagatech/reconcile --access public && npm publish --workspace=@vaagatech/auth-adapters --access public && npm publish --workspace=@vaagatech/api-adapters --access public && npm publish --workspace=@vaagatech/core --access public",
     "version:sync": "node scripts/sync-versions.mjs",
-    "version:verify": "node scripts/sync-versions.mjs --check"
+    "version:verify": "node scripts/sync-versions.mjs --check",
+    "scaffold:sync": "node demo/scripts/scaffold-scenarios.mjs --sync"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",

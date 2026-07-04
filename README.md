@@ -5,47 +5,204 @@
 
 **Declarative Snapshot and Reconciliation Testing** for Node.js — an open-source testing framework by [VaagaTech](https://www.vaagatech.com).
 
-Write integration tests as data. Compare APIs, databases, and JSON fixtures — no imperative assertion chains. Designed for real-world integration scenarios: OAuth2-protected GraphQL, multi-table SQLite warehouses, cross-system status codes, and nested JSON payloads.
+Compare APIs, databases, and JSON fixtures as data — no imperative assertion chains. Install from npm and point tests at **your** services.
 
-## Why reconcile?
-
-Traditional integration tests often look like this:
-
-```javascript
-expect(response.status).toBe(200);
-expect(response.body.email).toBe('alice@example.com');
-expect(response.body.status).toBe('synced');
-// … dozens more field assertions, brittle to schema drift
+```bash
+npm install @vaagatech/core
 ```
 
-With reconcile, you declare **what** should match and **how** to normalize differences:
+## Getting started in 5 minutes
+
+This walkthrough sets up **integration testing in a new Node.js project** — not the repo demo. You will install from npm, add fixtures, write a `testSuite`, and run it against your API.
+
+Requires **Node.js 18+**.
+
+---
+
+### Minute 1 — Create your integration test project
+
+```bash
+mkdir my-app-integration-tests && cd my-app-integration-tests
+npm init -y
+npm install @vaagatech/core
+```
+
+Add `"type": "module"` to `package.json` (or use `.mjs` files).
+
+Suggested layout:
+
+```
+my-app-integration-tests/
+├── fixtures/
+│   ├── input.json          # request body (REST POST) or reference data
+│   └── expected.json       # golden snapshot — what you expect after reconcile
+├── tests/
+│   └── user-sync.test.mjs  # one testSuite per scenario (or group related ones)
+├── .env                    # CLIENT_ID, CLIENT_SECRET, API_BASE_URL (optional)
+└── package.json
+```
+
+Add a run script:
+
+```json
+{
+  "type": "module",
+  "scripts": {
+    "test:integration": "node tests/user-sync.test.mjs"
+  }
+}
+```
+
+---
+
+### Minute 2 — Add fixtures for your API
+
+Capture a real response once, then normalize volatile fields in the **expected** file.
+
+`fixtures/input.json` — what you send:
+
+```json
+{ "email": "alice@example.com" }
+```
+
+`fixtures/expected.json` — what you assert after reconcile rules are applied:
+
+```json
+{
+  "email": "alice@example.com",
+  "status": "synced",
+  "currentdate": "VALID_DATE"
+}
+```
+
+Use placeholder values like `"VALID_DATE"` for fields you will normalize with `transformations`. Omit or strip fields that change every run (`pincode`, trace IDs) via `ignoreFields`.
+
+---
+
+### Minute 3 — Write your first integration test
+
+`tests/user-sync.test.mjs`:
 
 ```javascript
-await testSuite('User sync', {
-  auth: auth.oauth2({ tokenUrl: '...', clientId: '...', clientSecret: '...' }),
-  baseUrl: 'https://api.example.com',
+import { testSuite, auth } from '@vaagatech/core';
+
+const baseUrl = process.env.API_BASE_URL ?? 'https://your-api.com';
+
+const result = await testSuite('User sync — API vs fixture', {
+  auth: auth.oauth2({
+    tokenUrl: `${baseUrl}/oauth/token`,
+    clientId: process.env.CLIENT_ID ?? 'your-client-id',
+    clientSecret: process.env.CLIENT_SECRET ?? 'your-client-secret',
+  }),
+  baseUrl,
   api: {
     endpoint: '/api/v1/user/sync',
     method: 'POST',
     inputFile: './fixtures/input.json',
     expectedFile: './fixtures/expected.json',
-    ignoreFields: ['pincode', 'metadata.traceId'],
-    transformations: { currentdate: (v) => (isValidDate(v) ? 'VALID_DATE' : 'INVALID_DATE') },
+    ignoreFields: ['pincode'],
+    transformations: {
+      currentdate: (v) =>
+        typeof v === 'string' && !Number.isNaN(Date.parse(v)) ? 'VALID_DATE' : 'INVALID_DATE',
+    },
+  },
+});
+
+process.exitCode = result.passed ? 0 : 1;
+```
+
+Run it:
+
+```bash
+API_BASE_URL=https://staging.your-api.com \
+CLIENT_ID=... CLIENT_SECRET=... \
+npm run test:integration
+```
+
+On failure you get a structured diff (field path, actual vs expected). On success:
+
+```
+▶ User sync — API vs fixture
+  ✓ auth initialized
+  ✓ api response reconciled with fixture file
+✅ User sync — API vs fixture: PASSED
+```
+
+---
+
+### Minute 4 — Add a second test mode (API vs database)
+
+When your API should match a row in Postgres, MySQL, or SQLite:
+
+```javascript
+import { testSuite, auth, api, db } from '@vaagatech/core';
+
+await testSuite('Profile — API matches DB', {
+  auth: auth.oauth2({ tokenUrl: '...', clientId: '...', clientSecret: '...' }),
+  baseUrl: 'https://your-api.com',
+  apiToDb: {
+    api: api.rest({
+      endpoint: '/api/v1/users/profile?email=alice@example.com',
+      method: 'GET',
+    }),
+    db: {
+      db: db.postgres(process.env.DATABASE_URL),
+      query: `
+        SELECT email, status, role
+        FROM users
+        WHERE email = :email
+      `,
+      params: { email: 'alice@example.com' },
+    },
+    ignoreFields: ['traceId', 'currentdate'],
     dataMapping: { status: { synced: 'SYNCED' } },
   },
 });
 ```
 
-The framework handles HTTP calls, auth headers, deep object comparison, and structured diffs when values diverge.
+Pick the mode that matches what you are validating:
 
-## Packages
+| Goal | Config key |
+|------|------------|
+| API response vs JSON file | `api` |
+| Same query on two databases | `dbComparison` |
+| API response vs DB row | `apiToDb` |
+| DB row drives API call, then compare | `dbToApi` |
 
-| Package | npm | Description |
-|---------|-----|-------------|
-| [`@vaagatech/core`](./packages/core) | [`@vaagatech/core`](https://www.npmjs.com/package/@vaagatech/core) | Test orchestration DSL — `testSuite`, DB helpers, reporting |
-| [`@vaagatech/api-adapters`](./packages/api-adapters) | [`@vaagatech/api-adapters`](https://www.npmjs.com/package/@vaagatech/api-adapters) | REST, SOAP, GraphQL executors |
-| [`@vaagatech/reconcile`](./packages/reconcile) | [`@vaagatech/reconcile`](https://www.npmjs.com/package/@vaagatech/reconcile) | Data reconciliation engine — `reconcile`, `assertAgainstFile` |
-| [`@vaagatech/auth-adapters`](./packages/auth-adapters) | [`@vaagatech/auth-adapters`](https://www.npmjs.com/package/@vaagatech/auth-adapters) | OAuth2, OpenID Connect, Basic Auth |
+---
+
+### Minute 5 — CI, reports, and next tests
+
+**Exit codes** — set `process.exitCode = result.passed ? 0 : 1` so CI fails on mismatch.
+
+**HTML/JSON reports** for dashboards:
+
+```javascript
+import { writeTestReport } from '@vaagatech/core';
+
+const result = await testSuite('User sync', { /* ... */ });
+
+writeTestReport([result], { format: 'html', outputPath: './reports/integration.html' });
+```
+
+**GraphQL** — swap the `api` block for:
+
+```javascript
+api: {
+  ...api.graphql({
+    endpoint: '/graphql',
+    queryFile: './fixtures/query.graphql',
+    variablesFile: './fixtures/variables.json',
+    dataPath: 'customerAccount',
+  }),
+  expectedFile: './fixtures/expected.json',
+  ignoreFields: ['metadata.traceId'],
+}
+```
+
+**More examples:** [`packages/core/README.md`](./packages/core/README.md) · [`packages/reconcile/README.md`](./packages/reconcile/README.md)
+
+---
 
 ## Test modes
 
@@ -56,103 +213,56 @@ The framework handles HTTP calls, auth headers, deep object comparison, and stru
 | **API ↔ DB** | `apiToDb` | Call an API and reconcile the response with a DB row | REST, SOAP, GraphQL |
 | **DB ↔ API** | `dbToApi` | Read a DB row, call an API, reconcile row with response | REST, SOAP, GraphQL |
 
-Combine multiple modes in one `testSuite` — they run in sequence. All comparison modes support the same reconcile options (below).
+Combine multiple modes in one `testSuite` — they run in sequence.
 
 ## Reconcile options
 
-Every comparison accepts these options from `@vaagatech/reconcile`:
+Every comparison accepts:
 
-| Option | Type | Purpose | Example |
-|--------|------|---------|---------|
-| `ignoreFields` | `string[]` | Strip volatile fields before compare (supports dot paths) | `['pincode', 'metadata.traceId']` |
-| `transformations` | `Record<string, fn>` | Normalize dynamic values on the **live** side | Dates → `'VALID_DATE'`, role → uppercase |
-| `dataMapping` | `Record<string, map\|fn>` | Map equivalent codes across systems | `{ status: { synced: 'SYNCED' } }` |
+| Option | Purpose | Example |
+|--------|---------|---------|
+| `ignoreFields` | Strip volatile fields (supports dot paths) | `['pincode', 'metadata.traceId']` |
+| `transformations` | Normalize dynamic values on the **live** side | Dates → `'VALID_DATE'`, uppercase enums |
+| `dataMapping` | Map equivalent codes across systems | `{ status: { synced: 'SYNCED' } }` |
 
-Processing order: **strip ignored fields → apply transformations → apply data mapping → deep compare**.
-
-Use `@vaagatech/reconcile` directly for unit-style tests without HTTP:
+Processing order: **ignore → transform → map → deep compare**.
 
 ```javascript
-import { reconcile, assertAgainstFile } from '@vaagatech/reconcile';
+import { reconcile } from '@vaagatech/core';
 
-const result = reconcile(liveData, expectedData, {
+const { match, diff } = reconcile(liveData, expectedData, {
   ignoreFields: ['metadata.requestId'],
   transformations: { tier: (v) => String(v).toUpperCase() },
   dataMapping: { status: { ACTIVE: 'ACTV' } },
 });
-
-console.log(result.match, result.diff);
 ```
 
-## Install
+## Usage reference
 
-```bash
-npm install @vaagatech/core
-```
-
-`@vaagatech/core` re-exports the reconcile engine, API adapters, and auth factories — one import covers most use cases.
-
-## Quick start
+### REST — API vs file
 
 ```javascript
-import { testSuite, auth, api, db } from '@vaagatech/core';
+import { testSuite, auth } from '@vaagatech/core';
 
-await testSuite('Integration test', {
+await testSuite('REST snapshot', {
   auth: auth.oauth2({ tokenUrl: '...', clientId: '...', clientSecret: '...' }),
   baseUrl: 'https://api.example.com',
-
-  // API vs JSON fixture (REST)
   api: {
-    endpoint: '/sync',
+    endpoint: '/api/v1/user/sync',
     method: 'POST',
-    inputFile: './input.json',
-    expectedFile: './expected.json',
+    inputFile: './fixtures/input.json',
+    expectedFile: './fixtures/expected.json',
     ignoreFields: ['pincode'],
-  },
-
-  // DB vs DB
-  dbComparison: {
-    sourceDb: db.postgres('postgresql://localhost/src'),
-    targetDb: db.mysql('mysql://localhost/target'),
-    query: 'SELECT status FROM users WHERE email = :email',
-    params: { email: 'alice@example.com' },
-    dataMapping: { status: { ABC: 'CBA' } },
-  },
-
-  // API vs DB
-  apiToDb: {
-    api: api.rest({ endpoint: '/profile', method: 'GET' }),
-    db: {
-      db: db.postgres('postgresql://localhost/app'),
-      query: 'SELECT email, status FROM users WHERE email = :email',
-      params: { email: 'alice@example.com' },
-    },
-    dataMapping: { status: { synced: 'SYNCED' } },
-  },
-
-  // DB vs API (DB row feeds API input)
-  dbToApi: {
-    db: {
-      db: db.postgres('postgresql://localhost/app'),
-      query: 'SELECT email, status FROM users WHERE email = :email',
-      params: { email: 'alice@example.com' },
-    },
-    api: api.graphql({
-      endpoint: '/graphql',
-      query: 'query ($email: String!) { user(email: $email) { email status } }',
-      dataPath: 'user',
-    }),
-    inputFromDb: true,
   },
 });
 ```
 
-### GraphQL with OAuth2
+### GraphQL — API vs file
 
 ```javascript
 import { testSuite, auth, api } from '@vaagatech/core';
 
-await testSuite('GraphQL customer account', {
+await testSuite('GraphQL snapshot', {
   auth: auth.oauth2({ tokenUrl: '...', clientId: '...', clientSecret: '...' }),
   baseUrl: 'https://api.example.com',
   api: {
@@ -168,165 +278,163 @@ await testSuite('GraphQL customer account', {
       lastLogin: (v) => (isValidDate(v) ? 'VALID_DATE' : 'INVALID_DATE'),
       role: (v) => String(v).toUpperCase(),
     },
-    dataMapping: {
-      status: { synced: 'ACTIVE' },
-      planCode: { PRO: 'premium' },
-    },
+    dataMapping: { status: { synced: 'ACTIVE' }, planCode: { PRO: 'premium' } },
   },
 });
 ```
 
-## Monorepo layout
+### SOAP — API vs file
 
-```
-testing-framework/
-├── packages/
-│   ├── core/              @vaagatech/core — testSuite, DB, reporting
-│   ├── reconcile/         @vaagatech/reconcile — reconciliation engine
-│   ├── api-adapters/      @vaagatech/api-adapters — REST, SOAP, GraphQL
-│   └── auth-adapters/     @vaagatech/auth-adapters — OAuth2, OpenID, Basic
-├── demo/
-│   ├── shared/            Mock API + GraphQL server, SQLite seeds, fixture runners
-│   ├── run-all/           Orchestrates all 15 scenarios
-│   └── scenarios/         One npm workspace per scenario (15 total)
-├── scripts/
-│   └── sync-versions.mjs  Keeps package.json versions in sync across the monorepo
-└── .github/workflows/     CI publish on version tags
-```
+```javascript
+import { testSuite, api } from '@vaagatech/core';
 
-Published to npm: `@vaagatech/core`, `@vaagatech/reconcile`, `@vaagatech/api-adapters`, `@vaagatech/auth-adapters`.
-
-Demo workspaces are private and live under `demo/`.
-
-## Full integration demo
-
-The demo is a realistic customer-account domain: nested GraphQL types, OAuth2, multi-table SQLite (customers, profiles, subscriptions, orders), and warehouse DBs with different status/plan codes.
-
-```bash
-git clone https://github.com/vaagatech/reconcile.git
-cd reconcile
-npm install
-npm run demo          # build + run all 15 scenarios
+await testSuite('SOAP snapshot', {
+  baseUrl: 'https://api.example.com',
+  api: {
+    ...api.soap({
+      endpoint: '/soap/user',
+      soapAction: 'GetUser',
+      inputFile: './fixtures/request.xml',
+    }),
+    expectedFile: './fixtures/expected.json',
+  },
+});
 ```
 
-Run a single scenario:
+### DB vs DB
 
-```bash
-npm run start --workspace=@vaagatech/demo-scenario-api-vs-file-graphql
-npm run start --workspace=@vaagatech/demo-scenario-db-vs-db-sqlite
+```javascript
+import { testSuite, db } from '@vaagatech/core';
+
+await testSuite('Warehouse sync', {
+  dbComparison: {
+    sourceDb: db.postgres(process.env.SOURCE_DATABASE_URL),
+    targetDb: db.mysql(process.env.TARGET_DATABASE_URL),
+    query: 'SELECT status, email FROM users WHERE email = :email',
+    params: { email: 'alice@example.com' },
+    dataMapping: { status: { ABC: 'CBA' } },
+  },
+});
 ```
 
-### Demo scenarios (15)
+### DB vs API (`inputFromDb`)
 
-| # | Scenario | Mode | Highlights |
-|---|----------|------|------------|
-| 1 | `reconcile-ignore-fields` | API ↔ file | Nested `ignoreFields` (`metadata.trackedAt`) |
-| 2 | `reconcile-transformations` | Fixture cases | Pass + expected transformation failures |
-| 3 | `db-vs-db-sqlite` | DB ↔ DB | Multi-table JOIN (customers + orders), lookup mapping |
-| 4 | `reconcile-data-mapping-function` | Fixture + DB | Function mapper + plan code lookup |
-| 5 | `db-comparison-transformations` | DB ↔ DB | Date normalization on audit tables |
-| 6 | `reconcile-combined-options` | API ↔ DB | ignoreFields + transformations + dataMapping |
-| 7 | `api-vs-file-rest` | API ↔ file | OAuth2 POST + volatile field stripping |
-| 8 | `api-vs-file-graphql` | API ↔ file | OAuth2 GraphQL, 7 fixture cases (pass + fail) |
-| 9 | `api-vs-file-soap` | API ↔ file | SOAP envelope vs JSON fixture |
-| 10 | `api-vs-db-rest` | API ↔ DB | REST profile vs multi-table SQLite JOIN |
-| 11 | `api-vs-db-graphql` | API ↔ DB | OAuth2 GraphQL snapshot vs 3-table JOIN |
-| 12 | `api-vs-db-soap` | API ↔ DB | SOAP user vs SQLite JOIN |
-| 13 | `db-vs-api-rest` | DB ↔ API | SQLite JOIN vs REST (`inputFromDb`) |
-| 14 | `db-vs-api-graphql` | DB ↔ API | SQLite JOIN vs OAuth2 GraphQL snapshot |
-| 15 | `db-vs-api-soap` | DB ↔ API | SQLite JOIN vs SOAP |
+```javascript
+import { testSuite, api, db } from '@vaagatech/core';
 
-### Multi-case fixtures (pass + expected failures)
-
-Several scenarios use a **fixture case** pattern under `fixtures/cases/` — each case is a self-contained test with its own input and expected output:
-
-```
-fixtures/cases/
-  01-pass-full-account/
-    case.json          # metadata, reconcile options, expectMatch: true
-    query.graphql      # or live.json for pure reconcile tests
-    variables.json
-    expected.json
-  03-fail-data-mapping-status/
-    case.json          # expectMatch: false, failureType, expectedDiffPath
-    ...
-  07-fail-auth-missing-token/
-    case.json          # skipAuth: true, expectStatus: 401
-    ...
+await testSuite('DB row matches API', {
+  baseUrl: 'https://api.example.com',
+  dbToApi: {
+    db: {
+      db: db.postgres(process.env.DATABASE_URL),
+      query: 'SELECT email, status FROM users WHERE email = :email',
+      params: { email: 'alice@example.com' },
+    },
+    api: api.rest({ endpoint: '/api/v1/users/profile', method: 'GET' }),
+    inputFromDb: true,
+    dataMapping: { status: { SYNCED: 'synced' } },
+  },
+});
 ```
 
-`case.json` fields:
+### Auth adapters
 
-| Field | Purpose |
-|-------|---------|
-| `expectMatch: true` | Normal pass — reconcile must succeed |
-| `expectMatch: false` | Negative test — mismatch is the expected outcome |
-| `failureType` | `"dataMapping"`, `"transformation"`, or `"auth"` |
-| `expectedDiffPath` | Assert the diff occurs at a specific field path |
-| `skipAuth` | Omit Bearer token (for auth failure cases) |
-| `expectStatus` | Expected HTTP status (default `200`) |
+```javascript
+import { auth } from '@vaagatech/core';
 
-The shared helper `runApiFixtureCases()` (in `@vaagatech/demo-shared`) discovers case folders, initializes OAuth2 once, and validates both pass and expected-failure outcomes.
-
-### Test reports
-
-Generate uploadable reports for CI dashboards:
-
-```bash
-REPORT_FORMAT=json  npm run demo
-REPORT_FORMAT=html  npm run demo
-REPORT_FORMAT=text  npm run demo
-
-# Or per-scenario CLI flags:
-npm run start --workspace=@vaagatech/demo-run-all -- --report-format=html --report-output=./reports/run.html
+auth.oauth2({ tokenUrl, clientId, clientSecret });
+auth.openid({ /* ... */ });
+auth.basic({ username, password });
 ```
 
-Supported formats: **json**, **html**, **text**.
+### `testSuite` config
 
-## Development
+| Field | Description |
+|-------|-------------|
+| `auth` | Optional — OAuth2, OpenID, or Basic; headers applied to all API calls |
+| `baseUrl` | Prepended to relative endpoints |
+| `api` | API ↔ JSON fixture |
+| `dbComparison` | DB ↔ DB |
+| `apiToDb` | API ↔ DB |
+| `dbToApi` | DB ↔ API |
+| `fetchImpl` | Custom `fetch` for mocking in unit tests |
 
-```bash
-npm install
-npm run build              # packages + demos
-npm run build:packages     # publish-safe build order
-npm run build:demos        # demo workspaces only
-npm run typecheck
-npm run demo               # full integration demo
-npm run version:verify     # check all package.json versions match
-npm run version:sync 0.1.5  # sync versions across monorepo
+## Packages
+
+| Package | npm | Description |
+|---------|-----|-------------|
+| [`@vaagatech/core`](./packages/core) | [`@vaagatech/core`](https://www.npmjs.com/package/@vaagatech/core) | **Start here** — `testSuite`, DB helpers, reporting |
+| [`@vaagatech/reconcile`](./packages/reconcile) | [`@vaagatech/reconcile`](https://www.npmjs.com/package/@vaagatech/reconcile) | Reconciliation engine — `reconcile`, `assertAgainstFile` |
+| [`@vaagatech/api-adapters`](./packages/api-adapters) | [`@vaagatech/api-adapters`](https://www.npmjs.com/package/@vaagatech/api-adapters) | REST, SOAP, GraphQL executors |
+| [`@vaagatech/auth-adapters`](./packages/auth-adapters) | [`@vaagatech/auth-adapters`](https://www.npmjs.com/package/@vaagatech/auth-adapters) | OAuth2, OpenID Connect, Basic Auth |
+
+Install `@vaagatech/core` only — it re-exports the rest.
+
+## Why reconcile?
+
+Traditional integration tests chain many field assertions that break when schemas evolve:
+
+```javascript
+expect(response.status).toBe(200);
+expect(response.body.email).toBe('alice@example.com');
+expect(response.body.status).toBe('synced');
 ```
 
-Package examples (no demo server required):
-
-```bash
-node packages/core/examples/api-to-db.mjs
-node packages/core/examples/graphql-file-test.mjs
-node packages/reconcile/examples/basic-reconcile.mjs
-```
-
-## Publishing
-
-Packages publish to npm when a tag matching `v{major}.{minor}.{patch}` is pushed (e.g. `v0.1.4`). CI validates the tag, verifies version sync, builds in dependency order, and publishes all four packages.
-
-```bash
-# Local publish (maintainers)
-npm run publish:packages
-```
-
-After a successful publish, CI bumps `main` to the next patch version and syncs all `package.json` files via `scripts/sync-versions.mjs`.
+Reconcile lets you declare **what** should match and **how** to normalize differences in one config object — the framework handles HTTP, auth, deep compare, and structured diffs.
 
 ## Documentation
 
 | Resource | Description |
 |----------|-------------|
-| [`packages/core/README.md`](./packages/core/README.md) | `testSuite` API, all test modes, reporting |
-| [`packages/reconcile/README.md`](./packages/reconcile/README.md) | Reconcile options, `assertAgainstFile`, diff format |
-| [`packages/api-adapters/README.md`](./packages/api-adapters/README.md) | REST, SOAP, GraphQL adapter config |
-| [`packages/auth-adapters/README.md`](./packages/auth-adapters/README.md) | OAuth2, OpenID, Basic Auth setup |
+| [`packages/core/README.md`](./packages/core/README.md) | Full `testSuite` API and examples |
+| [`packages/reconcile/README.md`](./packages/reconcile/README.md) | Reconcile options and diff format |
+| [`packages/api-adapters/README.md`](./packages/api-adapters/README.md) | REST, SOAP, GraphQL config |
+| [`packages/auth-adapters/README.md`](./packages/auth-adapters/README.md) | OAuth2, OpenID, Basic Auth |
 
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## Development (maintainers)
+
+```bash
+git clone https://github.com/vaagatech/reconcile.git
+cd reconcile
+npm install
+npm run build
+npm run typecheck
+npm run publish:packages   # publish all four npm packages
+```
+
+Monorepo layout: `packages/` (published) · `demo/` (private, not on npm) · `scripts/sync-versions.mjs`
+
+## Full integration demo (optional)
+
+The repo includes a **15-scenario demo** with a mock REST/GraphQL/SOAP server and SQLite seeds. It is reference material only — **not required** for using the npm packages.
+
+```bash
+git clone https://github.com/vaagatech/reconcile.git
+cd reconcile
+npm install
+npm run demo
+```
+
+| # | Scenario | Mode | Highlights |
+|---|----------|------|------------|
+| 1 | `reconcile-ignore-fields` | API ↔ file | Nested `ignoreFields` |
+| 2 | `reconcile-transformations` | Fixture cases | Pass + expected transformation failures |
+| 3 | `db-vs-db-sqlite` | DB ↔ DB | Multi-table JOIN, lookup mapping |
+| 4 | `reconcile-data-mapping-function` | Fixture + DB | Function mapper |
+| 5 | `db-comparison-transformations` | DB ↔ DB | Date normalization |
+| 6 | `reconcile-combined-options` | API ↔ DB | All reconcile options combined |
+| 7 | `api-vs-file-rest` | API ↔ file | OAuth2 REST |
+| 8 | `api-vs-file-graphql` | API ↔ file | OAuth2 GraphQL, 7 fixture cases |
+| 9 | `api-vs-file-soap` | API ↔ file | SOAP vs JSON |
+| 10–15 | `api-vs-db-*`, `db-vs-api-*` | Cross-system | REST, GraphQL, SOAP vs SQLite |
+
+Run one scenario: `npm run start --workspace=@vaagatech/demo-scenario-api-vs-file-graphql`
+
+Copy fixture patterns from `demo/scenarios/*/fixtures/` into your own project.
 
 ## License
 
