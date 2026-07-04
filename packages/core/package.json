@@ -1,6 +1,6 @@
 {
   "name": "@vaagatech/core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Declarative test orchestration DSL — auth, API fixtures, and cross-database reconciliation",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",
@@ -53,9 +53,9 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@vaagatech/api-adapters": "^0.1.1",
-    "@vaagatech/auth-adapters": "^0.1.1",
-    "@vaagatech/reconcile": "^0.1.1",
+    "@vaagatech/api-adapters": "^0.1.2",
+    "@vaagatech/auth-adapters": "^0.1.2",
+    "@vaagatech/reconcile": "^0.1.2",
     "better-sqlite3": "^11.10.0"
   },
   "publishConfig": {

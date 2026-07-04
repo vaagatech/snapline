@@ -1,7 +1,7 @@
 {
   "name": "@vaagatech/demo-scenario-api-vs-db-rest",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Demo scenario: 3. API vs DB (REST + SQLite)",
   "type": "module",
   "main": "./dist/scenario.js",
@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/core": "0.1.1",
-    "@vaagatech/demo-shared": "0.1.1"
+    "@vaagatech/core": "0.1.2",
+    "@vaagatech/demo-shared": "0.1.2"
   }
 }

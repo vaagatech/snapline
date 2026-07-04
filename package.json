@@ -1,7 +1,7 @@
 {
   "name": "@vaagatech/reconcile-workspace",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Declarative Snapshot and Reconciliation Testing — open-source monorepo by VaagaTech",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",
@@ -20,11 +20,13 @@
     "demo/scenarios/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build:packages": "npm run build --workspace=@vaagatech/reconcile && npm run build --workspace=@vaagatech/auth-adapters && npm run build --workspace=@vaagatech/api-adapters && npm run build --workspace=@vaagatech/core",
+    "build:demos": "npm run build --workspace=@vaagatech/demo-shared && npm run build --workspace=@vaagatech/demo-scenario-api-vs-file-rest --workspace=@vaagatech/demo-scenario-db-vs-db-sqlite --workspace=@vaagatech/demo-scenario-api-vs-db-rest --workspace=@vaagatech/demo-scenario-db-vs-api-rest --workspace=@vaagatech/demo-scenario-api-vs-file-graphql --workspace=@vaagatech/demo-scenario-api-vs-db-graphql --workspace=@vaagatech/demo-scenario-db-vs-api-graphql --workspace=@vaagatech/demo-scenario-api-vs-file-soap --workspace=@vaagatech/demo-scenario-api-vs-db-soap --workspace=@vaagatech/demo-scenario-db-vs-api-soap --workspace=@vaagatech/demo-run-all",
+    "build": "npm run build:packages && npm run build:demos",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "demo": "npm run build && npm run start --workspace=@vaagatech/demo-run-all",
     "test": "npm run demo",
-    "publish:packages": "npm run build && npm publish --workspace=@vaagatech/reconcile --access public && npm publish --workspace=@vaagatech/auth-adapters --access public && npm publish --workspace=@vaagatech/api-adapters --access public && npm publish --workspace=@vaagatech/core --access public",
+    "publish:packages": "npm run build:packages && npm publish --workspace=@vaagatech/reconcile --access public && npm publish --workspace=@vaagatech/auth-adapters --access public && npm publish --workspace=@vaagatech/api-adapters --access public && npm publish --workspace=@vaagatech/core --access public",
     "version:sync": "node scripts/sync-versions.mjs",
     "version:verify": "node scripts/sync-versions.mjs --check"
   },
