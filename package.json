@@ -1,7 +1,7 @@
 {
   "name": "@vaagatech/snapline-workspace",
   "private": true,
-  "version": "0.1.8",
+  "version": "0.2.0",
   "description": "Declarative Snapshot and Reconciliation Testing — open-source monorepo by VaagaTech",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",

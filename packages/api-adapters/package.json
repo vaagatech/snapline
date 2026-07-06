@@ -1,6 +1,6 @@
 {
   "name": "@vaagatech/snapline-api-adapters",
-  "version": "0.1.8",
+  "version": "0.2.0",
   "description": "Minimal API adapters for REST, SOAP, and GraphQL — file-driven test requests",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",
@@ -50,7 +50,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@vaagatech/snapline-engine": "^0.1.8"
+    "@vaagatech/snapline-engine": "^0.2.0"
   },
   "publishConfig": {
     "access": "public",
