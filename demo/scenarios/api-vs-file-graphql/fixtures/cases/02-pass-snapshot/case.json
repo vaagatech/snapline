@@ -2,6 +2,5 @@
   "name": "Pass: flat customer snapshot query",
   "expectMatch": true,
   "dataPath": "customerSnapshot",
-  "transformations": "graphqlSnapshot",
-  "dataMapping": "graphqlAccount"
+  "transformations": "graphqlSnapshot"
 }

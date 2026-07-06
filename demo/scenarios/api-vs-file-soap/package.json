@@ -4,22 +4,20 @@
   "version": "0.1.7",
   "description": "Demo scenario: 8. API vs file (SOAP)",
   "type": "module",
-  "main": "./dist/scenario.js",
-  "types": "./dist/scenario.d.ts",
+  "main": "./dist/run.js",
+  "types": "./dist/run.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/scenario.d.ts",
-      "default": "./dist/scenario.js"
-    },
-    "./start": "./dist/start.js"
+      "types": "./dist/run.d.ts",
+      "default": "./dist/run.js"
+    }
   },
   "scripts": {
     "build": "tsup && cp -R fixtures dist/",
-    "start": "node dist/start.js",
+    "start": "node dist/run.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/snapline-core": "0.1.7",
-    "@vaagatech/snapline-demo-shared": "0.1.7"
+    "@vaagatech/snapline-core": "0.1.7"
   }
 }

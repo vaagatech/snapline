@@ -1,0 +1,5 @@
+{
+  "name": "Pass: REST sync with date transform + ignoreFields",
+  "expectMatch": true,
+  "method": "POST"
+}

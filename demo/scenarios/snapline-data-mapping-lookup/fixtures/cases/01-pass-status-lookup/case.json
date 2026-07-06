@@ -1,0 +1,5 @@
+{
+  "name": "Pass: warehouse status mapped with lookup table",
+  "expectMatch": true,
+  "dataMapping": "warehouseStatus"
+}

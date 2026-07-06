@@ -1,0 +1,6 @@
+{
+  "name": "Fail: wrong lookup table produces mismatch",
+  "expectMatch": false,
+  "dataMapping": "wrongStatus",
+  "expectedDiffPath": "status"
+}

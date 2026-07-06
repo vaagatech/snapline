@@ -1,3 +1,6 @@
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { db, type SqliteConnection } from '@vaagatech/snapline-core';
 import { demoDomain } from './demo-domain.js';
 
@@ -110,37 +113,48 @@ function createAuditTable(connection: SqliteConnection, loggedAt: string): void 
   `);
 }
 
-export interface DemoDatabase {
-  sourceDb: SqliteConnection;
-  targetDb: SqliteConnection;
-  appDb: SqliteConnection;
-  auditSourceDb: SqliteConnection;
-  auditTargetDb: SqliteConnection;
+function seedFile(path: string, seed: (connection: SqliteConnection) => void): void {
+  const connection = db.sqlite(path);
+  try {
+    seed(connection);
+  } finally {
+    connection.close();
+  }
 }
 
-export function createDemoDatabase(): DemoDatabase {
-  const sourceDb = db.sqlite(':memory:');
-  seedWarehouseTables(sourceDb, 'source');
-
-  const targetDb = db.sqlite(':memory:');
-  seedWarehouseTables(targetDb, 'target');
-
-  const appDb = db.sqlite(':memory:');
-  seedAppDatabase(appDb);
-
-  const auditSourceDb = db.sqlite(':memory:');
-  createAuditTable(auditSourceDb, demoDomain.auditLoggedAt);
-
-  const auditTargetDb = db.sqlite(':memory:');
-  createAuditTable(auditTargetDb, 'VALID_DATE');
-
-  return { sourceDb, targetDb, appDb, auditSourceDb, auditTargetDb };
+/** Env vars for scenario `db.ts` modules — used only by monorepo `run-all`. */
+export interface DemoDatabaseEnv {
+  SOURCE_DATABASE_URL: string;
+  TARGET_DATABASE_URL: string;
+  APP_DATABASE_URL: string;
+  AUDIT_SOURCE_DATABASE_URL: string;
+  AUDIT_TARGET_DATABASE_URL: string;
+  cleanup: () => void;
 }
 
-export function closeDemoDatabase(database: DemoDatabase): void {
-  database.sourceDb.close();
-  database.targetDb.close();
-  database.appDb.close();
-  database.auditSourceDb.close();
-  database.auditTargetDb.close();
+/** Seeds SQLite files under a temp directory for local `npm run demo`. */
+export function createDemoDatabaseEnv(): DemoDatabaseEnv {
+  const dir = mkdtempSync(join(tmpdir(), 'snapline-demo-'));
+  const paths = {
+    source: join(dir, 'warehouse-source.db'),
+    target: join(dir, 'warehouse-target.db'),
+    app: join(dir, 'app.db'),
+    auditSource: join(dir, 'audit-source.db'),
+    auditTarget: join(dir, 'audit-target.db'),
+  };
+
+  seedFile(paths.source, (c) => seedWarehouseTables(c, 'source'));
+  seedFile(paths.target, (c) => seedWarehouseTables(c, 'target'));
+  seedFile(paths.app, seedAppDatabase);
+  seedFile(paths.auditSource, (c) => createAuditTable(c, demoDomain.auditLoggedAt));
+  seedFile(paths.auditTarget, (c) => createAuditTable(c, 'VALID_DATE'));
+
+  return {
+    SOURCE_DATABASE_URL: paths.source,
+    TARGET_DATABASE_URL: paths.target,
+    APP_DATABASE_URL: paths.app,
+    AUDIT_SOURCE_DATABASE_URL: paths.auditSource,
+    AUDIT_TARGET_DATABASE_URL: paths.auditTarget,
+    cleanup: () => rmSync(dir, { recursive: true, force: true }),
+  };
 }

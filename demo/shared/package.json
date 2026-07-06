@@ -2,7 +2,7 @@
   "name": "@vaagatech/snapline-demo-shared",
   "private": true,
   "version": "0.1.7",
-  "description": "Shared mock server, SQLite setup, and utilities for demo scenarios",
+  "description": "Demo setup only — mock server, SQLite seeds, bootstrap harness",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

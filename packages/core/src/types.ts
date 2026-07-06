@@ -19,6 +19,11 @@ export interface DbConnectionLike {
   query(query: string, params?: Record<string, unknown>): Promise<DbRow[]>;
 }
 
+export interface DocumentStoreLike {
+  find(collection: string, filter?: Record<string, unknown>): Promise<DbRow[]>;
+  findOne?(collection: string, filter?: Record<string, unknown>): Promise<DbRow | null>;
+}
+
 export interface DbQueryConfig {
   db: DbConnectionLike;
   query: string;
@@ -47,10 +52,33 @@ export interface ApiFileTestConfig extends ReconcileOptions {
 }
 
 export interface DbComparisonConfig extends ReconcileOptions {
-  sourceDb: DbConnectionLike;
-  targetDb: DbConnectionLike;
-  query: string;
+  sourceDb: DbConnectionLike | DocumentStoreLike;
+  targetDb: DbConnectionLike | DocumentStoreLike;
+  /**
+   * Run the same SQL on both sides. Shorthand when `sourceQuery` / `targetQuery` are omitted.
+   * For document stores, use `sourceCollection` / `targetCollection` instead.
+   */
+  query?: string;
+  /** SQL run only against the source database */
+  sourceQuery?: string;
+  /** SQL run only against the target database */
+  targetQuery?: string;
   params?: Record<string, unknown>;
+  sourceParams?: Record<string, unknown>;
+  targetParams?: Record<string, unknown>;
+  /**
+   * Map target query parameter (or document filter field) names to source row fields.
+   * Example: `{ orderId: 'orderId' }` uses the source row's `orderId` as `:orderId` in `targetQuery`.
+   */
+  linkKeys?: Record<string, string>;
+  targetParamsFromSource?: (sourceRow: DbRow) => Record<string, unknown>;
+  /** NoSQL: collection queried on the source store */
+  sourceCollection?: string;
+  /** NoSQL: collection queried on the target store */
+  targetCollection?: string;
+  sourceFilter?: Record<string, unknown>;
+  targetFilter?: Record<string, unknown>;
+  targetFilterFromSource?: (sourceRow: DbRow) => Record<string, unknown>;
 }
 
 /** Call API → reconcile response with a DB row. */

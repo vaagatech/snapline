@@ -1,0 +1,23 @@
+{
+  "name": "@vaagatech/snapline-demo-scenario-snapline-data-mapping-lookup",
+  "private": true,
+  "version": "0.1.7",
+  "description": "Demo scenario: Snapline dataMapping lookup table (offline fixture cases)",
+  "type": "module",
+  "main": "./dist/run.js",
+  "types": "./dist/run.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/run.d.ts",
+      "default": "./dist/run.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup && cp -R fixtures dist/",
+    "start": "node dist/run.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vaagatech/snapline-core": "0.1.7"
+  }
+}

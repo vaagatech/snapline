@@ -63,7 +63,7 @@ await testSuite('User sync', {
 });
 ```
 
-### 2. DB vs DB
+### 2. DB vs DB (same query on both sides)
 
 ```javascript
 import { testSuite, db, seedDb } from '@vaagatech/snapline-core';
@@ -81,6 +81,61 @@ await testSuite('DB sync', {
   },
 });
 ```
+
+### 2b. DB vs DB (different queries + primary-key link)
+
+Use `sourceQuery` / `targetQuery` when the source joins multiple tables but the target is looked up by a key from the source row:
+
+```javascript
+await testSuite('Orders sync', {
+  dbComparison: {
+    sourceDb: sourceDb,
+    targetDb: targetDb,
+    sourceQuery: `
+      SELECT o.order_id AS orderId, o.email, o.status, o.amount AS total
+      FROM orders o
+      INNER JOIN customers c ON c.email = o.email
+      WHERE c.email = :email
+    `,
+    sourceParams: { email: 'alice@example.com' },
+    targetQuery: `
+      SELECT order_id AS orderId, email, status, amount AS total
+      FROM orders WHERE order_id = :orderId
+    `,
+    linkKeys: { orderId: 'orderId' },
+    dataMapping: { status: { SHIPPED: 'DELIVERED' } },
+  },
+});
+```
+
+`linkKeys` maps target parameter names → source row fields. You can also pass `targetParamsFromSource: (row) => ({ ... })` for full control.
+
+### 2c. NoSQL document comparison
+
+Implement `DocumentStoreLike` (`find(collection, filter)`) or use the built-in in-memory store:
+
+```javascript
+import { testSuite, nosql } from '@vaagatech/snapline-core';
+
+const sourceStore = nosql.memory();
+const targetStore = nosql.memory();
+
+nosql.seed(sourceStore, 'customers', [{ customerId: '1', email: 'alice@example.com', status: 'ACTIVE' }]);
+nosql.seed(targetStore, 'snapshots', [{ id: '1', email: 'alice@example.com', status: 'ACTIVE' }]);
+
+await testSuite('Document sync', {
+  dbComparison: {
+    sourceDb: sourceStore,
+    targetDb: targetStore,
+    sourceCollection: 'customers',
+    targetCollection: 'snapshots',
+    sourceFilter: { email: 'alice@example.com' },
+    linkKeys: { id: 'customerId' },
+  },
+});
+```
+
+Wire your own MongoDB/DynamoDB client by implementing `DocumentStoreLike` and passing it as `sourceDb` / `targetDb`.
 
 ### 3. API vs DB
 
@@ -174,12 +229,128 @@ await testSuite('SOAP snapshot', {
 
 All comparison modes support `ignoreFields`, `transformations`, and `dataMapping` from `@vaagatech/snapline-engine`.
 
+## Consumer utilities (no need to copy boilerplate)
+
+These ship with `@vaagatech/snapline-core` so you can build fixture-driven test suites without reimplementing them:
+
+| Export | Purpose |
+|--------|---------|
+| `moduleDir(import.meta.url)` | Resolve the current module directory (CJS or ESM) |
+| `fixturesDir(import.meta.url, { relativePath })` | Fixtures directory (default: `../fixtures`) |
+| `resolveReportConfig({ defaultOutputPath })` | Parse report CLI/env; customize default output path |
+| `runApiFixtureCases(options)` | Run API fixture cases from a `cases/` directory |
+| `runSnaplineFixtureCases(options)` | Run offline snapline fixture cases |
+
+Configure fixture file names via `layout` (scenario-level), `defaults`, or per-case `case.json`:
+
+```javascript
+runApiFixtureCases({
+  fixturesRoot: fixturesDir(import.meta.url, { relativePath: '../fixtures' }),
+  layout: {
+    casesDir: 'cases',
+    queryFile: 'query.graphql',
+    variablesFile: 'variables.json',
+    expectedFile: 'expected.json',
+  },
+  defaults: { /* snapline options + optional file name overrides */ },
+});
+```
+
+Set shared snapline options once in `defaults` on the scenario; per-case `case.json` fields override when present:
+
+```javascript
+runApiFixtureCases({
+  fixturesRoot: fixturesDir(import.meta.url),
+  baseUrl,
+  defaults: {
+    dataPath: 'customerAccount',
+    ignoreFields: ['metadata.traceId', 'metadata.syncedAt'],
+    transformations: 'graphqlAccount',  // preset name
+    dataMapping: 'graphqlAccount',
+  },
+  presets: {
+    transformations: { graphqlAccount: graphqlAccountTransforms },
+    dataMapping: { graphqlAccount: { ...graphqlStatusMapping, ...graphqlPlanMapping } },
+  },
+});
+```
+
+A minimal `case.json` then only needs `name` and `expectMatch` unless a case should differ.
+
+### `resolveReportConfig(options?)`
+
+Resolves report output from CLI flags, env vars, or your own default.
+
+| Source | Variable / flag |
+|--------|-----------------|
+| CLI | `--report-format=json\|html\|text`, `--report-output=./path` |
+| Env | `REPORT_FORMAT`, `REPORT_OUTPUT` |
+| Code | `defaultOutputPath` when neither CLI nor env set a path |
+
+```javascript
+import { resolveReportConfig } from '@vaagatech/snapline-core';
+
+// Custom default path (string)
+const report = resolveReportConfig({ defaultOutputPath: './artifacts/latest.json' });
+
+// Or derive from format
+const report2 = resolveReportConfig({
+  defaultOutputPath: (format) => `./reports/run.${format === 'text' ? 'txt' : format}`,
+});
+
+// Still accepts argv array for tests
+const report3 = resolveReportConfig(['node', 'run.mjs', '--report-format=html']);
+```
+
+Returns `undefined` when no format is configured (reporting is optional).
+
+### `fixturesDir(metaUrl, options?)`
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `relativePath` | `../fixtures` | Path relative to the scenario module directory |
+
+### Fixture `layout` — file names and directories
+
+Pass `layout` on `runApiFixtureCases` or `runSnaplineFixtureCases`. Any key can also be set in `defaults` or per-case `case.json` (case wins).
+
+| Key | Default | Used for |
+|-----|---------|----------|
+| `casesDir` | `cases` | Subfolder under `fixturesRoot` |
+| `caseMetaFile` | `case.json` | Case metadata |
+| `expectedFile` | `expected.json` | Golden snapshot |
+| `liveFile` | `live.json` | Offline snapline input (`runSnaplineFixtureCases`) |
+| `queryFile` | `query.graphql` | GraphQL query |
+| `variablesFile` | `variables.json` | GraphQL variables |
+| `restInputFile` | `input.json` | REST request body |
+| `soapInputFile` | `input.xml` | SOAP envelope |
+
+**Override precedence:** `case.json` → `defaults` → `layout` → built-in default.
+
+`DEFAULT_FIXTURE_LAYOUT` is exported if you want to spread/extend defaults in code.
+
+### `runApiFixtureCases` / `runSnaplineFixtureCases` options
+
+| Option | Description |
+|--------|-------------|
+| `suiteName` | Log label |
+| `fixturesRoot` | Root fixtures directory (use `fixturesDir(import.meta.url)`) |
+| `layout` | Scenario-level file/dir names (see table above) |
+| `defaults` | Shared snapline options (`ignoreFields`, `transformations`, `dataMapping`, `dataPath`, …) and optional file-name overrides |
+| `presets` | Named maps for `transformations` / `dataMapping` preset strings in `case.json` |
+| `caseIds` | Run a subset of case folders (default: all under `casesDir`) |
+| `baseUrl` | API base URL (`runApiFixtureCases` only) |
+| `auth` / `authHeaders` | Auth for API cases |
+
+Snapline rule types come from `@vaagatech/snapline-engine` as `SnaplineOptions` (alias of `ReconcileOptions`). The engine also exports `snapline()` as an alias of `reconcile()`.
+
 ## Examples
 
 ```bash
 node packages/core/examples/api-to-db.mjs
 node packages/core/examples/db-to-api.mjs
 node packages/core/examples/db-comparison.mjs
+node packages/core/examples/nosql-comparison.mjs
 node packages/core/examples/graphql-file-test.mjs
 node packages/core/examples/soap-file-test.mjs
 ```

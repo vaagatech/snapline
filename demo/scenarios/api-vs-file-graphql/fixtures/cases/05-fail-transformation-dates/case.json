@@ -3,8 +3,5 @@
   "expectMatch": false,
   "failureType": "transformation",
   "expectedDiffPath": "lastLogin",
-  "dataPath": "customerAccount",
-  "ignoreFields": ["metadata.traceId", "metadata.syncedAt"],
-  "transformations": "roleTierOnly",
-  "dataMapping": "graphqlAccount"
+  "transformations": "roleTierOnly"
 }

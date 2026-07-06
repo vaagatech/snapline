@@ -25,3 +25,6 @@ export function reconcile(
 
   return { match, processed, expected, diff };
 }
+
+/** @alias reconcile */
+export const snapline = reconcile;

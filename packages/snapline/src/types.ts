@@ -26,6 +26,9 @@ export interface ReconcileOptions {
   dataMapping?: DataMappingMap;
 }
 
+/** @alias ReconcileOptions */
+export type SnaplineOptions = ReconcileOptions;
+
 export interface DiffResult {
   path: string;
   actual: unknown;
@@ -42,3 +45,6 @@ export interface ReconcileResult extends CompareResult {
   processed: unknown;
   expected: unknown;
 }
+
+/** @alias ReconcileResult */
+export type SnaplineResult = ReconcileResult;

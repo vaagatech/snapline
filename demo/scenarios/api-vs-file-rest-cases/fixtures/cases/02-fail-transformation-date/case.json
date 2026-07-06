@@ -1,0 +1,7 @@
+{
+  "name": "Fail: missing date transformation",
+  "expectMatch": false,
+  "method": "POST",
+  "transformations": "noDates",
+  "expectedDiffPath": "currentdate"
+}

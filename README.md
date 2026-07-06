@@ -206,16 +206,133 @@ api: {
 
 ---
 
+## Fixture-driven tests
+
+For many cases against the same API (pass paths, expected failures, auth errors), use the **fixture case runners** built into `@vaagatech/snapline-core` instead of writing one `testSuite` per case.
+
+### Suggested layout
+
+```
+my-app-integration-tests/
+├── src/
+│   └── customer-account.test.mjs   # scenario: defaults + presets
+└── fixtures/
+    └── cases/
+        ├── 01-happy-path/
+        │   ├── case.json
+        │   ├── query.graphql
+        │   ├── variables.json
+        │   └── expected.json
+        └── 02-wrong-status-mapping/
+            ├── case.json
+            └── ...
+```
+
+File names are **configurable** via `layout` (see [`packages/core/README.md`](./packages/core/README.md)).
+
+### Scenario file — set defaults once
+
+`src/customer-account.test.mjs`:
+
+```javascript
+import {
+  fixturesDir,
+  resolveReportConfig,
+  runApiFixtureCases,
+  writeTestReport,
+} from '@vaagatech/snapline-core';
+
+const result = await runApiFixtureCases({
+  suiteName: 'Customer account — GraphQL fixture cases',
+  fixturesRoot: fixturesDir(import.meta.url, { relativePath: '../fixtures' }),
+  baseUrl: process.env.API_BASE_URL ?? 'https://your-api.com',
+  defaults: {
+    endpoint: '/graphql',
+    protocol: 'graphql',
+    dataPath: 'customerAccount',
+    ignoreFields: ['metadata.traceId', 'metadata.syncedAt'],
+    transformations: 'accountTransforms',   // preset name
+    dataMapping: 'accountMapping',
+  },
+  presets: {
+    transformations: { accountTransforms: { /* ... */ } },
+    dataMapping: { accountMapping: { /* ... */ } },
+  },
+});
+
+const reportConfig = resolveReportConfig({
+  defaultOutputPath: './reports/customer-account.json',
+});
+if (reportConfig) {
+  writeTestReport([result], reportConfig);
+}
+
+process.exitCode = result.passed ? 0 : 1;
+```
+
+### Minimal `case.json` — override only when needed
+
+Most cases only need:
+
+```json
+{
+  "name": "Happy path — full account",
+  "expectMatch": true
+}
+```
+
+Override a single field for failure cases:
+
+```json
+{
+  "name": "Fail — wrong status mapping",
+  "expectMatch": false,
+  "failureType": "dataMapping",
+  "expectedDiffPath": "status",
+  "dataMapping": "statusOnly"
+}
+```
+
+**Precedence:** `case.json` → `defaults` in scenario → `layout` → built-in file names.
+
+### Offline snapline cases (no HTTP)
+
+Compare `live.json` to `expected.json` without calling an API:
+
+```javascript
+import { fixturesDir, runSnaplineFixtureCases } from '@vaagatech/snapline-core';
+
+await runSnaplineFixtureCases({
+  suiteName: 'Transformations — fixture cases',
+  fixturesRoot: fixturesDir(import.meta.url),
+  defaults: { transformations: 'enrichment' },
+  presets: { transformations: { enrichment: { /* ... */ } } },
+});
+```
+
+### Reports from CLI
+
+```bash
+node src/customer-account.test.mjs --report-format=html --report-output=./reports/run.html
+# or: REPORT_FORMAT=json REPORT_OUTPUT=./reports/run.json node src/customer-account.test.mjs
+```
+
+Full reference: [`packages/core/README.md` — Consumer utilities](./packages/core/README.md#consumer-utilities-no-need-to-copy-boilerplate)
+
+---
+
 ## Test modes
 
 | Mode | Config key | What it does | Protocols |
 |------|------------|--------------|-----------|
 | **API ↔ file** | `api` | Call an API and compare the response to a JSON fixture | REST, SOAP, GraphQL |
-| **DB ↔ DB** | `dbComparison` | Run the same query on two databases and reconcile the rows | Postgres, MySQL, SQLite |
+| **DB ↔ DB** | `dbComparison` | Compare rows from two databases (same or different queries) | Postgres, MySQL, SQLite, NoSQL* |
 | **API ↔ DB** | `apiToDb` | Call an API and reconcile the response with a DB row | REST, SOAP, GraphQL |
 | **DB ↔ API** | `dbToApi` | Read a DB row, call an API, reconcile row with response | REST, SOAP, GraphQL |
 
 Combine multiple modes in one `testSuite` — they run in sequence.
+
+\* **NoSQL:** implement `DocumentStoreLike` (`find(collection, filter)`) or use `nosql.memory()` from core. **Different SQL per side:** use `sourceQuery` / `targetQuery` with `linkKeys` to pass primary keys from the source row into the target query. See [`packages/core/README.md`](./packages/core/README.md).
 
 ## Snapline options
 
@@ -230,14 +347,16 @@ Every comparison accepts:
 Processing order: **ignore → transform → map → deep compare**.
 
 ```javascript
-import { reconcile } from '@vaagatech/snapline-core';
+import { reconcile, snapline, type SnaplineOptions } from '@vaagatech/snapline-core';
 
-const { match, diff } = reconcile(liveData, expectedData, {
+const { match, diff } = snapline(liveData, expectedData, {
   ignoreFields: ['metadata.requestId'],
   transformations: { tier: (v) => String(v).toUpperCase() },
   dataMapping: { status: { ACTIVE: 'ACTV' } },
-});
+} satisfies SnaplineOptions);
 ```
+
+`reconcile()` and `snapline()` are equivalent. Prefer `SnaplineOptions` for new code (`ReconcileOptions` remains as an alias).
 
 ## Usage reference
 
@@ -308,6 +427,7 @@ await testSuite('SOAP snapshot', {
 ```javascript
 import { testSuite, db } from '@vaagatech/snapline-core';
 
+// Same query on both sides
 await testSuite('Warehouse sync', {
   dbComparison: {
     sourceDb: db.postgres(process.env.SOURCE_DATABASE_URL),
@@ -315,6 +435,18 @@ await testSuite('Warehouse sync', {
     query: 'SELECT status, email FROM users WHERE email = :email',
     params: { email: 'alice@example.com' },
     dataMapping: { status: { ABC: 'CBA' } },
+  },
+});
+
+// Different queries — source joins tables, target looks up by primary key
+await testSuite('Orders sync', {
+  dbComparison: {
+    sourceDb,
+    targetDb,
+    sourceQuery: 'SELECT o.order_id AS orderId, o.status FROM orders o WHERE o.email = :email',
+    sourceParams: { email: 'alice@example.com' },
+    targetQuery: 'SELECT order_id AS orderId, status FROM orders WHERE order_id = :orderId',
+    linkKeys: { orderId: 'orderId' },
   },
 });
 ```
@@ -388,7 +520,7 @@ Snapline lets you declare **what** should match and **how** to normalize differe
 
 | Resource | Description |
 |----------|-------------|
-| [`packages/core/README.md`](./packages/core/README.md) | Full `testSuite` API and examples |
+| [`packages/core/README.md`](./packages/core/README.md) | Full `testSuite` API, fixture runners, DB/NoSQL comparison |
 | [`packages/snapline/README.md`](./packages/snapline/README.md) | Snapline options and diff format |
 | [`packages/api-adapters/README.md`](./packages/api-adapters/README.md) | REST, SOAP, GraphQL config |
 | [`packages/auth-adapters/README.md`](./packages/auth-adapters/README.md) | OAuth2, OpenID, Basic Auth |
@@ -412,31 +544,59 @@ Monorepo layout: `packages/` (published) · `demo/` (private, not on npm) · `sc
 
 ## Full integration demo (optional)
 
-The repo includes a **15-scenario demo** with a mock REST/GraphQL/SOAP server and SQLite seeds. It is reference material only — **not required** for using the npm packages.
+The repo includes a **19-scenario demo** with a mock REST/GraphQL/SOAP server and SQLite seeds. It is reference material only — **not required** for using the npm packages.
 
 ```bash
 git clone https://github.com/vaagatech/snapline.git
 cd snapline
 npm install
-npm run demo
+npm run demo          # build + run all scenarios
+npm run demo:list     # list scenario ids
+npm run demo:run -- api-vs-file-graphql   # one scenario (starts mock API/DB when needed)
+npm run demo:build    # build demo workspaces only
 ```
 
 | # | Scenario | Mode | Highlights |
 |---|----------|------|------------|
 | 1 | `snapline-ignore-fields` | API ↔ file | Nested `ignoreFields` |
 | 2 | `snapline-transformations` | Fixture cases | Pass + expected transformation failures |
-| 3 | `db-vs-db-sqlite` | DB ↔ DB | Multi-table JOIN, lookup mapping |
-| 4 | `snapline-data-mapping-function` | Fixture + DB | Function mapper |
-| 5 | `db-comparison-transformations` | DB ↔ DB | Date normalization |
-| 6 | `snapline-combined-options` | API ↔ DB | All reconcile options combined |
-| 7 | `api-vs-file-rest` | API ↔ file | OAuth2 REST |
-| 8 | `api-vs-file-graphql` | API ↔ file | OAuth2 GraphQL, 7 fixture cases |
-| 9 | `api-vs-file-soap` | API ↔ file | SOAP vs JSON |
-| 10–15 | `api-vs-db-*`, `db-vs-api-*` | Cross-system | REST, GraphQL, SOAP vs SQLite |
+| 3 | `snapline-data-mapping-lookup` | Fixture cases | Lookup-table `dataMapping` (offline) |
+| 4 | `db-vs-db-sqlite` | DB ↔ DB | Multi-table JOIN, `linkKeys` |
+| 5 | `db-vs-db-cross-dialect` | DB ↔ DB | Postgres vs MySQL via `seedDb` stub |
+| 6 | `nosql-vs-nosql` | NoSQL ↔ NoSQL | Document stores + `linkKeys` |
+| 7 | `snapline-data-mapping-function` | Fixture + DB | Function mapper |
+| 8 | `db-comparison-transformations` | DB ↔ DB | Date normalization |
+| 9 | `snapline-combined-options` | API ↔ DB | All snapline options combined |
+| 10 | `api-vs-file-rest` | API ↔ file | OAuth2 REST (single fixture) |
+| 11 | `api-vs-file-rest-cases` | API ↔ file | OAuth2 REST fixture cases |
+| 12 | `api-vs-file-graphql` | API ↔ file | OAuth2 GraphQL, 7 fixture cases |
+| 13 | `api-vs-file-soap` | API ↔ file | SOAP vs JSON |
+| 14–19 | `api-vs-db-*`, `db-vs-api-*` | Cross-system | REST, GraphQL, SOAP vs SQLite |
 
-Run one scenario: `npm run start --workspace=@vaagatech/snapline-demo-scenario-api-vs-file-graphql`
+Run one scenario against your hosted API (copy `.env.example` → `.env` first):
 
-Copy fixture patterns from `demo/scenarios/*/fixtures/` into your own project.
+```bash
+cp demo/scenarios/api-vs-file-graphql/.env.example demo/scenarios/api-vs-file-graphql/.env
+# edit API_BASE_URL, CLIENT_ID, CLIENT_SECRET
+npm run start --workspace=@vaagatech/snapline-demo-scenario-api-vs-file-graphql
+```
+
+**Copy a whole scenario folder** into your project — each is a standalone integration test package:
+
+```
+api-vs-file-graphql/
+├── .env.example
+├── fixtures/cases/...
+├── src/
+│   ├── run.ts        # entry — same as a consumer would write
+│   ├── env.ts        # requireEnv, reports
+│   ├── auth.ts       # OAuth from env (when needed)
+│   ├── demo-data.ts  # transforms / mappings for this suite
+│   └── db.ts         # DB connections from env (when needed)
+└── package.json      # only @vaagatech/snapline-core
+```
+
+`npm run demo` in the monorepo starts a **local mock API** and seeds **temp SQLite files**, then sets env vars — that wiring lives only in `demo/run-all`, not in individual scenarios.
 
 ## License
 

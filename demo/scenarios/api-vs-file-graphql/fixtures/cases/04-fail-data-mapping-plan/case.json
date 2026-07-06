@@ -3,8 +3,5 @@
   "expectMatch": false,
   "failureType": "dataMapping",
   "expectedDiffPath": "subscription.planCode",
-  "dataPath": "customerAccount",
-  "ignoreFields": ["metadata.traceId", "metadata.syncedAt"],
-  "transformations": "graphqlAccount",
   "dataMapping": "statusOnly"
 }

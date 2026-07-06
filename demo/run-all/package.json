@@ -29,6 +29,10 @@
     "@vaagatech/snapline-demo-scenario-snapline-combined-options": "0.1.7",
     "@vaagatech/snapline-demo-scenario-snapline-data-mapping-function": "0.1.7",
     "@vaagatech/snapline-demo-scenario-snapline-ignore-fields": "0.1.7",
-    "@vaagatech/snapline-demo-scenario-snapline-transformations": "0.1.7"
+    "@vaagatech/snapline-demo-scenario-snapline-transformations": "0.1.7",
+    "@vaagatech/snapline-demo-scenario-snapline-data-mapping-lookup": "0.1.7",
+    "@vaagatech/snapline-demo-scenario-db-vs-db-cross-dialect": "0.1.7",
+    "@vaagatech/snapline-demo-scenario-nosql-vs-nosql": "0.1.7",
+    "@vaagatech/snapline-demo-scenario-api-vs-file-rest-cases": "0.1.7"
   }
 }

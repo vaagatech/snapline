@@ -1,5 +1,4 @@
 {
   "name": "Pass: enriched profile with date + role/tier transforms",
-  "expectMatch": true,
-  "transformations": "enrichment"
+  "expectMatch": true
 }

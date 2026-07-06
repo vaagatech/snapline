@@ -2,6 +2,12 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  SCENARIO_META,
+  SCENARIO_ORDER,
+  idToImportName,
+  workspaceName,
+} from './scenario-registry.mjs';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const demoRoot = join(scriptDir, '..');
@@ -9,130 +15,6 @@ const repoRoot = join(demoRoot, '..');
 const scenariosDir = join(demoRoot, 'scenarios');
 
 const rootVersion = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8')).version;
-
-/** Demo run order — ids only. Display order is assigned automatically (1-based index). */
-const SCENARIO_ORDER = [
-  'snapline-ignore-fields',
-  'snapline-transformations',
-  'db-vs-db-sqlite',
-  'snapline-data-mapping-function',
-  'db-comparison-transformations',
-  'snapline-combined-options',
-  'api-vs-file-rest',
-  'api-vs-file-graphql',
-  'api-vs-file-soap',
-  'api-vs-db-rest',
-  'api-vs-db-graphql',
-  'api-vs-db-soap',
-  'db-vs-api-rest',
-  'db-vs-api-graphql',
-  'db-vs-api-soap',
-];
-
-/** Per-scenario metadata — do not prefix titles with numbers. */
-const SCENARIO_META = {
-  'snapline-ignore-fields': {
-    title: 'Snapline: ignoreFields (nested paths)',
-    needsServer: true,
-    needsDatabase: false,
-    fixtures: ['tracked-expected.json'],
-  },
-  'snapline-transformations': {
-    title: 'Snapline: transformations (fixture cases)',
-    needsServer: false,
-    needsDatabase: false,
-    fixtures: [],
-  },
-  'db-vs-db-sqlite': {
-    title: 'DB vs DB (SQLite multi-table warehouse)',
-    needsServer: false,
-    needsDatabase: true,
-    fixtures: [],
-  },
-  'snapline-data-mapping-function': {
-    title: 'Snapline: dataMapping (fixture cases + DB)',
-    needsServer: false,
-    needsDatabase: true,
-    fixtures: [],
-  },
-  'db-comparison-transformations': {
-    title: 'Snapline: transformations (DB vs DB + SQLite)',
-    needsServer: false,
-    needsDatabase: true,
-    fixtures: [],
-  },
-  'snapline-combined-options': {
-    title: 'Snapline: combined options',
-    needsServer: true,
-    needsDatabase: true,
-    fixtures: [],
-  },
-  'api-vs-file-rest': {
-    title: 'API vs file (REST + OAuth2)',
-    needsServer: true,
-    needsDatabase: false,
-    fixtures: ['rest-input.json', 'rest-expected.json'],
-  },
-  'api-vs-file-graphql': {
-    title: 'API vs file (GraphQL + OAuth2 fixture cases)',
-    needsServer: true,
-    needsDatabase: false,
-    fixtures: [],
-  },
-  'api-vs-file-soap': {
-    title: 'API vs file (SOAP)',
-    needsServer: true,
-    needsDatabase: false,
-    fixtures: ['soap-request.xml', 'soap-expected.json'],
-  },
-  'api-vs-db-rest': {
-    title: 'API vs DB (REST vs multi-table SQLite JOIN)',
-    needsServer: true,
-    needsDatabase: true,
-    fixtures: [],
-  },
-  'api-vs-db-graphql': {
-    title: 'API vs DB (GraphQL + OAuth2 vs SQLite JOIN)',
-    needsServer: true,
-    needsDatabase: true,
-    fixtures: ['graphql-variables.json'],
-  },
-  'db-vs-api-rest': {
-    title: 'DB vs API (SQLite JOIN vs REST)',
-    needsServer: true,
-    needsDatabase: true,
-    fixtures: [],
-  },
-  'db-vs-api-graphql': {
-    title: 'DB vs API (SQLite JOIN vs OAuth2 GraphQL)',
-    needsServer: true,
-    needsDatabase: true,
-    fixtures: [],
-  },
-  'api-vs-db-soap': {
-    title: 'API vs DB (SOAP vs SQLite JOIN)',
-    needsServer: true,
-    needsDatabase: true,
-    fixtures: ['soap-request.xml'],
-  },
-  'db-vs-api-soap': {
-    title: 'DB vs API (SQLite JOIN vs SOAP)',
-    needsServer: true,
-    needsDatabase: true,
-    fixtures: ['soap-request.xml'],
-  },
-};
-
-function idToImportName(id) {
-  return id
-    .split('-')
-    .map((part, index) => (index === 0 ? part : part[0].toUpperCase() + part.slice(1)))
-    .join('');
-}
-
-function workspaceName(id) {
-  return `@vaagatech/snapline-demo-scenario-${id}`;
-}
 
 function hasFixtureFiles(fixturesDirPath) {
   if (!existsSync(fixturesDirPath)) {
@@ -160,7 +42,7 @@ function validateScenarioRegistry() {
   const unknown = onDisk.filter((id) => !SCENARIO_ORDER.includes(id));
   if (unknown.length > 0) {
     throw new Error(
-      `Scenario directories not listed in SCENARIO_ORDER: ${unknown.join(', ')}. Add them to demo/scripts/scaffold-scenarios.mjs`,
+      `Scenario directories not listed in SCENARIO_ORDER: ${unknown.join(', ')}. Add them to demo/scripts/scenario-registry.mjs`,
     );
   }
 }
@@ -203,44 +85,46 @@ function syncRunAllSource() {
 
   const scenarioRefs = SCENARIO_ORDER.map((id) => `  ${idToImportName(id)},`).join('\n');
 
-  const source = `import { writeTestReport } from '@vaagatech/snapline-core';
+  const source = `import { resolveReportConfig, writeTestReport } from '@vaagatech/snapline-core';
 ${imports}
-import {
-  closeDemoDatabase,
-  createDemoDatabase,
-  createMockServer,
-  resolveReportConfig,
-  type ScenarioModule,
-} from '@vaagatech/snapline-demo-shared';
+import { createDemoDatabaseEnv, createMockServer } from '@vaagatech/snapline-demo-shared';
 
-const scenarios: ScenarioModule[] = [
+const runners = [
 ${scenarioRefs}
 ];
 
+function applyDemoEnv(baseUrl: string, databaseEnv: ReturnType<typeof createDemoDatabaseEnv>): void {
+  process.env.API_BASE_URL = baseUrl;
+  process.env.CLIENT_ID = process.env.CLIENT_ID ?? 'demo-client';
+  process.env.CLIENT_SECRET = process.env.CLIENT_SECRET ?? 'demo-secret';
+  process.env.SOURCE_DATABASE_URL = databaseEnv.SOURCE_DATABASE_URL;
+  process.env.TARGET_DATABASE_URL = databaseEnv.TARGET_DATABASE_URL;
+  process.env.APP_DATABASE_URL = databaseEnv.APP_DATABASE_URL;
+  process.env.AUDIT_SOURCE_DATABASE_URL = databaseEnv.AUDIT_SOURCE_DATABASE_URL;
+  process.env.AUDIT_TARGET_DATABASE_URL = databaseEnv.AUDIT_TARGET_DATABASE_URL;
+}
+
 async function main(): Promise<void> {
   console.log('═══════════════════════════════════════════════════════');
-  console.log('  @vaagatech/snapline-engine — Full Integration Demo');
+  console.log('  Snapline — Full Integration Demo (monorepo)');
   console.log('═══════════════════════════════════════════════════════');
-  console.log('  Projects: ${SCENARIO_ORDER.length} scenario workspaces under demo/scenarios/');
-  console.log('  Modes: API↔file · DB↔DB · API↔DB · DB↔API');
-  console.log('  Protocols: REST · GraphQL · SOAP · SQLite · OAuth2');
-  console.log('  Snapline: ignoreFields · transformations · dataMapping');
-  console.log('  Reports: json · html · text (via REPORT_FORMAT env or CLI flags)');
-  console.log('  Built by VaagaTech — https://www.vaagatech.com');
+  console.log('  ${SCENARIO_ORDER.length} scenarios · npm run demo:list to browse');
+  console.log('  npm run demo:run -- <id> to run one scenario from root');
   console.log('═══════════════════════════════════════════════════════');
 
   const { server, baseUrl } = await createMockServer();
   console.log(\`\\nMock API + GraphQL server listening at \${baseUrl}\`);
 
-  const database = createDemoDatabase();
+  const databaseEnv = createDemoDatabaseEnv();
+  applyDemoEnv(baseUrl, databaseEnv);
+
   const reportConfig = resolveReportConfig();
   const startedAt = Date.now();
-  const context = { baseUrl, database };
 
   try {
     const results = [];
-    for (const scenario of scenarios) {
-      results.push(await scenario.run(context));
+    for (const run of runners) {
+      results.push(await run());
     }
 
     const durationMs = Date.now() - startedAt;
@@ -260,14 +144,13 @@ async function main(): Promise<void> {
         },
       });
       console.log(\`\\nReport written to \${reportPath}\`);
-      console.log('Upload this artifact to your CI dashboard or reporting system.');
     }
 
     if (failed > 0) {
       process.exitCode = 1;
     }
   } finally {
-    closeDemoDatabase(database);
+    databaseEnv.cleanup();
     server.close();
   }
 }
@@ -332,7 +215,6 @@ function scaffoldScenarioProject(id, index) {
           },
           dependencies: {
             '@vaagatech/snapline-core': rootVersion,
-            '@vaagatech/snapline-demo-shared': rootVersion,
           },
         },
         null,
@@ -367,50 +249,88 @@ function scaffoldScenarioProject(id, index) {
       `import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/scenario.ts', 'src/start.ts'],
+  entry: ['src/run.ts'],
   format: ['esm'],
   dts: true,
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['@vaagatech/snapline-core', '@vaagatech/snapline-demo-shared'],
+  external: ['@vaagatech/snapline-core'],
 });
 `,
     );
   }
 
-  const startPath = join(srcDir, 'start.ts');
-  if (!existsSync(startPath)) {
-    writeFileSync(
-      startPath,
-      `import { bootstrapScenario } from '@vaagatech/snapline-demo-shared';
-import scenario from './scenario.js';
+  const envExamplePath = join(dir, '.env.example');
+  if (!existsSync(envExamplePath)) {
+    const lines = ['API_BASE_URL=https://api.example.com'];
+    if (meta.needsServer) {
+      lines.push('CLIENT_ID=', 'CLIENT_SECRET=');
+    }
+    if (meta.needsDatabase) {
+      lines.push(
+        'SOURCE_DATABASE_URL=',
+        'TARGET_DATABASE_URL=',
+        'APP_DATABASE_URL=',
+        'AUDIT_SOURCE_DATABASE_URL=',
+        'AUDIT_TARGET_DATABASE_URL=',
+      );
+    }
+    writeFileSync(envExamplePath, `${lines.join('\n')}\n`);
+  }
 
-const exitCode = await bootstrapScenario(scenario);
-process.exitCode = exitCode;
+  const runPath = join(srcDir, 'run.ts');
+  if (!existsSync(runPath)) {
+    writeFileSync(
+      runPath,
+      `import type { TestSuiteResult } from '@vaagatech/snapline-core';
+import { testSuite } from '@vaagatech/snapline-core';
+import { finalizeRun, isMainModule, requireEnv } from './env.js';
+
+const SUITE_NAME = '${meta.title.replace(/'/g, "\\'")}';
+
+export async function run(): Promise<TestSuiteResult> {
+  const baseUrl = requireEnv('API_BASE_URL');
+  return testSuite(SUITE_NAME, { baseUrl });
+}
+
+export default run;
+
+if (isMainModule(import.meta.url)) {
+  const result = finalizeRun(await run(), SUITE_NAME);
+  process.exitCode = result.passed ? 0 : 1;
+}
 `,
     );
   }
 
-  const scenarioPath = join(srcDir, 'scenario.ts');
-  if (!existsSync(scenarioPath)) {
+  const envPath = join(srcDir, 'env.ts');
+  if (!existsSync(envPath)) {
     writeFileSync(
-      scenarioPath,
-      `import { testSuite } from '@vaagatech/snapline-core';
-import { type ScenarioModule } from '@vaagatech/snapline-demo-shared';
+      envPath,
+      `import { pathToFileURL } from 'node:url';
+import type { TestSuiteResult } from '@vaagatech/snapline-core';
+import { resolveReportConfig, writeTestReport } from '@vaagatech/snapline-core';
 
-const scenario: ScenarioModule = {
-  name: '${meta.title.replace(/'/g, "\\'")}',
-  needsServer: ${meta.needsServer},
-  needsDatabase: ${meta.needsDatabase},
-  async run({ baseUrl, database }) {
-    return testSuite('${meta.title.replace(/'/g, "\\'")}', {
-      baseUrl,
-    });
-  },
-};
+export function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(\`Set \${name} (see .env.example)\`);
+  return value;
+}
 
-export default scenario;
+export function finalizeRun(result: TestSuiteResult, suiteName: string): TestSuiteResult {
+  const reportConfig = resolveReportConfig();
+  if (reportConfig) {
+    writeTestReport([result], reportConfig, { environment: { suite: suiteName } });
+  }
+  return result;
+}
+
+export function isMainModule(metaUrl: string): boolean {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  return import.meta.url === pathToFileURL(entry).href || metaUrl.endsWith(entry);
+}
 `,
     );
   }

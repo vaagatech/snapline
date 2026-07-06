@@ -183,11 +183,16 @@ Full types are exported:
 ```typescript
 import {
   reconcile,
+  snapline,
   type ReconcileOptions,
   type ReconcileResult,
+  type SnaplineOptions,
+  type SnaplineResult,
   type DiffResult,
 } from '@vaagatech/snapline-engine';
 ```
+
+`SnaplineOptions` / `SnaplineResult` and `snapline()` are aliases of `ReconcileOptions` / `ReconcileResult` and `reconcile()`.
 
 ## Module formats
 

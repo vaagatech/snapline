@@ -3,6 +3,5 @@
   "expectMatch": false,
   "failureType": "auth",
   "skipAuth": true,
-  "expectStatus": 401,
-  "dataPath": "customerAccount"
+  "expectStatus": 401
 }
