@@ -1,7 +1,7 @@
 {
   "name": "@vaagatech/snapline-demo-shared",
   "private": true,
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Demo setup only — mock server, SQLite seeds, bootstrap harness",
   "type": "module",
   "main": "./dist/index.js",
@@ -17,9 +17,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/snapline-api-adapters": "0.1.7",
-    "@vaagatech/snapline-auth-adapters": "0.1.7",
-    "@vaagatech/snapline-core": "0.1.7",
+    "@vaagatech/snapline-api-adapters": "0.1.8",
+    "@vaagatech/snapline-auth-adapters": "0.1.8",
+    "@vaagatech/snapline-core": "0.1.8",
     "graphql": "^16.11.0"
   }
 }
