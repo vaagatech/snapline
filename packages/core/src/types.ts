@@ -6,6 +6,7 @@ import type {
   ReconcileOptions,
   TransformationMap,
 } from '@vaagatech/snapline-engine';
+import type { StreamReportOptions } from './reporting/stream-report-options.js';
 
 export type { ApiRequestConfig } from '@vaagatech/snapline-api-adapters';
 
@@ -107,6 +108,8 @@ export interface TestSuiteConfig {
   dbToApi?: DbToApiConfig;
   baseUrl?: string;
   fetchImpl?: FetchImpl;
+  /** Append JSONL events per step (memory-safe for long runs) */
+  streamReport?: StreamReportOptions;
 }
 
 export interface ApiResponse {

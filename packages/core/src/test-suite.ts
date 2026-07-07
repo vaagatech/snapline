@@ -4,6 +4,7 @@ import { runApiToDb } from './cross-system/run-api-to-db.js';
 import { runDbToApi } from './cross-system/run-db-to-api.js';
 import { runDbComparison } from './db-comparison/run-db-comparison.js';
 import { toApiRequestConfig } from './api/to-api-request-config.js';
+import { createStreamReportWriter } from './reporting/stream-report.js';
 import type { TestStepResult, TestSuiteConfig, TestSuiteResult } from './types.js';
 
 function logStepResult(
@@ -33,7 +34,13 @@ export async function testSuite(
     dbToApi,
     baseUrl,
     fetchImpl = globalThis.fetch,
+    streamReport,
   } = config;
+
+  const writer = streamReport ? createStreamReportWriter(streamReport) : null;
+  const emitStep = (step: TestStepResult): void => {
+    writer?.write({ type: 'step', suiteName: name, ...step });
+  };
 
   const results: TestStepResult[] = [];
   let passed = true;
@@ -53,6 +60,7 @@ export async function testSuite(
         passed: true,
         token: authResult.token ? '[redacted]' : null,
       });
+      emitStep(results[results.length - 1]!);
       console.log('  ✓ auth initialized');
     } catch (error) {
       fail();
@@ -95,36 +103,58 @@ export async function testSuite(
         dataMapping,
       });
 
-      results.push({
+      const stepResult: TestStepResult = {
         step: 'api-file',
         passed: assertion.match,
         diff: assertion.diff,
         processed: assertion.processed,
-      });
+      };
+      results.push(stepResult);
+      emitStep(stepResult);
 
       logStepResult('api response reconciled with fixture file', assertion.match, assertion.diff, fail);
     } else {
-      results.push({ step: 'api', passed: true, data: response.data });
+      const stepResult: TestStepResult = { step: 'api', passed: true, data: response.data };
+      results.push(stepResult);
+      emitStep(stepResult);
       console.log('  ✓ api request completed');
     }
   }
 
   if (dbComparison) {
     const dbResult = await runDbComparison(dbComparison);
-    results.push({ step: 'db-to-db', passed: dbResult.match, ...dbResult });
+    const stepResult: TestStepResult = { step: 'db-to-db', passed: dbResult.match, ...dbResult };
+    results.push(stepResult);
+    emitStep(stepResult);
     logStepResult('db-to-db reconciliation passed', dbResult.match, dbResult.diff, fail);
   }
 
   if (apiToDb) {
     const result = await runApiToDb(apiToDb, authHeaders, baseUrl, fetchImpl);
-    results.push({ step: 'api-to-db', passed: result.match, ...result });
+    const stepResult: TestStepResult = { step: 'api-to-db', passed: result.match, ...result };
+    results.push(stepResult);
+    emitStep(stepResult);
     logStepResult('api-to-db reconciliation passed', result.match, result.diff, fail);
   }
 
   if (dbToApi) {
     const result = await runDbToApi(dbToApi, authHeaders, baseUrl, fetchImpl);
-    results.push({ step: 'db-to-api', passed: result.match, ...result });
+    const stepResult: TestStepResult = { step: 'db-to-api', passed: result.match, ...result };
+    results.push(stepResult);
+    emitStep(stepResult);
     logStepResult('db-to-api reconciliation passed', result.match, result.diff, fail);
+  }
+
+  if (writer) {
+    const reportPath = writer.finalize({
+      type: 'summary',
+      suiteName: name,
+      mode: 'test-suite',
+      passed,
+      steps: results.length,
+      at: new Date().toISOString(),
+    });
+    console.log(`  Stream report: ${reportPath}`);
   }
 
   const summary = passed ? 'PASSED' : 'FAILED';

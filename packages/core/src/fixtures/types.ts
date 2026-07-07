@@ -1,6 +1,7 @@
 import type { AuthAdapter } from '@vaagatech/snapline-auth-adapters';
 import type { SnaplineOptions } from '@vaagatech/snapline-engine';
 import type { FixtureLayout } from './fixture-layout.js';
+import type { StreamReportOptions } from '../reporting/stream-report-options.js';
 
 type FixturePresetRef = string;
 
@@ -63,6 +64,8 @@ export interface RunApiFixtureCasesOptions {
   timeoutMs?: number;
   blockPrivateNetworks?: boolean;
   blockMetadataHosts?: boolean;
+  /** Append JSONL events per case (memory-safe for large fixture suites) */
+  streamReport?: StreamReportOptions;
 }
 
 export interface RunSnaplineFixtureCasesOptions {
@@ -72,4 +75,5 @@ export interface RunSnaplineFixtureCasesOptions {
   defaults?: FixtureCaseDefaults;
   presets?: FixtureCasePresetMaps;
   caseIds?: string[];
+  streamReport?: StreamReportOptions;
 }

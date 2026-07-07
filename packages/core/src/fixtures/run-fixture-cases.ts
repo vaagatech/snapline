@@ -7,6 +7,7 @@ import { assertWithinRoot } from '@vaagatech/snapline-engine';
 import { executeApi } from '@vaagatech/snapline-api-adapters';
 import { api } from '../api/index.js';
 import { toApiRequestConfig } from '../api/to-api-request-config.js';
+import { createStreamReportWriter } from '../reporting/stream-report.js';
 import type { TestStepResult, TestSuiteResult } from '../types.js';
 import { caseFilePath, resolveFixtureLayout, type ResolvedFixtureLayout } from './fixture-layout.js';
 import { resolveFixtureSnaplineOptions } from './resolve-fixture-snapline-options.js';
@@ -117,7 +118,12 @@ export async function runApiFixtureCases(
     defaults = {},
     presets = {},
     caseIds,
+    streamReport,
   } = options;
+
+  const writer = streamReport ? createStreamReportWriter(streamReport) : null;
+  let casesPassed = 0;
+  let casesFailed = 0;
 
   const resolvedFixturesRoot = resolve(fixturesRoot);
   const casesRoot = join(resolvedFixturesRoot, layout?.casesDir ?? 'cases');
@@ -168,29 +174,115 @@ export async function runApiFixtureCases(
 
     if (response.status !== expectedStatus) {
       passed = false;
-      results.push({
+      casesFailed += 1;
+      const stepResult: TestStepResult = {
         step: caseId,
         passed: false,
         message: `Expected HTTP ${expectedStatus}, got ${response.status}`,
         data: response.data,
+      };
+      results.push(stepResult);
+      writer?.write({
+        type: 'case',
+        suiteName,
+        caseId,
+        name: meta.name,
+        passed: false,
+        httpStatus: response.status,
+        expectedStatus,
       });
       console.log(`  ✗ ${meta.name}`);
       console.log(`    HTTP ${response.status}`);
       continue;
     }
 
-    if (expectedStatus !== 200) {
-      const casePassed = !expectMatch;
+    const expectedPath = safeCaseFile(caseDir, caseLayout.expectedFile, resolvedFixturesRoot);
+    const hasExpectedFile = exists(expectedPath);
+
+    if (expectedStatus !== 200 && !hasExpectedFile) {
+      casesPassed += 1;
+      const stepResult: TestStepResult = {
+        step: caseId,
+        passed: true,
+        message: meta.failureType ?? `HTTP ${expectedStatus}`,
+        data: response.data,
+      };
+      results.push(stepResult);
+      writer?.write({
+        type: 'case',
+        suiteName,
+        caseId,
+        name: meta.name,
+        passed: true,
+        httpStatus: expectedStatus,
+        failureType: meta.failureType,
+      });
+      logCaseResult(meta.name, true, expectMatch, false, null, meta.failureType);
+      continue;
+    }
+
+    if (expectedStatus !== 200 && hasExpectedFile) {
+      const snaplineOptions = resolveFixtureSnaplineOptions(meta, defaults, presets);
+      const assertion = assertAgainstFile(response.data, expectedPath, snaplineOptions);
+      const casePassed = assertion.match === expectMatch;
+
+      if (meta.expectedDiffPath && !expectMatch) {
+        const diffPath = assertion.diff?.path ?? '';
+        if (!diffPath.startsWith(meta.expectedDiffPath)) {
+          passed = false;
+          casesFailed += 1;
+          results.push({
+            step: caseId,
+            passed: false,
+            message: `Expected diff at "${meta.expectedDiffPath}", got "${diffPath || '(none)'}"`,
+            diff: assertion.diff,
+            processed: assertion.processed,
+          });
+          writer?.write({
+            type: 'case',
+            suiteName,
+            caseId,
+            name: meta.name,
+            passed: false,
+            httpStatus: expectedStatus,
+          });
+          logCaseResult(meta.name, false, expectMatch, assertion.match, assertion.diff);
+          continue;
+        }
+      }
+
       if (!casePassed) {
         passed = false;
+        casesFailed += 1;
+      } else {
+        casesPassed += 1;
       }
+
       results.push({
         step: caseId,
         passed: casePassed,
+        diff: assertion.diff,
+        processed: assertion.processed,
         message: meta.failureType,
         data: response.data,
       });
-      logCaseResult(meta.name, casePassed, expectMatch, false, null, meta.failureType);
+      writer?.write({
+        type: 'case',
+        suiteName,
+        caseId,
+        name: meta.name,
+        passed: casePassed,
+        httpStatus: expectedStatus,
+        failureType: meta.failureType,
+      });
+      logCaseResult(
+        meta.name,
+        casePassed,
+        expectMatch,
+        assertion.match,
+        casePassed ? null : assertion.diff,
+        meta.failureType,
+      );
       continue;
     }
 
@@ -207,12 +299,21 @@ export async function runApiFixtureCases(
       const diffPath = assertion.diff?.path ?? '';
       if (!diffPath.startsWith(meta.expectedDiffPath)) {
         passed = false;
+        casesFailed += 1;
         results.push({
           step: caseId,
           passed: false,
           message: `Expected diff at "${meta.expectedDiffPath}", got "${diffPath || '(none)'}"`,
           diff: assertion.diff,
           processed: assertion.processed,
+        });
+        writer?.write({
+          type: 'case',
+          suiteName,
+          caseId,
+          name: meta.name,
+          passed: false,
+          httpStatus: expectedStatus,
         });
         logCaseResult(meta.name, false, expectMatch, assertion.match, assertion.diff);
         continue;
@@ -221,6 +322,9 @@ export async function runApiFixtureCases(
 
     if (!casePassed) {
       passed = false;
+      casesFailed += 1;
+    } else {
+      casesPassed += 1;
     }
 
     results.push({
@@ -231,7 +335,30 @@ export async function runApiFixtureCases(
       message: meta.failureType,
     });
 
+    writer?.write({
+      type: 'case',
+      suiteName,
+      caseId,
+      name: meta.name,
+      passed: casePassed,
+      httpStatus: expectedStatus,
+    });
+
     logCaseResult(meta.name, casePassed, expectMatch, assertion.match, casePassed ? null : assertion.diff);
+  }
+
+  if (writer) {
+    const reportPath = writer.finalize({
+      type: 'summary',
+      suiteName,
+      mode: 'api-fixture-cases',
+      total: ids.length,
+      passed: casesPassed,
+      failed: casesFailed,
+      suitePassed: passed,
+      at: new Date().toISOString(),
+    });
+    console.log(`  Stream report: ${reportPath}`);
   }
 
   const summary = passed ? 'PASSED' : 'FAILED';
@@ -243,12 +370,15 @@ export async function runApiFixtureCases(
 export async function runSnaplineFixtureCases(
   options: RunSnaplineFixtureCasesOptions,
 ): Promise<TestSuiteResult> {
-  const { suiteName, fixturesRoot, layout, defaults, presets = {}, caseIds } = options;
+  const { suiteName, fixturesRoot, layout, defaults, presets = {}, caseIds, streamReport } = options;
   const resolvedFixturesRoot = resolve(fixturesRoot);
   const casesRoot = join(resolvedFixturesRoot, layout?.casesDir ?? 'cases');
   const ids = caseIds ?? discoverCaseIds(casesRoot, resolvedFixturesRoot);
   const results: TestStepResult[] = [];
   let passed = true;
+  const writer = streamReport ? createStreamReportWriter(streamReport) : null;
+  let casesPassed = 0;
+  let casesFailed = 0;
 
   console.log(`\n▶ ${suiteName}`);
 
@@ -271,12 +401,14 @@ export async function runSnaplineFixtureCases(
       const diffPath = assertion.diff?.path ?? '';
       if (!diffPath.startsWith(meta.expectedDiffPath)) {
         passed = false;
+        casesFailed += 1;
         results.push({
           step: caseId,
           passed: false,
           message: `Expected diff at "${meta.expectedDiffPath}", got "${diffPath || '(none)'}"`,
           diff: assertion.diff,
         });
+        writer?.write({ type: 'case', suiteName, caseId, name: meta.name, passed: false, mode: 'offline' });
         logCaseResult(meta.name, false, meta.expectMatch, assertion.match, assertion.diff);
         continue;
       }
@@ -284,6 +416,9 @@ export async function runSnaplineFixtureCases(
 
     if (!casePassed) {
       passed = false;
+      casesFailed += 1;
+    } else {
+      casesPassed += 1;
     }
 
     results.push({
@@ -294,7 +429,30 @@ export async function runSnaplineFixtureCases(
       message: meta.failureType,
     });
 
+    writer?.write({
+      type: 'case',
+      suiteName,
+      caseId,
+      name: meta.name,
+      passed: casePassed,
+      mode: 'offline',
+    });
+
     logCaseResult(meta.name, casePassed, meta.expectMatch, assertion.match, casePassed ? null : assertion.diff);
+  }
+
+  if (writer) {
+    const reportPath = writer.finalize({
+      type: 'summary',
+      suiteName,
+      mode: 'snapline-fixture-cases',
+      total: ids.length,
+      passed: casesPassed,
+      failed: casesFailed,
+      suitePassed: passed,
+      at: new Date().toISOString(),
+    });
+    console.log(`  Stream report: ${reportPath}`);
   }
 
   const summary = passed ? 'PASSED' : 'FAILED';

@@ -43,6 +43,7 @@ export type { ResolveReportConfigOptions } from './reporting/resolve-report-conf
 export { resolveReportConfig } from './reporting/resolve-report-config.js';
 export { buildReport, renderReport, writeTestReport } from './reporting/write-report.js';
 export { createStreamReportWriter } from './reporting/stream-report.js';
+export type { StreamReportOptions } from './reporting/stream-report-options.js';
 export type { StreamReportWriter } from './reporting/stream-report.js';
 export { redactFields, redactSuiteResults } from './reporting/redact-fields.js';
 export type { FixturesDirOptions } from './io/module-dir.js';
