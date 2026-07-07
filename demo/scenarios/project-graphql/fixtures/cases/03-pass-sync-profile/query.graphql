@@ -1,0 +1,9 @@
+mutation SyncProfile($customerId: ID!, $segment: String!) {
+  syncCustomerProfile(customerId: $customerId, segment: $segment) {
+    customerId
+    email
+    status
+    segment
+    syncedAt
+  }
+}

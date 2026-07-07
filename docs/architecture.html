@@ -10,7 +10,7 @@
   <div class="layout">
     <aside class="sidebar">
       <a class="brand" href="index.html">Snapline</a>
-      <span class="brand-sub">Node.js · @vaagatech/snapline-core</span>
+      <span class="brand-sub">by <a href="https://www.vaagatech.com">VaagaTech</a> · Node.js</span>
       <nav class="nav">
         <div class="nav-section">Documentation</div>
         <a href="index.html">Overview</a>
@@ -19,11 +19,17 @@
         <a href="guide.html">End-to-End Guide</a>
         <a href="demos.html">Demo Scenarios</a>
         <a href="reference.html">API Reference</a>
+        <div class="nav-section">VaagaTech</div>
+        <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">vaagatech.com</a>
         <div class="nav-section">Links</div>
         <a href="https://github.com/vaagatech/snapline">GitHub</a>
         <a href="https://www.npmjs.com/package/@vaagatech/snapline-core">npm</a>
         <a href="https://github.com/vaagatech/snapline-python">Python version</a>
       </nav>
+      <div class="sidebar-company">
+        Built by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a>.
+        Visit <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">www.vaagatech.com</a> for engineering services and open-source products.
+      </div>
     </aside>
     <main class="content">
       <header class="hero">
@@ -57,7 +63,7 @@
           <tr>
             <td><code>@vaagatech/snapline-core</code></td>
             <td>Orchestration — wires auth, HTTP, DB, fixtures, reports</td>
-            <td><code>testSuite</code>, <code>runApiFixtureCases</code>, <code>runDbComparison</code>, <code>writeTestReport</code></td>
+            <td><code>testSuite</code>, <code>runApiFixtureCases</code>, <code>runDbComparison</code>, <code>runWarehouseComparison</code>, <code>DbConnectionLike</code>, <code>writeTestReport</code></td>
           </tr>
           <tr>
             <td><code>@vaagatech/snapline-engine</code></td>
@@ -108,10 +114,13 @@
 │   ├── snapline/       @vaagatech/snapline-engine
 │   ├── api-adapters/   @vaagatech/snapline-api-adapters
 │   └── auth-adapters/  @vaagatech/snapline-auth-adapters
-└── demo/               private — mock server + 19 scenarios
-    ├── shared/         mock REST/GraphQL/SOAP + SQLite seeds
+└── demo/               private — mock server + 21 scenarios
+    ├── shared/         @vaagatech/snapline-demo-shared (mock API + SQLite)
     ├── scenarios/      one package per scenario
-    └── run-all/        runs all 19 sequentially</code></pre>
+    └── run-all/        runs all 21 sequentially</code></pre>
+
+      <h2>Published package dependencies</h2>
+      <p><code>@vaagatech/snapline-core</code> has <strong>zero external runtime dependencies</strong>. It exports the <code>DbConnectionLike</code> interface for SQL — you bring your own Postgres/MySQL driver. SQLite and stub DB helpers live in <code>@vaagatech/snapline-demo-shared</code> (demo only, not published to npm consumers as a required dependency).</p>
 
       <h2>Security &amp; reliability</h2>
       <ul>
@@ -123,6 +132,7 @@
 
       <footer class="footer">
         <p><a href="getting-started.html">Getting Started →</a></p>
+        <p class="footer-muted">Snapline by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a> · <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">www.vaagatech.com</a> · MIT License</p>
       </footer>
     </main>
   </div>

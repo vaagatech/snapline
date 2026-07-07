@@ -10,7 +10,7 @@
   <div class="layout">
     <aside class="sidebar">
       <a class="brand" href="index.html">Snapline</a>
-      <span class="brand-sub">Node.js · @vaagatech/snapline-core</span>
+      <span class="brand-sub">by <a href="https://www.vaagatech.com">VaagaTech</a> · Node.js</span>
       <nav class="nav">
         <div class="nav-section">Documentation</div>
         <a href="index.html">Overview</a>
@@ -19,11 +19,17 @@
         <a href="guide.html">End-to-End Guide</a>
         <a href="demos.html">Demo Scenarios</a>
         <a href="reference.html">API Reference</a>
+        <div class="nav-section">VaagaTech</div>
+        <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">vaagatech.com</a>
         <div class="nav-section">Links</div>
         <a href="https://github.com/vaagatech/snapline">GitHub</a>
         <a href="https://www.npmjs.com/package/@vaagatech/snapline-core">npm</a>
         <a href="https://github.com/vaagatech/snapline-python">Python version</a>
       </nav>
+      <div class="sidebar-company">
+        Built by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a>.
+        Visit <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">www.vaagatech.com</a> for engineering services and open-source products.
+      </div>
     </aside>
     <main class="content">
       <header class="hero">
@@ -99,11 +105,11 @@ node tests/user-sync.test.mjs</code></pre>
       <p>On failure you get a structured diff with field paths and actual vs expected values.</p>
 
       <h2>Try the repo demo (optional)</h2>
-      <p>The Snapline monorepo includes 19 runnable scenarios with a local mock API and SQLite databases:</p>
+      <p>The Snapline monorepo includes 21 runnable scenarios with a local mock API and demo SQLite databases (<code>@vaagatech/snapline-demo-shared</code>):</p>
       <pre><code>git clone https://github.com/vaagatech/snapline.git
 cd snapline
 npm install
-npm run demo          # build + run all 19 scenarios
+npm run demo          # build + run all 21 scenarios
 npm run demo:list     # list scenario ids
 npm run demo:run -- api-vs-file-graphql</code></pre>
 
@@ -119,6 +125,7 @@ npm run demo</code></pre>
 
       <footer class="footer">
         <p><a href="guide.html">End-to-End Guide →</a></p>
+        <p class="footer-muted">Snapline by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a> · <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">www.vaagatech.com</a> · MIT License</p>
       </footer>
     </main>
   </div>

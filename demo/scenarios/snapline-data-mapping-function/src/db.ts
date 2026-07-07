@@ -1,4 +1,4 @@
-import { db, type SqliteConnection } from '@vaagatech/snapline-core';
+import { db, type SqliteConnection } from '@vaagatech/snapline-demo-shared';
 import { requireEnv } from './env.js';
 
 export function openWarehouseDbs(): {

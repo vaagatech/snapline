@@ -1,0 +1,6 @@
+{
+  "name": "Op3 — fail orders count",
+  "expectMatch": false,
+  "failureType": "transformation",
+  "dataPath": "customerOrders"
+}

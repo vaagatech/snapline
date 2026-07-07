@@ -1,5 +1,8 @@
 /** Single source of truth for demo scenarios — used by scaffold, run-all sync, and `npm run demo:run`. */
 
+export const DOCS_URL = 'https://vaagatech.github.io/snapline/';
+export const PYTHON_DOCS_URL = 'https://vaagatech.github.io/snapline-python/';
+
 export const SCENARIO_ORDER = [
   'snapline-ignore-fields',
   'snapline-transformations',
@@ -20,6 +23,8 @@ export const SCENARIO_ORDER = [
   'db-vs-api-rest',
   'db-vs-api-graphql',
   'db-vs-api-soap',
+  'project-graphql',
+  'project-db',
 ];
 
 export const SCENARIO_META = {
@@ -155,6 +160,20 @@ export const SCENARIO_META = {
     needsServer: true,
     needsDatabase: true,
     fixtures: ['soap-request.xml'],
+  },
+  'project-graphql': {
+    title: 'Project GraphQL — 3 operations (Auth0/Okta fixture cases)',
+    modes: ['runApiFixtureCases', 'graphql', 'auth'],
+    needsServer: true,
+    needsDatabase: false,
+    fixtures: [],
+  },
+  'project-db': {
+    title: 'Project DB — SQL warehouse → NoSQL streamed consistency',
+    modes: ['runWarehouseComparison', 'dbComparison', 'streaming'],
+    needsServer: false,
+    needsDatabase: false,
+    fixtures: [],
   },
 };
 

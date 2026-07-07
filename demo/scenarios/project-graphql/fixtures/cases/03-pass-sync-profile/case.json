@@ -1,0 +1,8 @@
+{
+  "name": "Op2 — syncCustomerProfile pass",
+  "expectMatch": true,
+  "dataPath": "syncCustomerProfile",
+  "transformations": "account",
+  "dataMapping": "sync",
+  "ignoreFields": ["syncedAt"]
+}

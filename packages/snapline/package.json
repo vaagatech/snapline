@@ -4,7 +4,7 @@
   "description": "Deep data reconciliation engine for declarative snapshot testing — field stripping, transforms, and structural mapping",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",
-  "homepage": "https://www.vaagatech.com",
+  "homepage": "https://vaagatech.github.io/snapline/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vaagatech/snapline.git",

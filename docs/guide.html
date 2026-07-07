@@ -10,7 +10,7 @@
   <div class="layout">
     <aside class="sidebar">
       <a class="brand" href="index.html">Snapline</a>
-      <span class="brand-sub">Node.js · @vaagatech/snapline-core</span>
+      <span class="brand-sub">by <a href="https://www.vaagatech.com">VaagaTech</a> · Node.js</span>
       <nav class="nav">
         <div class="nav-section">Documentation</div>
         <a href="index.html">Overview</a>
@@ -19,11 +19,17 @@
         <a href="guide.html" class="active">End-to-End Guide</a>
         <a href="demos.html">Demo Scenarios</a>
         <a href="reference.html">API Reference</a>
+        <div class="nav-section">VaagaTech</div>
+        <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">vaagatech.com</a>
         <div class="nav-section">Links</div>
         <a href="https://github.com/vaagatech/snapline">GitHub</a>
         <a href="https://www.npmjs.com/package/@vaagatech/snapline-core">npm</a>
         <a href="https://github.com/vaagatech/snapline-python">Python version</a>
       </nav>
+      <div class="sidebar-company">
+        Built by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a>.
+        Visit <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">www.vaagatech.com</a> for engineering services and open-source products.
+      </div>
     </aside>
     <main class="content">
       <header class="hero">
@@ -107,13 +113,17 @@ await testSuite('GraphQL snapshot', {
 });</code></pre>
 
       <h2>Step 4 — Database comparison</h2>
+      <p>Implement <code>DbConnectionLike</code> with your SQL driver, or use the in-memory example from <code>packages/core/examples/in-memory-db.mjs</code>.</p>
       <h3>Same query on both sides</h3>
-      <pre><code>import { db, seedDb } from '@vaagatech/snapline-core';
+      <pre><code>import { createInMemoryDb } from '@vaagatech/snapline-core/examples/in-memory-db.mjs';
+
+const sourceDb = createInMemoryDb([{ status: 'ABC', email: 'alice@example.com' }]);
+const targetDb = createInMemoryDb([{ status: 'CBA', email: 'alice@example.com' }]);
 
 await testSuite('Warehouse sync', {
   dbComparison: {
-    sourceDb: db.postgres(process.env.SOURCE_DATABASE_URL),
-    targetDb: db.mysql(process.env.TARGET_DATABASE_URL),
+    sourceDb,
+    targetDb,
     query: 'SELECT status, email FROM users WHERE email = :email',
     params: { email: 'alice@example.com' },
     dataMapping: { status: { ABC: 'CBA' } },
@@ -150,14 +160,17 @@ await testSuite('Document sync', {
 
       <h2>Step 5 — Cross-system (API ↔ DB)</h2>
       <h3>API vs DB</h3>
-      <pre><code>import { api, db } from '@vaagatech/snapline-core';
+      <pre><code>import { api } from '@vaagatech/snapline-core';
+import { createInMemoryDb } from '@vaagatech/snapline-core/examples/in-memory-db.mjs';
+
+const appDb = createInMemoryDb([{ email: 'alice@example.com', status: 'SYNCED', role: 'member' }]);
 
 await testSuite('Profile — API matches DB', {
   baseUrl: 'https://api.example.com',
   apiToDb: {
     api: api.rest({ endpoint: '/users/profile?email=alice@example.com', method: 'GET' }),
     db: {
-      db: db.postgres(process.env.DATABASE_URL),
+      db: appDb,
       query: 'SELECT email, status, role FROM users WHERE email = :email',
       params: { email: 'alice@example.com' },
     },
@@ -171,7 +184,7 @@ await testSuite('Profile — API matches DB', {
   baseUrl: 'https://api.example.com',
   dbToApi: {
     db: {
-      db: db.postgres(process.env.DATABASE_URL),
+      db: appDb,
       query: 'SELECT email, status FROM users WHERE email = :email',
       params: { email: 'alice@example.com' },
     },
@@ -181,7 +194,25 @@ await testSuite('Profile — API matches DB', {
   },
 });</code></pre>
 
-      <h2>Step 6 — Fixture-driven cases</h2>
+      <h2>Step 6 — Warehouse comparison (SQL → NoSQL)</h2>
+      <p>For ETL pipelines that replicate many SQL tables into a document store, use <code>runWarehouseComparison</code>. It processes rows in chunks and streams a JSONL report — see demo <code>project-db</code>.</p>
+      <pre><code>import { runWarehouseComparison, nosql } from '@vaagatech/snapline-core';
+
+await runWarehouseComparison({
+  suiteName: 'Warehouse sync',
+  sourceDb,                    // DbConnectionLike — your SQL warehouse
+  targetDb: nosql.memory(),   // DocumentStoreLike — e.g. MongoDB adapter
+  tables: [{
+    id: 'wh_customers',
+    sourceQuery: 'SELECT customer_id AS customerId, email, status FROM wh_customers',
+    targetCollection: 'customers',
+    linkKeys: { customerId: 'customerId' },
+  }],
+  chunkSize: 50,
+  report: { outputPath: './reports/warehouse.jsonl', format: 'jsonl' },
+});</code></pre>
+
+      <h2>Step 7 — Fixture-driven cases</h2>
       <p>For many scenarios (happy path, expected failures, auth errors), use fixture case runners instead of one <code>testSuite</code> per case.</p>
       <pre><code>fixtures/
 └── cases/
@@ -235,7 +266,7 @@ await runSnaplineFixtureCases({
   presets: { transformations: { enrichment: { /* ... */ } } },
 });</code></pre>
 
-      <h2>Step 7 — Reports and CI</h2>
+      <h2>Step 8 — Reports and CI</h2>
       <pre><code>import { resolveReportConfig, writeTestReport } from '@vaagatech/snapline-core';
 
 const result = await testSuite('User sync', { /* ... */ });
@@ -254,7 +285,7 @@ process.exitCode = result.passed ? 0 : 1;</code></pre>
 REPORT_FORMAT=json REPORT_OUTPUT=./reports/run.json node tests/run.mjs
 REPORT_REDACT_FIELDS=data,processed node tests/run.mjs</code></pre>
 
-      <h2>Step 8 — Auth adapters</h2>
+      <h2>Step 9 — Auth adapters</h2>
       <pre><code>import { auth } from '@vaagatech/snapline-core';
 
 auth.oauth2({ tokenUrl, clientId, clientSecret });
@@ -263,11 +294,12 @@ auth.basic({ username, password });</code></pre>
       <p>Pass <code>auth</code> to <code>testSuite</code> or <code>runApiFixtureCases</code>. Headers are applied to all API calls. Per-case <code>skipAuth: true</code> in <code>case.json</code> tests 401 paths.</p>
 
       <div class="callout">
-        <strong>Tip:</strong> Copy any folder under <code>demo/scenarios/</code> into your project — each is a standalone integration test package using only <code>@vaagatech/snapline-core</code>.
+        <strong>Tip:</strong> Copy any folder under <code>demo/scenarios/</code> into your project. API-only scenarios depend on <code>@vaagatech/snapline-core</code>; DB scenarios also use <code>@vaagatech/snapline-demo-shared</code> for SQLite stubs in development.
       </div>
 
       <footer class="footer">
         <p><a href="demos.html">Demo Scenarios →</a> · <a href="reference.html">API Reference →</a></p>
+        <p class="footer-muted">Snapline by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a> · <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">www.vaagatech.com</a> · MIT License</p>
       </footer>
     </main>
   </div>

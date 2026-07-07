@@ -4,7 +4,7 @@
   "description": "Minimal API adapters for REST, SOAP, and GraphQL — file-driven test requests",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",
-  "homepage": "https://www.vaagatech.com",
+  "homepage": "https://vaagatech.github.io/snapline/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vaagatech/snapline.git",

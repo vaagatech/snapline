@@ -12,6 +12,5 @@ export default defineConfig({
     '@vaagatech/snapline-api-adapters',
     '@vaagatech/snapline-auth-adapters',
     '@vaagatech/snapline-engine',
-    'better-sqlite3',
   ],
 });

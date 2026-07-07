@@ -23,7 +23,7 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  font-family: var(--font);
+  font-family: var(--font), sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.65;
@@ -46,6 +46,8 @@ a:hover { text-decoration: underline; }
   background: var(--surface);
   border-right: 1px solid var(--border);
   padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .brand {
@@ -161,14 +163,14 @@ pre {
   border-radius: var(--radius);
   padding: 1rem 1.1rem;
   overflow-x: auto;
-  font-family: var(--mono);
+  font-family: var(--mono), monospace;
   font-size: 0.82rem;
   line-height: 1.55;
   max-width: 100%;
 }
 
 code {
-  font-family: var(--mono);
+  font-family: var(--mono), monospace;
   font-size: 0.88em;
   background: var(--surface-2);
   padding: 0.12rem 0.35rem;
@@ -204,7 +206,7 @@ tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.25rem;
-  font-family: var(--mono);
+  font-family: var(--mono), monospace;
   font-size: 0.78rem;
   line-height: 1.45;
   overflow-x: auto;
@@ -221,6 +223,52 @@ tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
 }
 
 .callout strong { color: var(--accent-2); }
+
+.brand-sub a {
+  color: var(--accent-2);
+}
+
+.company-callout {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(96, 165, 250, 0.06));
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.company-callout strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+  color: var(--text);
+}
+
+.company-callout p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  max-width: 65ch;
+}
+
+.sidebar-company {
+  margin-top: auto;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.sidebar-company a {
+  color: var(--accent-2);
+  font-weight: 600;
+}
+
+.footer-muted {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
 
 .footer {
   margin-top: 3rem;

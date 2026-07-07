@@ -4,7 +4,7 @@
   "description": "Pluggable authentication adapters for OAuth2, OpenID Connect, and Basic Auth in test automation",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",
-  "homepage": "https://www.vaagatech.com",
+  "homepage": "https://vaagatech.github.io/snapline/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vaagatech/snapline.git",

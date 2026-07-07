@@ -1,0 +1,8 @@
+{
+  "name": "Auth — missing bearer token (401)",
+  "expectMatch": false,
+  "expectStatus": 401,
+  "failureType": "auth",
+  "skipAuth": true,
+  "dataPath": "customerAccount"
+}

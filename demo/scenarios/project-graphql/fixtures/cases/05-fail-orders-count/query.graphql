@@ -1,0 +1,8 @@
+query CustomerOrders($email: String!, $limit: Int) {
+  customerOrders(email: $email, limit: $limit) {
+    orderId
+    sku
+    quantity
+    amount
+  }
+}

@@ -1,0 +1,6 @@
+query CustomerAccount($email: String!) {
+  customerAccount(email: $email) {
+    customerId
+    email
+  }
+}

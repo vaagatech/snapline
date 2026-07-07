@@ -5,7 +5,7 @@
   "description": "Declarative Snapshot and Reconciliation Testing — open-source monorepo by VaagaTech",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",
-  "homepage": "https://github.com/vaagatech/snapline#readme",
+  "homepage": "https://vaagatech.github.io/snapline/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vaagatech/snapline.git"
@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "build:packages": "npm run build --workspace=@vaagatech/snapline-engine && npm run build --workspace=@vaagatech/snapline-auth-adapters && npm run build --workspace=@vaagatech/snapline-api-adapters && npm run build --workspace=@vaagatech/snapline-core",
-    "build:demos": "npm run build --workspace=@vaagatech/snapline-demo-shared && npm run build --workspace=@vaagatech/snapline-demo-scenario-snapline-ignore-fields && npm run build --workspace=@vaagatech/snapline-demo-scenario-snapline-transformations && npm run build --workspace=@vaagatech/snapline-demo-scenario-snapline-data-mapping-lookup && npm run build --workspace=@vaagatech/snapline-demo-scenario-db-vs-db-sqlite && npm run build --workspace=@vaagatech/snapline-demo-scenario-db-vs-db-cross-dialect && npm run build --workspace=@vaagatech/snapline-demo-scenario-nosql-vs-nosql && npm run build --workspace=@vaagatech/snapline-demo-scenario-snapline-data-mapping-function && npm run build --workspace=@vaagatech/snapline-demo-scenario-db-comparison-transformations && npm run build --workspace=@vaagatech/snapline-demo-scenario-snapline-combined-options && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-file-rest && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-file-rest-cases && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-file-graphql && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-file-soap && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-db-rest && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-db-graphql && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-db-soap && npm run build --workspace=@vaagatech/snapline-demo-scenario-db-vs-api-rest && npm run build --workspace=@vaagatech/snapline-demo-scenario-db-vs-api-graphql && npm run build --workspace=@vaagatech/snapline-demo-scenario-db-vs-api-soap && npm run build --workspace=@vaagatech/snapline-demo-run-all",
+    "build:demos": "npm run build --workspace=@vaagatech/snapline-demo-shared && npm run build --workspace=@vaagatech/snapline-demo-scenario-snapline-ignore-fields && npm run build --workspace=@vaagatech/snapline-demo-scenario-snapline-transformations && npm run build --workspace=@vaagatech/snapline-demo-scenario-snapline-data-mapping-lookup && npm run build --workspace=@vaagatech/snapline-demo-scenario-db-vs-db-sqlite && npm run build --workspace=@vaagatech/snapline-demo-scenario-db-vs-db-cross-dialect && npm run build --workspace=@vaagatech/snapline-demo-scenario-nosql-vs-nosql && npm run build --workspace=@vaagatech/snapline-demo-scenario-snapline-data-mapping-function && npm run build --workspace=@vaagatech/snapline-demo-scenario-db-comparison-transformations && npm run build --workspace=@vaagatech/snapline-demo-scenario-snapline-combined-options && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-file-rest && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-file-rest-cases && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-file-graphql && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-file-soap && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-db-rest && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-db-graphql && npm run build --workspace=@vaagatech/snapline-demo-scenario-api-vs-db-soap && npm run build --workspace=@vaagatech/snapline-demo-scenario-db-vs-api-rest && npm run build --workspace=@vaagatech/snapline-demo-scenario-db-vs-api-graphql && npm run build --workspace=@vaagatech/snapline-demo-scenario-db-vs-api-soap && npm run build --workspace=@vaagatech/snapline-demo-scenario-project-graphql && npm run build --workspace=@vaagatech/snapline-demo-scenario-project-db && npm run build --workspace=@vaagatech/snapline-demo-run-all",
     "build": "npm run build:packages && npm run build:demos",
     "typecheck": "npm run build:packages && npm run typecheck --workspace=@vaagatech/snapline-engine && npm run typecheck --workspace=@vaagatech/snapline-auth-adapters && npm run typecheck --workspace=@vaagatech/snapline-api-adapters && npm run typecheck --workspace=@vaagatech/snapline-core",
     "demo": "npm run build && npm run start --workspace=@vaagatech/snapline-demo-run-all",
@@ -37,7 +37,6 @@
     "scaffold:sync": "node demo/scripts/scaffold-scenarios.mjs --sync"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.15.29",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3"

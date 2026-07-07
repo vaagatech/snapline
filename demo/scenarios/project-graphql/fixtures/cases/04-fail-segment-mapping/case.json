@@ -1,0 +1,8 @@
+{
+  "name": "Op1 — fail segment mapping",
+  "expectMatch": false,
+  "failureType": "dataMapping",
+  "expectedDiffPath": "segment",
+  "dataPath": "customerAccount",
+  "dataMapping": "account"
+}

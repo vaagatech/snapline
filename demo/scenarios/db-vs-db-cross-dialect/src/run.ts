@@ -1,5 +1,6 @@
+import { testSuite } from '@vaagatech/snapline-core';
+import { db, seedDb } from '@vaagatech/snapline-demo-shared';
 import type { TestSuiteResult } from '@vaagatech/snapline-core';
-import { db, seedDb, testSuite } from '@vaagatech/snapline-core';
 import {
   crossDialectStatusMapping,
   DEMO_EMAIL,

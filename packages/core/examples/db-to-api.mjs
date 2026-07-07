@@ -1,6 +1,8 @@
-import { api, db, seedDb, testSuite } from '@vaagatech/snapline-core';
+import { api, testSuite } from '@vaagatech/snapline-core';
 
-seedDb('postgresql://localhost:5432/app', [
+import { createInMemoryDb } from './in-memory-db.mjs';
+
+const appDb = createInMemoryDb([
   { email: 'alice@example.com', status: 'SYNCED', role: 'member' },
 ]);
 
@@ -8,7 +10,7 @@ await testSuite('Database matches API', {
   baseUrl: 'https://api.example.com',
   dbToApi: {
     db: {
-      db: db.postgres('postgresql://localhost:5432/app'),
+      db: appDb,
       query: 'SELECT email, status, role FROM users WHERE email = :email',
       params: { email: 'alice@example.com' },
     },

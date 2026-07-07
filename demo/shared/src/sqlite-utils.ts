@@ -1,4 +1,4 @@
-import type { SqliteConnection } from '@vaagatech/snapline-core';
+import type { SqliteConnection } from './sqlite-connection.js';
 
 export function closeSqliteConnections(
   ...connections: Array<SqliteConnection | null | undefined>

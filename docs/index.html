@@ -11,7 +11,7 @@
   <div class="layout">
     <aside class="sidebar">
       <a class="brand" href="index.html">Snapline</a>
-      <span class="brand-sub">Node.js · @vaagatech/snapline-core</span>
+      <span class="brand-sub">by <a href="https://www.vaagatech.com">VaagaTech</a> · Node.js</span>
       <nav class="nav">
         <div class="nav-section">Documentation</div>
         <a href="index.html" class="active">Overview</a>
@@ -20,11 +20,17 @@
         <a href="guide.html">End-to-End Guide</a>
         <a href="demos.html">Demo Scenarios</a>
         <a href="reference.html">API Reference</a>
+        <div class="nav-section">VaagaTech</div>
+        <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">vaagatech.com</a>
         <div class="nav-section">Links</div>
         <a href="https://github.com/vaagatech/snapline">GitHub</a>
         <a href="https://www.npmjs.com/package/@vaagatech/snapline-core">npm</a>
         <a href="https://github.com/vaagatech/snapline-python">Python version</a>
       </nav>
+      <div class="sidebar-company">
+        Built by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a>.
+        Visit <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">www.vaagatech.com</a> for engineering services and open-source products.
+      </div>
     </aside>
     <main class="content">
       <header class="hero">
@@ -36,10 +42,20 @@
         <div class="badges">
           <span class="badge">Node.js 18+</span>
           <span class="badge">REST · GraphQL · SOAP</span>
-          <span class="badge">Postgres · MySQL · SQLite · NoSQL</span>
+          <span class="badge">Postgres · MySQL · NoSQL (bring your own driver)</span>
           <span class="badge">MIT License</span>
         </div>
       </header>
+
+      <div class="company-callout">
+        <strong>Built by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a></strong>
+        <p>
+          Snapline is an open-source integration testing framework from
+          <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a>
+          (<a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">www.vaagatech.com</a>) —
+          declarative test automation for APIs, databases, and JSON fixtures.
+        </p>
+      </div>
 
       <h2>Purpose</h2>
       <p>
@@ -92,7 +108,7 @@ process.exitCode = result.passed ? 0 : 1;</code></pre>
       <h2>Install</h2>
       <pre><code>npm install @vaagatech/snapline-core</code></pre>
       <p>
-        One package re-exports the engine, API adapters, auth adapters, DB helpers, fixture runners, and reporting.
+        One package re-exports the engine, API adapters, auth adapters, fixture runners, reporting, and the <code>DbConnectionLike</code> contract for SQL databases.
         See <a href="getting-started.html">Getting Started</a> for a 5-minute walkthrough.
       </p>
 
@@ -109,11 +125,11 @@ process.exitCode = result.passed ? 0 : 1;</code></pre>
         <strong>Next steps:</strong>
         Read <a href="architecture.html">Architecture</a> for package layout,
         <a href="guide.html">End-to-End Guide</a> for a complete workflow from fixtures to CI reports,
-        and <a href="demos.html">Demo Scenarios</a> for 19 runnable examples in this repo.
+        and <a href="demos.html">Demo Scenarios</a> for 21 runnable examples in this repo.
       </div>
 
       <footer class="footer">
-        <p>Snapline by <a href="https://www.vaagatech.com">VaagaTech</a> · MIT License</p>
+        <p>Snapline by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a> · <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">www.vaagatech.com</a> · MIT License</p>
       </footer>
     </main>
   </div>

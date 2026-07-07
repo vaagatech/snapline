@@ -11,8 +11,8 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { SCENARIO_META, SCENARIO_ORDER, workspaceName } from './scenario-registry.mjs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { DOCS_URL, SCENARIO_META, SCENARIO_ORDER, PYTHON_DOCS_URL, workspaceName } from './scenario-registry.mjs';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '../..');
@@ -34,6 +34,8 @@ function printList() {
     );
   }
   console.log('\nRun all: npm run demo:all');
+  console.log(`\nDocumentation: ${DOCS_URL}`);
+  console.log(`Python docs:  ${PYTHON_DOCS_URL}`);
 }
 
 async function loadDemoShared() {
@@ -85,20 +87,23 @@ function buildScenario(id) {
   }
 }
 
-function runScenarioDist(id) {
+async function runScenarioDist(id) {
   const runPath = join(scenariosDir, id, 'dist/run.js');
   if (!existsSync(runPath)) {
     console.error(`Missing ${runPath} — run with --build or npm run demo:build`);
     process.exit(1);
   }
 
-  const code = spawnSync('node', ['dist/run.js'], {
-    cwd: join(scenariosDir, id),
-    stdio: 'inherit',
-    env: process.env,
-  }).status;
+  // Import in-process so the mock API server (same event loop) can handle OAuth/HTTP
+  // while the scenario runs. spawnSync blocks the loop and deadlocks server-backed cases.
+  const mod = await import(pathToFileURL(runPath).href);
+  const run = mod.default ?? mod.run;
+  if (typeof run !== 'function') {
+    throw new Error(`Scenario ${id} does not export a run function`);
+  }
 
-  return code ?? 1;
+  const result = await run();
+  return result.passed ? 0 : 1;
 }
 
 async function runOne(id, options = {}) {
@@ -114,8 +119,7 @@ async function runOne(id, options = {}) {
 
   const cleanup = await createLocalEnv(meta);
   try {
-    const code = runScenarioDist(id);
-    process.exitCode = code;
+    process.exitCode = await runScenarioDist(id);
   } finally {
     cleanup();
   }

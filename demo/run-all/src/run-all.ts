@@ -18,6 +18,8 @@ import apiVsDbSoap from '@vaagatech/snapline-demo-scenario-api-vs-db-soap';
 import dbVsApiRest from '@vaagatech/snapline-demo-scenario-db-vs-api-rest';
 import dbVsApiGraphql from '@vaagatech/snapline-demo-scenario-db-vs-api-graphql';
 import dbVsApiSoap from '@vaagatech/snapline-demo-scenario-db-vs-api-soap';
+import projectGraphql from '@vaagatech/snapline-demo-scenario-project-graphql';
+import projectDb from '@vaagatech/snapline-demo-scenario-project-db';
 import { createDemoDatabaseEnv, createMockServer } from '@vaagatech/snapline-demo-shared';
 
 const runners = [
@@ -40,6 +42,8 @@ const runners = [
   dbVsApiRest,
   dbVsApiGraphql,
   dbVsApiSoap,
+  projectGraphql,
+  projectDb,
 ];
 
 function applyDemoEnv(baseUrl: string, databaseEnv: ReturnType<typeof createDemoDatabaseEnv>): void {
@@ -57,7 +61,7 @@ async function main(): Promise<void> {
   console.log('═══════════════════════════════════════════════════════');
   console.log('  Snapline — Full Integration Demo (monorepo)');
   console.log('═══════════════════════════════════════════════════════');
-  console.log('  19 scenarios · npm run demo:list to browse');
+  console.log('  21 scenarios · npm run demo:list to browse');
   console.log('  npm run demo:run -- <id> to run one scenario from root');
   console.log('═══════════════════════════════════════════════════════');
 

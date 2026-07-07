@@ -9,3 +9,4 @@ demo/scenarios/*/reports/
 .env.*
 /*.iml
 .idea
+reports

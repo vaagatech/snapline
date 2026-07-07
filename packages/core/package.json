@@ -4,7 +4,7 @@
   "description": "Declarative test orchestration DSL — auth, API fixtures, and cross-database reconciliation",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",
-  "homepage": "https://www.vaagatech.com",
+  "homepage": "https://vaagatech.github.io/snapline/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vaagatech/snapline.git",
@@ -55,8 +55,7 @@
   "dependencies": {
     "@vaagatech/snapline-api-adapters": "^0.2.1",
     "@vaagatech/snapline-auth-adapters": "^0.2.1",
-    "@vaagatech/snapline-engine": "^0.2.1",
-    "better-sqlite3": "^11.10.0"
+    "@vaagatech/snapline-engine": "^0.2.1"
   },
   "publishConfig": {
     "access": "public",

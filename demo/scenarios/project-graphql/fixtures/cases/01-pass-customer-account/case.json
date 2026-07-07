@@ -1,0 +1,7 @@
+{
+  "name": "Op1 — customerAccount pass",
+  "expectMatch": true,
+  "dataPath": "customerAccount",
+  "transformations": "account",
+  "dataMapping": "account"
+}

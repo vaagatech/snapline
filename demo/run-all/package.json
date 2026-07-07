@@ -33,6 +33,8 @@
     "@vaagatech/snapline-demo-scenario-snapline-data-mapping-lookup": "0.2.1",
     "@vaagatech/snapline-demo-scenario-db-vs-db-cross-dialect": "0.2.1",
     "@vaagatech/snapline-demo-scenario-nosql-vs-nosql": "0.2.1",
-    "@vaagatech/snapline-demo-scenario-api-vs-file-rest-cases": "0.2.1"
+    "@vaagatech/snapline-demo-scenario-api-vs-file-rest-cases": "0.2.1",
+    "@vaagatech/snapline-demo-scenario-project-graphql": "0.2.1",
+    "@vaagatech/snapline-demo-scenario-project-db": "0.2.1"
   }
 }

@@ -10,7 +10,7 @@
   <div class="layout">
     <aside class="sidebar">
       <a class="brand" href="index.html">Snapline</a>
-      <span class="brand-sub">Node.js · @vaagatech/snapline-core</span>
+      <span class="brand-sub">by <a href="https://www.vaagatech.com">VaagaTech</a> · Node.js</span>
       <nav class="nav">
         <div class="nav-section">Documentation</div>
         <a href="index.html">Overview</a>
@@ -19,11 +19,17 @@
         <a href="guide.html">End-to-End Guide</a>
         <a href="demos.html">Demo Scenarios</a>
         <a href="reference.html" class="active">API Reference</a>
+        <div class="nav-section">VaagaTech</div>
+        <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">vaagatech.com</a>
         <div class="nav-section">Links</div>
         <a href="https://github.com/vaagatech/snapline">GitHub</a>
         <a href="https://www.npmjs.com/package/@vaagatech/snapline-core">npm</a>
         <a href="https://github.com/vaagatech/snapline-python">Python version</a>
       </nav>
+      <div class="sidebar-company">
+        Built by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a>.
+        Visit <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">www.vaagatech.com</a> for engineering services and open-source products.
+      </div>
     </aside>
     <main class="content">
       <header class="hero">
@@ -82,15 +88,30 @@ api.rest({ endpoint, method, inputFile, body, headers })
 api.graphql({ endpoint, query, queryFile, variables, variablesFile, dataPath })
 api.soap({ endpoint, soapAction, envelope, inputFile, headers })</code></pre>
 
-      <h2>Database</h2>
-      <pre><code>import { db, seedDb, createSqliteConnection } from '@vaagatech/snapline-core';
+      <h2>Database connection contract</h2>
+      <p>Published packages do <strong>not</strong> ship SQL drivers. Implement <code>DbConnectionLike</code> with your Postgres/MySQL client:</p>
+      <pre><code>import type { DbConnectionLike } from '@vaagatech/snapline-core';
 
-db.postgres(url)
-db.mysql(url)
-db.sqlite(path)
+/** async query(sql, params?) → DbRow[] */
+const appDb: DbConnectionLike = {
+  async query(sql, params) {
+    // your pg/mysql driver here
+    return rows;
+  },
+};</code></pre>
+      <p>Demos use <code>@vaagatech/snapline-demo-shared</code> for SQLite and in-memory stubs (<code>createSqliteConnection</code>, <code>seedDb</code>, <code>db.postgres/mysql/sqlite</code>). See <code>packages/core/examples/in-memory-db.mjs</code> for a minimal stub you can copy.</p>
 
-seedDb(dsn, rows)           // stub seeding for demos
-createSqliteConnection(path)</code></pre>
+      <h2>Warehouse comparison</h2>
+      <pre><code>import { runWarehouseComparison, nosql, createStreamReportWriter } from '@vaagatech/snapline-core';
+
+await runWarehouseComparison({
+  sourceDb,                    // DbConnectionLike — your SQL warehouse
+  targetStore: nosql.memory(), // DocumentStoreLike — e.g. MongoDB adapter
+  tables: [/* WarehouseTableSpec[] */],
+  chunkSize: 50,
+  report: { outputPath: './reports/warehouse.jsonl' },
+});</code></pre>
+      <p><code>createStreamReportWriter</code> appends JSONL events without holding the full dataset in memory.</p>
 
       <h2>NoSQL</h2>
       <pre><code>import { nosql } from '@vaagatech/snapline-core';
@@ -146,6 +167,7 @@ moduleDir(import.meta.url)</code></pre>
 
       <footer class="footer">
         <p><a href="index.html">← Overview</a></p>
+        <p class="footer-muted">Snapline by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a> · <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">www.vaagatech.com</a> · MIT License</p>
       </footer>
     </main>
   </div>

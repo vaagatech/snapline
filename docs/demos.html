@@ -10,7 +10,7 @@
   <div class="layout">
     <aside class="sidebar">
       <a class="brand" href="index.html">Snapline</a>
-      <span class="brand-sub">Node.js · @vaagatech/snapline-core</span>
+      <span class="brand-sub">by <a href="https://www.vaagatech.com">VaagaTech</a> · Node.js</span>
       <nav class="nav">
         <div class="nav-section">Documentation</div>
         <a href="index.html">Overview</a>
@@ -19,21 +19,27 @@
         <a href="guide.html">End-to-End Guide</a>
         <a href="demos.html" class="active">Demo Scenarios</a>
         <a href="reference.html">API Reference</a>
+        <div class="nav-section">VaagaTech</div>
+        <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">vaagatech.com</a>
         <div class="nav-section">Links</div>
         <a href="https://github.com/vaagatech/snapline">GitHub</a>
         <a href="https://www.npmjs.com/package/@vaagatech/snapline-core">npm</a>
         <a href="https://github.com/vaagatech/snapline-python">Python version</a>
       </nav>
+      <div class="sidebar-company">
+        Built by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a>.
+        Visit <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">www.vaagatech.com</a> for engineering services and open-source products.
+      </div>
     </aside>
     <main class="content">
       <header class="hero">
         <h1>Demo Scenarios</h1>
-        <p class="lead">The repo ships 19 integration scenarios with a local mock REST/GraphQL/SOAP server and SQLite seeds. Use them as runnable reference implementations.</p>
+        <p class="lead">The repo ships 21 integration scenarios with a local mock REST/GraphQL/SOAP server and demo-only SQLite seeds (<code>@vaagatech/snapline-demo-shared</code>). Use them as runnable reference implementations.</p>
       </header>
 
       <h2>Run commands</h2>
       <pre><code>npm install
-npm run demo                    # build + run all 19
+npm run demo                    # build + run all 21
 npm run demo:list               # list ids and infra needs
 npm run demo:run -- api-vs-file-graphql
 npm run demo:run -- --build snapline-transformations</code></pre>
@@ -41,10 +47,10 @@ npm run demo:run -- --build snapline-transformations</code></pre>
       <p>Infra is auto-wired by <code>demo/scripts/run-scenario.mjs</code>:</p>
       <ul>
         <li><code>needsServer</code> → starts mock API, sets <code>API_BASE_URL</code>, OAuth credentials</li>
-        <li><code>needsDatabase</code> → seeds temp SQLite, sets <code>APP_DATABASE_URL</code>, etc.</li>
+        <li><code>needsDatabase</code> → seeds temp SQLite via demo-shared, sets <code>APP_DATABASE_URL</code>, etc.</li>
       </ul>
 
-      <h2>All 19 scenarios</h2>
+      <h2>All 21 scenarios</h2>
       <table>
         <thead>
           <tr><th>#</th><th>ID</th><th>Mode</th><th>Highlights</th></tr>
@@ -54,7 +60,7 @@ npm run demo:run -- --build snapline-transformations</code></pre>
           <tr><td>2</td><td><code>snapline-transformations</code></td><td>Fixture cases</td><td>Offline pass + expected transformation failures</td></tr>
           <tr><td>3</td><td><code>snapline-data-mapping-lookup</code></td><td>Fixture cases</td><td>Lookup-table <code>dataMapping</code></td></tr>
           <tr><td>4</td><td><code>db-vs-db-sqlite</code></td><td>DB ↔ DB</td><td>Multi-table JOIN, <code>linkKeys</code></td></tr>
-          <tr><td>5</td><td><code>db-vs-db-cross-dialect</code></td><td>DB ↔ DB</td><td>Postgres vs MySQL via <code>seedDb</code></td></tr>
+          <tr><td>5</td><td><code>db-vs-db-cross-dialect</code></td><td>DB ↔ DB</td><td>Postgres vs MySQL via demo <code>seedDb</code></td></tr>
           <tr><td>6</td><td><code>nosql-vs-nosql</code></td><td>NoSQL</td><td>Document stores + <code>linkKeys</code></td></tr>
           <tr><td>7</td><td><code>snapline-data-mapping-function</code></td><td>Fixture + DB</td><td>Function mapper cases + live DB</td></tr>
           <tr><td>8</td><td><code>db-comparison-transformations</code></td><td>DB ↔ DB</td><td>Date normalization on audit tables</td></tr>
@@ -63,12 +69,14 @@ npm run demo:run -- --build snapline-transformations</code></pre>
           <tr><td>11</td><td><code>api-vs-file-rest-cases</code></td><td>Fixture cases</td><td>OAuth2 REST multi-case</td></tr>
           <tr><td>12</td><td><code>api-vs-file-graphql</code></td><td>Fixture cases</td><td>7 GraphQL cases incl. auth failure</td></tr>
           <tr><td>13</td><td><code>api-vs-file-soap</code></td><td>API ↔ file</td><td>SOAP vs JSON</td></tr>
-          <tr><td>14</td><td><code>api-vs-db-rest</code></td><td>API ↔ DB</td><td>REST profile vs SQLite JOIN</td></tr>
-          <tr><td>15</td><td><code>api-vs-db-graphql</code></td><td>API ↔ DB</td><td>OAuth2 GraphQL vs SQLite</td></tr>
-          <tr><td>16</td><td><code>api-vs-db-soap</code></td><td>API ↔ DB</td><td>SOAP vs SQLite JOIN</td></tr>
+          <tr><td>14</td><td><code>api-vs-db-rest</code></td><td>API ↔ DB</td><td>REST profile vs demo SQLite JOIN</td></tr>
+          <tr><td>15</td><td><code>api-vs-db-graphql</code></td><td>API ↔ DB</td><td>OAuth2 GraphQL vs demo SQLite</td></tr>
+          <tr><td>16</td><td><code>api-vs-db-soap</code></td><td>API ↔ DB</td><td>SOAP vs demo SQLite JOIN</td></tr>
           <tr><td>17</td><td><code>db-vs-api-rest</code></td><td>DB ↔ API</td><td><code>inputFromDb</code> REST</td></tr>
           <tr><td>18</td><td><code>db-vs-api-graphql</code></td><td>DB ↔ API</td><td>OAuth2 GraphQL from DB row</td></tr>
           <tr><td>19</td><td><code>db-vs-api-soap</code></td><td>DB ↔ API</td><td>SOAP from DB row</td></tr>
+          <tr><td>20</td><td><code>project-graphql</code></td><td>Fixture cases</td><td>Sample GraphQL app (Auth0/Okta swap docs)</td></tr>
+          <tr><td>21</td><td><code>project-db</code></td><td>Warehouse</td><td>Chunked SQL→NoSQL via <code>runWarehouseComparison</code></td></tr>
         </tbody>
       </table>
 
@@ -80,8 +88,11 @@ npm run demo:run -- --build snapline-transformations</code></pre>
 │   ├── run.ts        # entry point
 │   ├── env.ts        # env vars + report finalization
 │   ├── auth.ts       # OAuth from env
-│   └── demo-data.ts  # transforms / mappings
-└── package.json      # only @vaagatech/snapline-core</code></pre>
+│   ├── demo-data.ts  # transforms / mappings
+│   └── db.ts         # demo DB from @vaagatech/snapline-demo-shared (when needed)
+└── package.json      # @vaagatech/snapline-core (+ demo-shared for DB scenarios)</code></pre>
+
+      <p>Published <code>@vaagatech/snapline-core</code> has <strong>zero external runtime dependencies</strong> and does not ship SQL drivers. Demos use <code>@vaagatech/snapline-demo-shared</code> for SQLite and in-memory stubs only.</p>
 
       <h2>Run against your own API</h2>
       <pre><code>cp demo/scenarios/api-vs-file-graphql/.env.example demo/scenarios/api-vs-file-graphql/.env
@@ -94,6 +105,7 @@ npm run start:report:html --workspace=@vaagatech/snapline-demo-run-all</code></p
 
       <footer class="footer">
         <p><a href="reference.html">API Reference →</a></p>
+        <p class="footer-muted">Snapline by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a> · <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">www.vaagatech.com</a> · MIT License</p>
       </footer>
     </main>
   </div>

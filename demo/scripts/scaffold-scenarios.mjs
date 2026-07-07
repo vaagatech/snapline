@@ -255,7 +255,7 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['@vaagatech/snapline-core'],
+  external: ['@vaagatech/snapline-core', '@vaagatech/snapline-demo-shared', 'better-sqlite3'],
 });
 `,
     );

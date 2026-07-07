@@ -1,0 +1,24 @@
+{
+  "name": "@vaagatech/snapline-demo-scenario-project-db",
+  "private": true,
+  "version": "0.2.1",
+  "description": "Sample project: SQL warehouse → NoSQL consistency (streamed chunked compare)",
+  "type": "module",
+  "main": "./dist/run.js",
+  "types": "./dist/run.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/run.d.ts",
+      "default": "./dist/run.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "start": "node dist/run.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vaagatech/snapline-core": "0.2.1",
+    "@vaagatech/snapline-demo-shared": "0.2.1"
+  }
+}

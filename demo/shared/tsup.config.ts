@@ -7,5 +7,10 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['@vaagatech/snapline-core', '@vaagatech/snapline-api-adapters', 'graphql'],
+  external: [
+    '@vaagatech/snapline-core',
+    '@vaagatech/snapline-api-adapters',
+    'better-sqlite3',
+    'graphql',
+  ],
 });

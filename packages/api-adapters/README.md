@@ -76,9 +76,9 @@ console.log(result.data);
 ```javascript
 import { api } from '@vaagatech/snapline-api-adapters';
 
-api.rest({ endpoint, method?, inputFile?, body?, headers? });
-api.soap({ endpoint, soapAction?, envelope?, inputFile?, headers? });
-api.graphql({ endpoint, query?, queryFile?, variables?, variablesFile?, dataPath?, headers? });
+api.rest({ endpoint, method, inputFile, body, headers }); // method, inputFile, body, headers optional
+api.soap({ endpoint, soapAction, envelope, inputFile, headers }); // soapAction, envelope, inputFile, headers optional
+api.graphql({ endpoint, query, queryFile, variables, variablesFile, dataPath, headers }); // all but endpoint optional
 ```
 
 ## Configuration
@@ -155,6 +155,10 @@ import { api, executeApi, type ApiRequestConfig, type ApiExecuteResult } from '@
 |--------------|-------|-------|
 | ESM `import` | `dist/index.js` | `dist/index.d.ts` |
 | CJS `require` | `dist/index.cjs` | `dist/index.d.cts` |
+
+## Documentation
+
+**https://vaagatech.github.io/snapline/** · [Python edition](https://vaagatech.github.io/snapline-python/)
 
 ## Related packages
 

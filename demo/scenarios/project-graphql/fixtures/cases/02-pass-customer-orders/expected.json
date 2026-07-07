@@ -1,0 +1,4 @@
+[
+  { "orderId": "ord_9001", "sku": "SKU-A", "quantity": 2, "amount": 49.99 },
+  { "orderId": "ord_9002", "sku": "SKU-B", "quantity": 1, "amount": 19.5 }
+]

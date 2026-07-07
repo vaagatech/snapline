@@ -1,7 +1,8 @@
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { db, type SqliteConnection } from '@vaagatech/snapline-core';
+import { db } from './stub-db.js';
+import type { SqliteConnection } from './sqlite-connection.js';
 import { demoDomain } from './demo-domain.js';
 
 function seedWarehouseTables(connection: SqliteConnection, variant: 'source' | 'target'): void {

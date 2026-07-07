@@ -239,6 +239,10 @@ npm run build
 node packages/auth-adapters/examples/basic-auth.mjs
 ```
 
+## Documentation
+
+**https://vaagatech.github.io/snapline/** · [Python edition](https://vaagatech.github.io/snapline-python/)
+
 ## Related packages
 
 | Package | Role |

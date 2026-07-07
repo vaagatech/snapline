@@ -143,7 +143,7 @@ ignoreFields: ['pincode', 'transactionId', 'response.headers.date']
 ### Normalize timestamps
 
 ```javascript
-transformations: {
+const transformations = {
   createdAt: (value) =>
     typeof value === 'string' && !Number.isNaN(Date.parse(value))
       ? 'VALID_DATE'
@@ -152,7 +152,7 @@ transformations: {
     typeof value === 'string' && !Number.isNaN(Date.parse(value))
       ? 'VALID_DATE'
       : 'INVALID_DATE',
-}
+};
 ```
 
 Expected fixtures should already contain normalized values (`VALID_DATE`), not raw ISO strings.
@@ -160,20 +160,20 @@ Expected fixtures should already contain normalized values (`VALID_DATE`), not r
 ### Cross-database status mapping
 
 ```javascript
-dataMapping: {
+const dataMapping = {
   status: {
     ABC: 'CBA',
     PENDING: 'IN_PROGRESS',
   },
-}
+};
 ```
 
 Functional mapping:
 
 ```javascript
-dataMapping: {
+const dataMapping = {
   status: (value) => (value === 'ABC' ? 'CBA' : value),
-}
+};
 ```
 
 ## TypeScript
@@ -220,6 +220,10 @@ Or from a cloned monorepo:
 npm run build
 node packages/snapline/examples/basic-snapline.mjs
 ```
+
+## Documentation
+
+**https://vaagatech.github.io/snapline/** · [Python edition](https://vaagatech.github.io/snapline-python/)
 
 ## Related packages
 

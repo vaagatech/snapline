@@ -7,7 +7,7 @@ Thank you for your interest in contributing. This project is open source under t
 - Report bugs via [GitHub Issues](https://github.com/vaagatech/snapline/issues)
 - Propose features or discuss design in Issues before large changes
 - Submit pull requests with focused, tested changes
-- Improve documentation and examples
+- Improve documentation and examples — published docs: [vaagatech.github.io/snapline](https://vaagatech.github.io/snapline/) · [Python](https://vaagatech.github.io/snapline-python/)
 - Share feedback from production usage
 
 ## Development setup

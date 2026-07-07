@@ -30,20 +30,20 @@ export { resolveUrl } from '@vaagatech/snapline-api-adapters';
 export { executeApi } from '@vaagatech/snapline-api-adapters';
 export { auth } from './auth/index.js';
 export { runDbComparison } from './db-comparison/run-db-comparison.js';
-export { DbConnection } from './db/db-connection.js';
-export {
-  createSqliteConnection,
-  clearDbSeeds,
-  db,
-  execSqliteFile,
-  execSqliteSql,
-  seedDb,
-  SqliteConnection,
-} from './db/index.js';
+export { runWarehouseComparison } from './db-comparison/run-warehouse-comparison.js';
+export type {
+  RunWarehouseComparisonOptions,
+  WarehouseComparisonLimits,
+  WarehouseStreamReportOptions,
+  WarehouseTableSpec,
+  WarehouseStreamEvent,
+} from './db-comparison/warehouse-types.js';
 export type { ReportConfig, ReportFormat, TestRunReport, TestRunReportMeta } from './reporting/types.js';
 export type { ResolveReportConfigOptions } from './reporting/resolve-report-config.js';
 export { resolveReportConfig } from './reporting/resolve-report-config.js';
 export { buildReport, renderReport, writeTestReport } from './reporting/write-report.js';
+export { createStreamReportWriter } from './reporting/stream-report.js';
+export type { StreamReportWriter } from './reporting/stream-report.js';
 export { redactFields, redactSuiteResults } from './reporting/redact-fields.js';
 export type { FixturesDirOptions } from './io/module-dir.js';
 export { fixturesDir, moduleDir } from './io/module-dir.js';

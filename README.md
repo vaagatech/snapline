@@ -2,8 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org/)
+[![docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://vaagatech.github.io/snapline/)
 
-**Declarative Snapshot and Reconciliation Testing** for Node.js — an open-source product by [VaagaTech](https://www.vaagatech.com).
+**Declarative Snapshot and Reconciliation Testing** for Node.js — an open-source product by [VaagaTech](https://www.vaagatech.com) ([www.vaagatech.com](https://www.vaagatech.com)).
 
 Published under the `@vaagatech` npm scope with a `snapline-*` prefix so other VaagaTech products can coexist (e.g. `@vaagatech/other-product-core`).
 
@@ -12,6 +13,8 @@ Compare APIs, databases, and JSON fixtures as data — no imperative assertion c
 ```bash
 npm install @vaagatech/snapline-core
 ```
+
+📖 **Documentation:** [vaagatech.github.io/snapline](https://vaagatech.github.io/snapline/) · [Python edition](https://vaagatech.github.io/snapline-python/)
 
 ## Getting started in 5 minutes
 
@@ -134,10 +137,13 @@ On failure you get a structured diff (field path, actual vs expected). On succes
 
 ### Minute 4 — Add a second test mode (API vs database)
 
-When your API should match a row in Postgres, MySQL, or SQLite:
+When your API should match a row in Postgres, MySQL, or another database, implement **`DbConnectionLike`** with your driver (Snapline does not ship SQL clients):
 
 ```javascript
-import { testSuite, auth, api, db } from '@vaagatech/snapline-core';
+import { testSuite, auth, api } from '@vaagatech/snapline-core';
+import { createInMemoryDb } from '@vaagatech/snapline-core/examples/in-memory-db.mjs'; // or your pg/mysql client
+
+const appDb = createInMemoryDb([{ email: 'alice@example.com', status: 'SYNCED', role: 'member' }]);
 
 await testSuite('Profile — API matches DB', {
   auth: auth.oauth2({ tokenUrl: '...', clientId: '...', clientSecret: '...' }),
@@ -148,7 +154,7 @@ await testSuite('Profile — API matches DB', {
       method: 'GET',
     }),
     db: {
-      db: db.postgres(process.env.DATABASE_URL),
+      db: appDb,
       query: `
         SELECT email, status, role
         FROM users
@@ -190,16 +196,19 @@ writeTestReport([result], { format: 'html', outputPath: './reports/integration.h
 **GraphQL** — swap the `api` block for:
 
 ```javascript
-api: {
-  ...api.graphql({
-    endpoint: '/graphql',
-    queryFile: './fixtures/query.graphql',
-    variablesFile: './fixtures/variables.json',
-    dataPath: 'customerAccount',
-  }),
-  expectedFile: './fixtures/expected.json',
-  ignoreFields: ['metadata.traceId'],
-}
+await testSuite('GraphQL snapshot', {
+  baseUrl: 'https://api.example.com',
+  api: {
+    ...api.graphql({
+      endpoint: '/graphql',
+      queryFile: './fixtures/query.graphql',
+      variablesFile: './fixtures/variables.json',
+      dataPath: 'customerAccount',
+    }),
+    expectedFile: './fixtures/expected.json',
+    ignoreFields: ['metadata.traceId'],
+  },
+});
 ```
 
 **More examples:** [`packages/core/README.md`](./packages/core/README.md) · [`packages/snapline/README.md`](./packages/snapline/README.md)
@@ -326,13 +335,13 @@ Full reference: [`packages/core/README.md` — Consumer utilities](./packages/co
 | Mode | Config key | What it does | Protocols |
 |------|------------|--------------|-----------|
 | **API ↔ file** | `api` | Call an API and compare the response to a JSON fixture | REST, SOAP, GraphQL |
-| **DB ↔ DB** | `dbComparison` | Compare rows from two databases (same or different queries) | Postgres, MySQL, SQLite, NoSQL* |
+| **DB ↔ DB** | `dbComparison` | Compare rows from two databases (same or different queries) | Any SQL via `DbConnectionLike`, NoSQL* |
 | **API ↔ DB** | `apiToDb` | Call an API and reconcile the response with a DB row | REST, SOAP, GraphQL |
 | **DB ↔ API** | `dbToApi` | Read a DB row, call an API, reconcile row with response | REST, SOAP, GraphQL |
 
 Combine multiple modes in one `testSuite` — they run in sequence.
 
-\* **NoSQL:** implement `DocumentStoreLike` (`find(collection, filter)`) or use `nosql.memory()` from core. **Different SQL per side:** use `sourceQuery` / `targetQuery` with `linkKeys` to pass primary keys from the source row into the target query. See [`packages/core/README.md`](./packages/core/README.md).
+\* **SQL:** implement `DbConnectionLike` (`async query(sql, params)`) with your Postgres/MySQL/etc. client — not included in published packages. **NoSQL:** implement `DocumentStoreLike` (`find(collection, filter)`) or use `nosql.memory()` from core. **Different SQL per side:** use `sourceQuery` / `targetQuery` with `linkKeys`. See [`packages/core/README.md`](./packages/core/README.md).
 
 ## Snapline options
 
@@ -347,13 +356,13 @@ Every comparison accepts:
 Processing order: **ignore → transform → map → deep compare**.
 
 ```javascript
-import { reconcile, snapline, type SnaplineOptions } from '@vaagatech/snapline-core';
+import { reconcile, snapline } from '@vaagatech/snapline-core';
 
 const { match, diff } = snapline(liveData, expectedData, {
   ignoreFields: ['metadata.requestId'],
   transformations: { tier: (v) => String(v).toUpperCase() },
   dataMapping: { status: { ACTIVE: 'ACTV' } },
-} satisfies SnaplineOptions);
+});
 ```
 
 `reconcile()` and `snapline()` are equivalent. Prefer `SnaplineOptions` for new code (`ReconcileOptions` remains as an alias).
@@ -425,13 +434,17 @@ await testSuite('SOAP snapshot', {
 ### DB vs DB
 
 ```javascript
-import { testSuite, db } from '@vaagatech/snapline-core';
+import { testSuite } from '@vaagatech/snapline-core';
+import { createInMemoryDb } from '@vaagatech/snapline-core/examples/in-memory-db.mjs';
+
+const sourceDb = createInMemoryDb([{ status: 'ABC', email: 'alice@example.com' }]);
+const targetDb = createInMemoryDb([{ status: 'CBA', email: 'alice@example.com' }]);
 
 // Same query on both sides
 await testSuite('Warehouse sync', {
   dbComparison: {
-    sourceDb: db.postgres(process.env.SOURCE_DATABASE_URL),
-    targetDb: db.mysql(process.env.TARGET_DATABASE_URL),
+    sourceDb,
+    targetDb,
     query: 'SELECT status, email FROM users WHERE email = :email',
     params: { email: 'alice@example.com' },
     dataMapping: { status: { ABC: 'CBA' } },
@@ -454,13 +467,16 @@ await testSuite('Orders sync', {
 ### DB vs API (`inputFromDb`)
 
 ```javascript
-import { testSuite, api, db } from '@vaagatech/snapline-core';
+import { testSuite, api } from '@vaagatech/snapline-core';
+import { createInMemoryDb } from '@vaagatech/snapline-core/examples/in-memory-db.mjs';
+
+const appDb = createInMemoryDb([{ email: 'alice@example.com', status: 'SYNCED' }]);
 
 await testSuite('DB row matches API', {
   baseUrl: 'https://api.example.com',
   dbToApi: {
     db: {
-      db: db.postgres(process.env.DATABASE_URL),
+      db: appDb,
       query: 'SELECT email, status FROM users WHERE email = :email',
       params: { email: 'alice@example.com' },
     },
@@ -497,7 +513,7 @@ auth.basic({ username, password });
 
 | Package | npm | Description |
 |---------|-----|-------------|
-| [`@vaagatech/snapline-core`](./packages/core) | [`@vaagatech/snapline-core`](https://www.npmjs.com/package/@vaagatech/snapline-core) | **Start here** — `testSuite`, DB helpers, reporting |
+| [`@vaagatech/snapline-core`](./packages/core) | [`@vaagatech/snapline-core`](https://www.npmjs.com/package/@vaagatech/snapline-core) | **Start here** — `testSuite`, `DbConnectionLike`, reporting |
 | [`@vaagatech/snapline-engine`](./packages/snapline) | [`@vaagatech/snapline-engine`](https://www.npmjs.com/package/@vaagatech/snapline-engine) | Reconciliation engine — `reconcile`, `assertAgainstFile` |
 | [`@vaagatech/snapline-api-adapters`](./packages/api-adapters) | [`@vaagatech/snapline-api-adapters`](https://www.npmjs.com/package/@vaagatech/snapline-api-adapters) | REST, SOAP, GraphQL executors |
 | [`@vaagatech/snapline-auth-adapters`](./packages/auth-adapters) | [`@vaagatech/snapline-auth-adapters`](https://www.npmjs.com/package/@vaagatech/snapline-auth-adapters) | OAuth2, OpenID Connect, Basic Auth |
@@ -526,7 +542,7 @@ Snapline lets you declare **what** should match and **how** to normalize differe
 | [Architecture](https://vaagatech.github.io/snapline/architecture.html) | Package layers, runtime flow, repo layout |
 | [Getting Started](https://vaagatech.github.io/snapline/getting-started.html) | 5-minute integration test setup |
 | [End-to-End Guide](https://vaagatech.github.io/snapline/guide.html) | All test modes, fixtures, CI reports |
-| [Demo Scenarios](https://vaagatech.github.io/snapline/demos.html) | 19 runnable reference scenarios |
+| [Demo Scenarios](https://vaagatech.github.io/snapline/demos.html) | 21 runnable reference scenarios |
 | [API Reference](https://vaagatech.github.io/snapline/reference.html) | Config and exports |
 
 Local preview: open `docs/index.html` in a browser, or serve with `npx serve docs`.
@@ -557,13 +573,13 @@ Monorepo layout: `packages/` (published) · `demo/` (private, not on npm) · `sc
 
 ## Full integration demo (optional)
 
-The repo includes a **19-scenario demo** with a mock REST/GraphQL/SOAP server and SQLite seeds. It is reference material only — **not required** for using the npm packages.
+The repo includes a **21-scenario demo** with a mock REST/GraphQL/SOAP server and **demo-only** SQLite seeds (`@vaagatech/snapline-demo-shared`). It is reference material only — **not required** for using the npm packages.
 
 ```bash
 git clone https://github.com/vaagatech/snapline.git
 cd snapline
 npm install
-npm run demo          # build + run all scenarios
+npm run demo          # build + run all 21 scenarios
 npm run demo:list     # list scenario ids
 npm run demo:run -- api-vs-file-graphql   # one scenario (starts mock API/DB when needed)
 npm run demo:build    # build demo workspaces only
@@ -575,7 +591,7 @@ npm run demo:build    # build demo workspaces only
 | 2 | `snapline-transformations` | Fixture cases | Pass + expected transformation failures |
 | 3 | `snapline-data-mapping-lookup` | Fixture cases | Lookup-table `dataMapping` (offline) |
 | 4 | `db-vs-db-sqlite` | DB ↔ DB | Multi-table JOIN, `linkKeys` |
-| 5 | `db-vs-db-cross-dialect` | DB ↔ DB | Postgres vs MySQL via `seedDb` stub |
+| 5 | `db-vs-db-cross-dialect` | DB ↔ DB | Postgres vs MySQL via demo stub (`seedDb`) |
 | 6 | `nosql-vs-nosql` | NoSQL ↔ NoSQL | Document stores + `linkKeys` |
 | 7 | `snapline-data-mapping-function` | Fixture + DB | Function mapper |
 | 8 | `db-comparison-transformations` | DB ↔ DB | Date normalization |
@@ -584,7 +600,9 @@ npm run demo:build    # build demo workspaces only
 | 11 | `api-vs-file-rest-cases` | API ↔ file | OAuth2 REST fixture cases |
 | 12 | `api-vs-file-graphql` | API ↔ file | OAuth2 GraphQL, 7 fixture cases |
 | 13 | `api-vs-file-soap` | API ↔ file | SOAP vs JSON |
-| 14–19 | `api-vs-db-*`, `db-vs-api-*` | Cross-system | REST, GraphQL, SOAP vs SQLite |
+| 14–19 | `api-vs-db-*`, `db-vs-api-*` | Cross-system | REST, GraphQL, SOAP vs demo SQLite |
+| 20 | `project-graphql` | Fixture cases | Sample GraphQL app (Auth0/Okta pattern) |
+| 21 | `project-db` | Warehouse | SQL → NoSQL streamed consistency |
 
 Run one scenario against your hosted API (copy `.env.example` → `.env` first):
 
@@ -605,11 +623,11 @@ api-vs-file-graphql/
 │   ├── env.ts        # requireEnv, reports
 │   ├── auth.ts       # OAuth from env (when needed)
 │   ├── demo-data.ts  # transforms / mappings for this suite
-│   └── db.ts         # DB connections from env (when needed)
-└── package.json      # only @vaagatech/snapline-core
+│   └── db.ts         # demo DB from @vaagatech/snapline-demo-shared (when needed)
+└── package.json      # @vaagatech/snapline-core (+ demo-shared for DB scenarios)
 ```
 
-`npm run demo` in the monorepo starts a **local mock API** and seeds **temp SQLite files**, then sets env vars — that wiring lives only in `demo/run-all`, not in individual scenarios.
+`npm run demo` starts a **local mock API** and seeds **demo SQLite** via `demo/shared` — that wiring is **not** part of published `@vaagatech/snapline-core`. Production tests use your own `DbConnectionLike` implementation.
 
 ## License
 

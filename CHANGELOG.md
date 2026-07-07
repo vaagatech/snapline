@@ -16,11 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Configurable fixtures directory** — `fixturesDir(import.meta.url, { relativePath })`
 - **Asymmetric DB ↔ DB** — `sourceQuery` / `targetQuery` with `linkKeys` or `targetParamsFromSource` for primary-key lookups across different schemas
 - **NoSQL document comparison** — `DocumentStoreLike`, `nosql.memory()`, and `sourceCollection` / `targetCollection` on `dbComparison`
+- **SQL warehouse → NoSQL** — `runWarehouseComparison()` with chunked comparison and streamed JSONL reports
+- **Sample projects** — `project-graphql` and `project-db` demo scenarios (Auth0/Okta pattern, warehouse consistency)
 - **Engine aliases** — `SnaplineOptions`, `SnaplineResult`, and `snapline()` as aliases of `ReconcileOptions`, `ReconcileResult`, and `reconcile()`
 
 ### Changed
 
-- **Demo scenarios** — consumer-style `src/run.ts` per scenario (env-based `API_BASE_URL`, DB URLs); copy-pasteable folders depending only on `@vaagatech/snapline-core`
+- **Demo scenarios** — consumer-style `src/run.ts` per scenario (env-based `API_BASE_URL`, DB URLs); copy-pasteable folders using `@vaagatech/snapline-core` (DB scenarios also reference `@vaagatech/snapline-demo-shared` for SQLite stubs)
+- **BREAKING:** Removed `db`, `seedDb`, `createSqliteConnection`, and `better-sqlite3` from `@vaagatech/snapline-core`. SQL helpers moved to `@vaagatech/snapline-demo-shared` (demos only). Consumers implement `DbConnectionLike` with their own drivers.
 - **BREAKING:** Removed `bootstrapScenario`, `ScenarioModule`, and `createDemoAuth` from `@vaagatech/snapline-demo-shared` (mock server + SQLite seeding remain for `npm run demo` only)
 - **BREAKING:** Renamed the product and npm packages from **Reconcile** to **Snapline** (`reconcile-*` → `snapline-*` under `@vaagatech`), including demo scenario workspaces and GitHub repository references.
 - **BREAKING:** `runReconcileFixtureCases` renamed to `runSnaplineFixtureCases`; `resolveFixtureReconcileOptions` renamed to `resolveFixtureSnaplineOptions` (internal)

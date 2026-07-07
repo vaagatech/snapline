@@ -3,6 +3,7 @@ import { URL } from 'node:url';
 import { buildSoapEnvelope } from '@vaagatech/snapline-api-adapters';
 import { demoDomain, volatileTraceId } from './demo-domain.js';
 import { executeDemoGraphql } from './graphql-schema.js';
+import { executeProjectGraphql } from './project-graphql-schema.js';
 
 export const PORT = 3847;
 
@@ -28,12 +29,32 @@ export function createMockServer(): Promise<MockServerHandle> {
 
     if (url.pathname === '/oauth/token' && req.method === 'POST') {
       res.setHeader('Content-Type', 'application/json');
+      const body = await readBody(req);
+      let grantType = 'client_credentials';
+      let audience: string | undefined;
+
+      try {
+        const params = new URLSearchParams(body);
+        grantType = params.get('grant_type') ?? grantType;
+        audience = params.get('audience') ?? undefined;
+      } catch {
+        // ignore parse errors — mock accepts any body for demo
+      }
+
+      if (grantType !== 'client_credentials') {
+        res.writeHead(400);
+        res.end(JSON.stringify({ error: 'unsupported_grant_type' }));
+        return;
+      }
+
       res.writeHead(200);
       res.end(
         JSON.stringify({
           access_token: 'mock-oauth-token-abc123',
           token_type: 'Bearer',
           expires_in: 3600,
+          scope: 'read:graphql write:graphql',
+          ...(audience ? { audience } : {}),
         }),
       );
       return;
@@ -145,6 +166,44 @@ export function createMockServer(): Promise<MockServerHandle> {
       }
 
       const result = await executeDemoGraphql(query, variables);
+      if (result.errors?.length) {
+        res.writeHead(400);
+        res.end(JSON.stringify({ errors: result.errors }));
+        return;
+      }
+
+      res.writeHead(200);
+      res.end(JSON.stringify({ data: result.data }));
+      return;
+    }
+
+    if (url.pathname === '/project/graphql' && req.method === 'POST') {
+      res.setHeader('Content-Type', 'application/json');
+      const authHeader = req.headers.authorization ?? '';
+      if (!authHeader.startsWith('Bearer ')) {
+        res.writeHead(401);
+        res.end(JSON.stringify({ errors: [{ message: 'Unauthorized' }] }));
+        return;
+      }
+
+      const body = await readBody(req);
+      let query = '';
+      let variables: Record<string, unknown> = {};
+
+      try {
+        const parsed = JSON.parse(body) as {
+          query?: string;
+          variables?: Record<string, unknown>;
+        };
+        query = parsed.query ?? '';
+        variables = parsed.variables ?? {};
+      } catch {
+        res.writeHead(400);
+        res.end(JSON.stringify({ errors: [{ message: 'Invalid JSON' }] }));
+        return;
+      }
+
+      const result = await executeProjectGraphql(query, variables);
       if (result.errors?.length) {
         res.writeHead(400);
         res.end(JSON.stringify({ errors: result.errors }));

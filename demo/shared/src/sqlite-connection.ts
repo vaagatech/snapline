@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs';
 import Database from 'better-sqlite3';
-import type { DbConnectionLike, DbRow } from '../types.js';
+import type { DbConnectionLike, DbRow } from '@vaagatech/snapline-core';
 
 function normalizeNamedParams(query: string): string {
   return query.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, '@$1');
 }
 
+/** Demo-only SQLite adapter — not part of @vaagatech/snapline-core. */
 export class SqliteConnection implements DbConnectionLike {
   constructor(private readonly database: Database.Database) {}
 

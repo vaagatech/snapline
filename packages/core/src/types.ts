@@ -144,7 +144,7 @@ export interface CrossSystemResult {
 /** @deprecated Use CrossSystemResult */
 export type DbComparisonResult = CrossSystemResult;
 
-export type DbDialect = 'postgres' | 'mysql' | 'sqlite';
+export type DbDialect = 'postgres' | 'mysql';
 
 export type {
   DataMappingMap,
