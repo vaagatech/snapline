@@ -7,6 +7,8 @@ export interface ReportConfig {
   format: ReportFormat;
   /** Destination file path. Parent directories are created automatically. */
   outputPath: string;
+  /** Dot-path fields in step results replaced with [REDACTED] before writing. */
+  redactFields?: string[];
 }
 
 export interface TestRunReportMeta {

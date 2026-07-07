@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snapline — Declarative Integration Testing</title>
+  <meta name="description" content="Snapline is declarative snapshot and reconciliation testing for Node.js APIs, databases, and JSON fixtures.">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <a class="brand" href="index.html">Snapline</a>
+      <span class="brand-sub">Node.js · @vaagatech/snapline-core</span>
+      <nav class="nav">
+        <div class="nav-section">Documentation</div>
+        <a href="index.html" class="active">Overview</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="getting-started.html">Getting Started</a>
+        <a href="guide.html">End-to-End Guide</a>
+        <a href="demos.html">Demo Scenarios</a>
+        <a href="reference.html">API Reference</a>
+        <div class="nav-section">Links</div>
+        <a href="https://github.com/vaagatech/snapline">GitHub</a>
+        <a href="https://www.npmjs.com/package/@vaagatech/snapline-core">npm</a>
+        <a href="https://github.com/vaagatech/snapline-python">Python version</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <header class="hero">
+        <h1>Declarative snapshot &amp; reconciliation testing</h1>
+        <p class="lead">
+          Snapline compares APIs, databases, and JSON fixtures as <strong>data</strong> — not imperative assertion chains.
+          Configure what should match, how to normalize volatile fields, and how to map codes across systems in one object.
+        </p>
+        <div class="badges">
+          <span class="badge">Node.js 18+</span>
+          <span class="badge">REST · GraphQL · SOAP</span>
+          <span class="badge">Postgres · MySQL · SQLite · NoSQL</span>
+          <span class="badge">MIT License</span>
+        </div>
+      </header>
+
+      <h2>Purpose</h2>
+      <p>
+        Integration tests often devolve into dozens of brittle field assertions that break when schemas evolve.
+        Snapline flips the model: you declare a <em>golden snapshot</em> and reconciliation rules, and the framework
+        handles HTTP, auth, fetching rows, deep comparison, and structured diffs.
+      </p>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3>API ↔ file</h3>
+          <p>Call REST, GraphQL, or SOAP and compare the response to a JSON fixture after normalization.</p>
+        </div>
+        <div class="card">
+          <h3>DB ↔ DB</h3>
+          <p>Query two databases (same or different SQL) and reconcile rows — including NoSQL document stores.</p>
+        </div>
+        <div class="card">
+          <h3>API ↔ DB</h3>
+          <p>Verify an API response matches a database row, or drive an API call from a DB row.</p>
+        </div>
+        <div class="card">
+          <h3>Fixture cases</h3>
+          <p>Run many pass/fail scenarios from a <code>fixtures/cases/</code> directory with minimal per-case JSON.</p>
+        </div>
+      </div>
+
+      <h2>Why Snapline?</h2>
+      <p>Traditional tests look like this:</p>
+      <pre><code>expect(response.status).toBe(200);
+expect(response.body.email).toBe('alice@example.com');
+expect(response.body.status).toBe('synced');
+expect(response.body.currentdate).toMatch(/^\d{4}-\d{2}-\d{2}/);</code></pre>
+      <p>With Snapline:</p>
+      <pre><code>const result = await testSuite('User sync', {
+  baseUrl: process.env.API_BASE_URL,
+  api: {
+    endpoint: '/api/v1/user/sync',
+    method: 'POST',
+    inputFile: './fixtures/input.json',
+    expectedFile: './fixtures/expected.json',
+    ignoreFields: ['pincode'],
+    transformations: {
+      currentdate: (v) =&gt; isValidDate(v) ? 'VALID_DATE' : 'INVALID_DATE',
+    },
+  },
+});
+process.exitCode = result.passed ? 0 : 1;</code></pre>
+
+      <h2>Install</h2>
+      <pre><code>npm install @vaagatech/snapline-core</code></pre>
+      <p>
+        One package re-exports the engine, API adapters, auth adapters, DB helpers, fixture runners, and reporting.
+        See <a href="getting-started.html">Getting Started</a> for a 5-minute walkthrough.
+      </p>
+
+      <h2>Reconciliation pipeline</h2>
+      <p>Every comparison runs the same pipeline on the <strong>live</strong> side before deep compare:</p>
+      <div class="diagram">live data
+  │
+  ├─ ignoreFields     strip volatile fields (dot paths supported)
+  ├─ transformations  normalize dynamic values (dates, enums, etc.)
+  ├─ dataMapping      map equivalent codes across systems
+  └─ deep compare     structured diff with field paths</div>
+
+      <div class="callout">
+        <strong>Next steps:</strong>
+        Read <a href="architecture.html">Architecture</a> for package layout,
+        <a href="guide.html">End-to-End Guide</a> for a complete workflow from fixtures to CI reports,
+        and <a href="demos.html">Demo Scenarios</a> for 19 runnable examples in this repo.
+      </div>
+
+      <footer class="footer">
+        <p>Snapline by <a href="https://www.vaagatech.com">VaagaTech</a> · MIT License</p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

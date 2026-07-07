@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Reference — Snapline</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <a class="brand" href="index.html">Snapline</a>
+      <span class="brand-sub">Node.js · @vaagatech/snapline-core</span>
+      <nav class="nav">
+        <div class="nav-section">Documentation</div>
+        <a href="index.html">Overview</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="getting-started.html">Getting Started</a>
+        <a href="guide.html">End-to-End Guide</a>
+        <a href="demos.html">Demo Scenarios</a>
+        <a href="reference.html" class="active">API Reference</a>
+        <div class="nav-section">Links</div>
+        <a href="https://github.com/vaagatech/snapline">GitHub</a>
+        <a href="https://www.npmjs.com/package/@vaagatech/snapline-core">npm</a>
+        <a href="https://github.com/vaagatech/snapline-python">Python version</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <header class="hero">
+        <h1>API Reference</h1>
+        <p class="lead">Quick reference for <code>@vaagatech/snapline-core</code>. Install one package — it re-exports engine, adapters, and utilities.</p>
+      </header>
+
+      <h2>Core orchestration</h2>
+      <table>
+        <thead><tr><th>Export</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>testSuite(name, config)</code></td><td>Run one or more test modes; returns <code>TestSuiteResult</code></td></tr>
+          <tr><td><code>runApiFixtureCases(options)</code></td><td>HTTP fixture cases from <code>fixtures/cases/</code></td></tr>
+          <tr><td><code>runSnaplineFixtureCases(options)</code></td><td>Offline fixture cases (<code>live.json</code> vs <code>expected.json</code>)</td></tr>
+        </tbody>
+      </table>
+
+      <h2><code>testSuite</code> config</h2>
+      <table>
+        <thead><tr><th>Field</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>auth</code></td><td>Optional <code>auth.oauth2()</code>, <code>auth.openid()</code>, or <code>auth.basic()</code></td></tr>
+          <tr><td><code>baseUrl</code></td><td>Prepended to relative API endpoints</td></tr>
+          <tr><td><code>api</code></td><td>API ↔ JSON fixture</td></tr>
+          <tr><td><code>dbComparison</code></td><td>DB ↔ DB (SQL or NoSQL)</td></tr>
+          <tr><td><code>apiToDb</code></td><td>API response vs DB row</td></tr>
+          <tr><td><code>dbToApi</code></td><td>DB row vs API response (<code>inputFromDb</code>)</td></tr>
+          <tr><td><code>fetchImpl</code></td><td>Custom fetch for mocking</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Reconciliation</h2>
+      <table>
+        <thead><tr><th>Export</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>reconcile(live, expected, options)</code></td><td>Full pipeline; alias <code>snapline()</code></td></tr>
+          <tr><td><code>assertAgainstFile(live, path, options)</code></td><td>Reconcile live data vs JSON file</td></tr>
+          <tr><td><code>loadJsonFile(path, rootDir?)</code></td><td>Load JSON with optional path sandboxing</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Snapline options</h2>
+      <table>
+        <thead><tr><th>Option</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>ignoreFields</code></td><td><code>string[]</code></td><td>Fields to strip before compare (dot paths)</td></tr>
+          <tr><td><code>transformations</code></td><td><code>Record&lt;string, fn&gt;</code></td><td>Normalize live values per field</td></tr>
+          <tr><td><code>dataMapping</code></td><td><code>Record&lt;string, map|fn&gt;</code></td><td>Map codes across systems</td></tr>
+        </tbody>
+      </table>
+
+      <h2>API factories</h2>
+      <pre><code>import { api } from '@vaagatech/snapline-core';
+
+api.rest({ endpoint, method, inputFile, body, headers })
+api.graphql({ endpoint, query, queryFile, variables, variablesFile, dataPath })
+api.soap({ endpoint, soapAction, envelope, inputFile, headers })</code></pre>
+
+      <h2>Database</h2>
+      <pre><code>import { db, seedDb, createSqliteConnection } from '@vaagatech/snapline-core';
+
+db.postgres(url)
+db.mysql(url)
+db.sqlite(path)
+
+seedDb(dsn, rows)           // stub seeding for demos
+createSqliteConnection(path)</code></pre>
+
+      <h2>NoSQL</h2>
+      <pre><code>import { nosql } from '@vaagatech/snapline-core';
+
+const store = nosql.memory();
+nosql.seed(store, collection, documents);</code></pre>
+
+      <h2>Reporting</h2>
+      <table>
+        <thead><tr><th>Export</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>resolveReportConfig(options)</code></td><td>Parse CLI args and env vars</td></tr>
+          <tr><td><code>writeTestReport(suites, config, meta?)</code></td><td>Write JSON, HTML, or text report</td></tr>
+          <tr><td><code>redactFields(data, fields)</code></td><td>Mask sensitive fields in report data</td></tr>
+          <tr><td><code>redactSuiteResults(suites, fields)</code></td><td>Redact all step results in suites</td></tr>
+        </tbody>
+      </table>
+
+      <p>Environment variables:</p>
+      <ul>
+        <li><code>REPORT_FORMAT</code> — <code>json</code>, <code>html</code>, or <code>text</code></li>
+        <li><code>REPORT_OUTPUT</code> — output file path</li>
+        <li><code>REPORT_REDACT_FIELDS</code> — comma-separated field paths</li>
+      </ul>
+
+      <h2>Fixture utilities</h2>
+      <pre><code>import { fixturesDir, moduleDir, DEFAULT_FIXTURE_LAYOUT } from '@vaagatech/snapline-core';
+
+fixturesDir(import.meta.url, { relativePath: '../fixtures' })
+moduleDir(import.meta.url)</code></pre>
+
+      <h2><code>case.json</code> fields</h2>
+      <table>
+        <thead><tr><th>Field</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>name</code></td><td>Display name</td></tr>
+          <tr><td><code>expectMatch</code></td><td><code>true</code> = expect reconcile match; <code>false</code> = expect mismatch</td></tr>
+          <tr><td><code>expectStatus</code></td><td>Expected HTTP status (default 200)</td></tr>
+          <tr><td><code>skipAuth</code></td><td>Skip auth headers for 401 tests</td></tr>
+          <tr><td><code>failureType</code></td><td><code>dataMapping</code>, <code>transformation</code>, or <code>auth</code></td></tr>
+          <tr><td><code>expectedDiffPath</code></td><td>Assert diff occurs at specific path</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Package examples</h2>
+      <p>Runnable examples ship in the repo under <code>packages/*/examples/</code>:</p>
+      <ul>
+        <li><code>packages/core/examples/</code> — api-to-db, db-to-api, db-comparison, graphql, soap, nosql</li>
+        <li><code>packages/snapline/examples/basic-snapline.mjs</code></li>
+        <li><code>packages/api-adapters/examples/</code> — rest, graphql, soap</li>
+        <li><code>packages/auth-adapters/examples/basic-auth.mjs</code></li>
+      </ul>
+
+      <footer class="footer">
+        <p><a href="index.html">← Overview</a></p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

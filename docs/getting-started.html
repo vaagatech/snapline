@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting Started — Snapline</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <a class="brand" href="index.html">Snapline</a>
+      <span class="brand-sub">Node.js · @vaagatech/snapline-core</span>
+      <nav class="nav">
+        <div class="nav-section">Documentation</div>
+        <a href="index.html">Overview</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="getting-started.html" class="active">Getting Started</a>
+        <a href="guide.html">End-to-End Guide</a>
+        <a href="demos.html">Demo Scenarios</a>
+        <a href="reference.html">API Reference</a>
+        <div class="nav-section">Links</div>
+        <a href="https://github.com/vaagatech/snapline">GitHub</a>
+        <a href="https://www.npmjs.com/package/@vaagatech/snapline-core">npm</a>
+        <a href="https://github.com/vaagatech/snapline-python">Python version</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <header class="hero">
+        <h1>Getting Started</h1>
+        <p class="lead">Set up integration testing in a new Node.js project in about five minutes. This guide uses npm packages — not the repo demo.</p>
+      </header>
+
+      <h2>1. Create your project</h2>
+      <pre><code>mkdir my-app-integration-tests &amp;&amp; cd my-app-integration-tests
+npm init -y
+npm install @vaagatech/snapline-core</code></pre>
+      <p>Add <code>"type": "module"</code> to <code>package.json</code> (or use <code>.mjs</code> files).</p>
+
+      <h2>2. Project layout</h2>
+      <pre><code>my-app-integration-tests/
+├── fixtures/
+│   ├── input.json          # request body (REST POST)
+│   └── expected.json       # golden snapshot
+├── tests/
+│   └── user-sync.test.mjs
+├── .env                    # API_BASE_URL, CLIENT_ID, CLIENT_SECRET
+└── package.json</code></pre>
+
+      <h2>3. Add fixtures</h2>
+      <p><code>fixtures/input.json</code></p>
+      <pre><code>{ "email": "alice@example.com" }</code></pre>
+      <p><code>fixtures/expected.json</code> — use placeholders for fields you will normalize:</p>
+      <pre><code>{
+  "email": "alice@example.com",
+  "status": "synced",
+  "currentdate": "VALID_DATE"
+}</code></pre>
+
+      <h2>4. Write your first test</h2>
+      <p><code>tests/user-sync.test.mjs</code></p>
+      <pre><code>import { testSuite, auth } from '@vaagatech/snapline-core';
+
+const baseUrl = process.env.API_BASE_URL ?? 'https://your-api.com';
+
+const result = await testSuite('User sync — API vs fixture', {
+  auth: auth.oauth2({
+    tokenUrl: `${baseUrl}/oauth/token`,
+    clientId: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+  }),
+  baseUrl,
+  api: {
+    endpoint: '/api/v1/user/sync',
+    method: 'POST',
+    inputFile: './fixtures/input.json',
+    expectedFile: './fixtures/expected.json',
+    ignoreFields: ['pincode'],
+    transformations: {
+      currentdate: (v) =&gt;
+        typeof v === 'string' &amp;&amp; !Number.isNaN(Date.parse(v))
+          ? 'VALID_DATE'
+          : 'INVALID_DATE',
+    },
+  },
+});
+
+process.exitCode = result.passed ? 0 : 1;</code></pre>
+
+      <h2>5. Run it</h2>
+      <pre><code>API_BASE_URL=https://staging.your-api.com \
+CLIENT_ID=... CLIENT_SECRET=... \
+node tests/user-sync.test.mjs</code></pre>
+      <p>On success:</p>
+      <pre><code>▶ User sync — API vs fixture
+  ✓ auth initialized
+  ✓ api response reconciled with fixture file
+✅ User sync — API vs fixture: PASSED</code></pre>
+      <p>On failure you get a structured diff with field paths and actual vs expected values.</p>
+
+      <h2>Try the repo demo (optional)</h2>
+      <p>The Snapline monorepo includes 19 runnable scenarios with a local mock API and SQLite databases:</p>
+      <pre><code>git clone https://github.com/vaagatech/snapline.git
+cd snapline
+npm install
+npm run demo          # build + run all 19 scenarios
+npm run demo:list     # list scenario ids
+npm run demo:run -- api-vs-file-graphql</code></pre>
+
+      <h2>Run from this repo (maintainers)</h2>
+      <pre><code>npm install
+npm run build
+npm run typecheck
+npm run demo</code></pre>
+
+      <div class="callout">
+        <strong>Next:</strong> <a href="guide.html">End-to-End Guide</a> covers all test modes, fixture cases, cross-system tests, and CI reporting.
+      </div>
+
+      <footer class="footer">
+        <p><a href="guide.html">End-to-End Guide →</a></p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

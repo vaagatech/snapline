@@ -59,6 +59,10 @@ export interface RunApiFixtureCasesOptions {
   };
   presets?: FixtureCasePresetMaps;
   caseIds?: string[];
+  fetchImpl?: import('@vaagatech/snapline-api-adapters').FetchImpl;
+  timeoutMs?: number;
+  blockPrivateNetworks?: boolean;
+  blockMetadataHosts?: boolean;
 }
 
 export interface RunSnaplineFixtureCasesOptions {

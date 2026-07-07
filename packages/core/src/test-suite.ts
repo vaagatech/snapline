@@ -45,14 +45,22 @@ export async function testSuite(
 
   let authHeaders: Record<string, string> = {};
   if (authAdapter) {
-    const authResult = await authAdapter.initialize();
-    authHeaders = authResult.headers;
-    results.push({
-      step: 'auth',
-      passed: true,
-      token: authResult.token ? '[redacted]' : null,
-    });
-    console.log('  ✓ auth initialized');
+    try {
+      const authResult = await authAdapter.initialize();
+      authHeaders = authResult.headers;
+      results.push({
+        step: 'auth',
+        passed: true,
+        token: authResult.token ? '[redacted]' : null,
+      });
+      console.log('  ✓ auth initialized');
+    } catch (error) {
+      fail();
+      const message = error instanceof Error ? error.message : String(error);
+      results.push({ step: 'auth', passed: false, message });
+      console.log(`  ✗ auth failed: ${message}`);
+      return { name, passed: false, results };
+    }
   }
 
   if (api) {

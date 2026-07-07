@@ -1,6 +1,8 @@
 import { loadJsonFile } from '@vaagatech/snapline-engine';
-import type { ApiExecuteContext, ApiExecuteResult, RestApiConfig } from '../types.js';
 import { resolveUrl } from '../resolve-url.js';
+import { assertSafeUrl } from '../safe-url.js';
+import type { ApiExecuteContext, ApiExecuteResult, RestApiConfig } from '../types.js';
+import { DEFAULT_TIMEOUT_MS, fetchWithTimeout } from '../fetch-with-timeout.js';
 
 export async function executeRest(
   config: RestApiConfig,
@@ -11,6 +13,9 @@ export async function executeRest(
     authHeaders = {},
     fetchImpl = globalThis.fetch,
     inputFromRow,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+    blockPrivateNetworks = false,
+    blockMetadataHosts = true,
   } = context;
 
   const {
@@ -22,6 +27,7 @@ export async function executeRest(
   } = config;
 
   let url = resolveUrl(endpoint, baseUrl);
+  assertSafeUrl(url, { blockPrivateNetworks, blockMetadataHosts });
   let payload: unknown = body;
 
   if (inputFile) {
@@ -58,7 +64,7 @@ export async function executeRest(
     requestInit.body = JSON.stringify(payload);
   }
 
-  const response = await fetchImpl(url, requestInit);
+  const response = await fetchWithTimeout(fetchImpl, timeoutMs)(url, requestInit);
   const responseHeaders = Object.fromEntries(response.headers.entries());
   const text = await response.text();
 

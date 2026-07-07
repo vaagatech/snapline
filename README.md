@@ -518,6 +518,19 @@ Snapline lets you declare **what** should match and **how** to normalize differe
 
 ## Documentation
 
+📖 **[Full documentation (GitHub Pages)](https://vaagatech.github.io/snapline/)**
+
+| Page | Description |
+|------|-------------|
+| [Overview](https://vaagatech.github.io/snapline/) | Purpose, install, reconciliation pipeline |
+| [Architecture](https://vaagatech.github.io/snapline/architecture.html) | Package layers, runtime flow, repo layout |
+| [Getting Started](https://vaagatech.github.io/snapline/getting-started.html) | 5-minute integration test setup |
+| [End-to-End Guide](https://vaagatech.github.io/snapline/guide.html) | All test modes, fixtures, CI reports |
+| [Demo Scenarios](https://vaagatech.github.io/snapline/demos.html) | 19 runnable reference scenarios |
+| [API Reference](https://vaagatech.github.io/snapline/reference.html) | Config and exports |
+
+Local preview: open `docs/index.html` in a browser, or serve with `npx serve docs`.
+
 | Resource | Description |
 |----------|-------------|
 | [`packages/core/README.md`](./packages/core/README.md) | Full `testSuite` API, fixture runners, DB/NoSQL comparison |

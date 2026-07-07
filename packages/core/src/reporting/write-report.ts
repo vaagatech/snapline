@@ -3,6 +3,7 @@ import { dirname } from 'node:path';
 import type { TestSuiteResult } from '../types.js';
 import { renderHtmlReport } from './html-reporter.js';
 import { renderJsonReport } from './json-reporter.js';
+import { redactSuiteResults } from './redact-fields.js';
 import { renderTextReport } from './text-reporter.js';
 import type { ReportConfig, TestRunReport, TestRunReportMeta } from './types.js';
 
@@ -49,7 +50,8 @@ export function writeTestReport(
   config: ReportConfig,
   meta: TestRunReportMeta = {},
 ): string {
-  const report = buildReport(suites, meta);
+  const sanitized = redactSuiteResults(suites, config.redactFields);
+  const report = buildReport(sanitized, meta);
   const content = renderReport(report, config.format);
   mkdirSync(dirname(config.outputPath), { recursive: true });
   writeFileSync(config.outputPath, content, 'utf8');

@@ -1,5 +1,4 @@
 import type { DataMappingMap, FieldMapping } from './types.js';
-import { deepClone } from './utils/deep-clone.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 
 export function mapFieldValue(value: unknown, mapping: FieldMapping): unknown {
@@ -46,5 +45,5 @@ export function applyDataMapping(
     return result;
   }
 
-  return walk(deepClone(data));
+  return walk(data);
 }

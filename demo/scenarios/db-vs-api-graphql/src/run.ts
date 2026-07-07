@@ -1,5 +1,6 @@
 import type { TestSuiteResult } from '@vaagatech/snapline-core';
 import { api, testSuite } from '@vaagatech/snapline-core';
+import { closeSqliteConnections } from '@vaagatech/snapline-demo-shared';
 import { createAuth } from './auth.js';
 import { openAppDb } from './db.js';
 import {
@@ -16,19 +17,20 @@ export async function run(): Promise<TestSuiteResult> {
   const baseUrl = requireEnv('API_BASE_URL');
   const appDb = openAppDb();
 
-  return testSuite(SUITE_NAME, {
-    auth: createAuth(),
-    baseUrl,
-    dbToApi: {
-      db: {
-        db: appDb,
-        query: appCustomerJoinQuery,
-        params: { email: DEMO_EMAIL },
-      },
-      api: {
-        ...api.graphql({
-          endpoint: '/graphql',
-          query: `
+  try {
+    return await testSuite(SUITE_NAME, {
+      auth: createAuth(),
+      baseUrl,
+      dbToApi: {
+        db: {
+          db: appDb,
+          query: appCustomerJoinQuery,
+          params: { email: DEMO_EMAIL },
+        },
+        api: {
+          ...api.graphql({
+            endpoint: '/graphql',
+            query: `
             query CustomerSnapshot($email: String!) {
               customerSnapshot(email: $email) {
                 email
@@ -42,17 +44,20 @@ export async function run(): Promise<TestSuiteResult> {
               }
             }
           `,
-          dataPath: 'customerSnapshot',
-        }),
-        expectedStatus: 200,
+            dataPath: 'customerSnapshot',
+          }),
+          expectedStatus: 200,
+        },
+        inputFromDb: true,
+        dataMapping: {
+          ...dbStatusMapping,
+          ...dbPlanMapping,
+        },
       },
-      inputFromDb: true,
-      dataMapping: {
-        ...dbStatusMapping,
-        ...dbPlanMapping,
-      },
-    },
-  });
+    });
+  } finally {
+    closeSqliteConnections(appDb);
+  }
 }
 
 export default run;

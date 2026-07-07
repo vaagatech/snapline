@@ -33,6 +33,7 @@ export { runDbComparison } from './db-comparison/run-db-comparison.js';
 export { DbConnection } from './db/db-connection.js';
 export {
   createSqliteConnection,
+  clearDbSeeds,
   db,
   execSqliteFile,
   execSqliteSql,
@@ -43,6 +44,7 @@ export type { ReportConfig, ReportFormat, TestRunReport, TestRunReportMeta } fro
 export type { ResolveReportConfigOptions } from './reporting/resolve-report-config.js';
 export { resolveReportConfig } from './reporting/resolve-report-config.js';
 export { buildReport, renderReport, writeTestReport } from './reporting/write-report.js';
+export { redactFields, redactSuiteResults } from './reporting/redact-fields.js';
 export type { FixturesDirOptions } from './io/module-dir.js';
 export { fixturesDir, moduleDir } from './io/module-dir.js';
 export {

@@ -33,7 +33,9 @@ export class OAuth2Adapter extends AuthAdapter<OAuth2Config> {
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`OAuth2 token request failed (${response.status}): ${text}`);
+      throw new Error(
+        `OAuth2 token request failed (${response.status}): ${text.slice(0, 200)}`,
+      );
     }
 
     const payload = (await response.json()) as OAuth2TokenResponse;

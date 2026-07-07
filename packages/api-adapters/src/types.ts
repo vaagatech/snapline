@@ -10,6 +10,12 @@ export interface ApiExecuteContext {
   fetchImpl?: FetchImpl;
   /** Optional DB row merged into REST body or GraphQL variables */
   inputFromRow?: Record<string, unknown>;
+  /** Request timeout in milliseconds. Default 30000. */
+  timeoutMs?: number;
+  /** Block RFC1918/loopback targets. Default false. */
+  blockPrivateNetworks?: boolean;
+  /** Block cloud metadata hosts. Default true. */
+  blockMetadataHosts?: boolean;
 }
 
 export interface ApiExecuteResult {

@@ -13,6 +13,14 @@ export function seedDb(connectionString: string, rows: DbRow[]): void {
   dbRegistry.set(connectionString, rows);
 }
 
+export function clearDbSeeds(connectionString?: string): void {
+  if (connectionString) {
+    dbRegistry.delete(connectionString);
+    return;
+  }
+  dbRegistry.clear();
+}
+
 export function createDbConnection(
   dialect: 'postgres' | 'mysql',
   connectionString: string,

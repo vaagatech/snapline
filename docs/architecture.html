@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture — Snapline</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <a class="brand" href="index.html">Snapline</a>
+      <span class="brand-sub">Node.js · @vaagatech/snapline-core</span>
+      <nav class="nav">
+        <div class="nav-section">Documentation</div>
+        <a href="index.html">Overview</a>
+        <a href="architecture.html" class="active">Architecture</a>
+        <a href="getting-started.html">Getting Started</a>
+        <a href="guide.html">End-to-End Guide</a>
+        <a href="demos.html">Demo Scenarios</a>
+        <a href="reference.html">API Reference</a>
+        <div class="nav-section">Links</div>
+        <a href="https://github.com/vaagatech/snapline">GitHub</a>
+        <a href="https://www.npmjs.com/package/@vaagatech/snapline-core">npm</a>
+        <a href="https://github.com/vaagatech/snapline-python">Python version</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <header class="hero">
+        <h1>Architecture</h1>
+        <p class="lead">Snapline is an npm monorepo. Consumers install one package; maintainers split concerns across four published libraries plus a private demo workspace.</p>
+      </header>
+
+      <h2>Package layers</h2>
+      <div class="diagram">┌─────────────────────────────────────────────────────────────┐
+│              @vaagatech/snapline-core (entry point)          │
+│  testSuite · fixture runners · DB/NoSQL · reporting          │
+└───────────────┬─────────────────────┬────────────────────────┘
+                │                     │
+    ┌───────────▼──────────┐  ┌───────▼──────────────────────┐
+    │ @vaagatech/snapline- │  │ @vaagatech/snapline-api-     │
+    │ engine               │  │ adapters                     │
+    │ reconcile · compare  │  │ REST · GraphQL · SOAP        │
+    └──────────────────────┘  └───────────┬──────────────────┘
+                                          │
+                              ┌───────────▼──────────────────┐
+                              │ @vaagatech/snapline-auth-    │
+                              │ adapters                     │
+                              │ OAuth2 · OpenID · Basic      │
+                              └──────────────────────────────┘</div>
+
+      <table>
+        <thead>
+          <tr><th>Package</th><th>Responsibility</th><th>Key exports</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>@vaagatech/snapline-core</code></td>
+            <td>Orchestration — wires auth, HTTP, DB, fixtures, reports</td>
+            <td><code>testSuite</code>, <code>runApiFixtureCases</code>, <code>runDbComparison</code>, <code>writeTestReport</code></td>
+          </tr>
+          <tr>
+            <td><code>@vaagatech/snapline-engine</code></td>
+            <td>Pure reconciliation — no I/O</td>
+            <td><code>reconcile</code>, <code>snapline</code>, <code>assertAgainstFile</code></td>
+          </tr>
+          <tr>
+            <td><code>@vaagatech/snapline-api-adapters</code></td>
+            <td>Protocol executors with SSRF guards and timeouts</td>
+            <td><code>executeApi</code>, <code>api.rest</code>, <code>api.graphql</code>, <code>api.soap</code></td>
+          </tr>
+          <tr>
+            <td><code>@vaagatech/snapline-auth-adapters</code></td>
+            <td>Token acquisition for API calls</td>
+            <td><code>auth.oauth2</code>, <code>auth.openid</code>, <code>auth.basic</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Runtime flow — <code>testSuite</code></h2>
+      <div class="diagram">testSuite(name, config)
+  │
+  ├─ auth.initialize()          optional OAuth2 / OpenID / Basic
+  │
+  ├─ api                        executeApi → reconcile vs expectedFile
+  ├─ dbComparison               fetch source + target rows → reconcile
+  ├─ apiToDb                    executeApi → fetch DB row → reconcile
+  └─ dbToApi                    fetch DB row → executeApi → reconcile
+        │
+        ▼
+  reconcile(live, expected, { ignoreFields, transformations, dataMapping })
+        │
+        ▼
+  { match, diff, processed, expected }  →  TestSuiteResult</div>
+
+      <h2>Fixture case runners</h2>
+      <p>Two runners live in core for data-driven scenarios:</p>
+      <ul>
+        <li><code>runApiFixtureCases</code> — HTTP per case, compare to <code>expected.json</code></li>
+        <li><code>runSnaplineFixtureCases</code> — offline: compare <code>live.json</code> vs <code>expected.json</code></li>
+      </ul>
+      <p>Each case directory contains <code>case.json</code> (metadata) plus protocol-specific files. Path sandboxing ensures fixture paths cannot escape the fixtures root.</p>
+
+      <h2>Repository layout (maintainers)</h2>
+      <pre><code>snapline/
+├── packages/
+│   ├── core/           @vaagatech/snapline-core
+│   ├── snapline/       @vaagatech/snapline-engine
+│   ├── api-adapters/   @vaagatech/snapline-api-adapters
+│   └── auth-adapters/  @vaagatech/snapline-auth-adapters
+└── demo/               private — mock server + 19 scenarios
+    ├── shared/         mock REST/GraphQL/SOAP + SQLite seeds
+    ├── scenarios/      one package per scenario
+    └── run-all/        runs all 19 sequentially</code></pre>
+
+      <h2>Security &amp; reliability</h2>
+      <ul>
+        <li><strong>SSRF protection</strong> — <code>assertSafeUrl</code> blocks metadata hosts and optional private networks</li>
+        <li><strong>HTTP timeouts</strong> — 30s default on all protocol executors</li>
+        <li><strong>Path sandboxing</strong> — fixture and JSON file loads constrained to allowed roots</li>
+        <li><strong>Report redaction</strong> — <code>redactFields</code> masks sensitive step data in HTML/JSON reports</li>
+      </ul>
+
+      <footer class="footer">
+        <p><a href="getting-started.html">Getting Started →</a></p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,3 +1,12 @@
+export function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 /** Minimal SOAP XML → plain object (no external XML dependency). */
 export function parseSoapBody(xml: string): Record<string, unknown> {
   const bodyMatch = xml.match(/<(?:[\w]+:)?Body[^>]*>([\s\S]*?)<\/(?:[\w]+:)?Body>/i);

@@ -1,7 +1,9 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readdirSync } from 'node:fs';
+import { existsSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import type { AuthAdapter } from '@vaagatech/snapline-auth-adapters';
 import { assertAgainstFile, loadJsonFile } from '@vaagatech/snapline-engine';
+import { assertWithinRoot } from '@vaagatech/snapline-engine';
 import { executeApi } from '@vaagatech/snapline-api-adapters';
 import { api } from '../api/index.js';
 import { toApiRequestConfig } from '../api/to-api-request-config.js';
@@ -15,24 +17,25 @@ import type {
   RunSnaplineFixtureCasesOptions,
 } from './types.js';
 
-function readCaseMeta(caseDir: string, layout: ResolvedFixtureLayout): FixtureCaseMeta {
-  return loadJsonFile(caseFilePath(caseDir, layout.caseMetaFile)) as FixtureCaseMeta;
+function readCaseMeta(caseDir: string, layout: ResolvedFixtureLayout, fixturesRoot: string): FixtureCaseMeta {
+  const metaPath = assertWithinRoot(fixturesRoot, caseFilePath(caseDir, layout.caseMetaFile));
+  return loadJsonFile(metaPath) as FixtureCaseMeta;
 }
 
-function discoverCaseIds(casesRoot: string): string[] {
-  return readdirSync(casesRoot, { withFileTypes: true })
+function discoverCaseIds(casesRoot: string, fixturesRoot: string): string[] {
+  const resolvedCasesRoot = assertWithinRoot(fixturesRoot, casesRoot);
+  return readdirSync(resolvedCasesRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort();
 }
 
 function exists(path: string): boolean {
-  try {
-    readFileSync(path);
-    return true;
-  } catch {
-    return false;
-  }
+  return existsSync(path);
+}
+
+function safeCaseFile(caseDir: string, fileName: string, fixturesRoot: string): string {
+  return assertWithinRoot(fixturesRoot, caseFilePath(caseDir, fileName));
 }
 
 function buildApiConfig(
@@ -40,6 +43,7 @@ function buildApiConfig(
   meta: FixtureCaseMeta,
   defaults: RunApiFixtureCasesOptions['defaults'],
   layout: ResolvedFixtureLayout,
+  fixturesRoot: string,
 ) {
   const protocol = meta.protocol ?? defaults?.protocol ?? 'graphql';
   const endpoint = meta.endpoint ?? defaults?.endpoint ?? '/graphql';
@@ -49,8 +53,8 @@ function buildApiConfig(
     return {
       ...api.graphql({
         endpoint,
-        queryFile: caseFilePath(caseDir, layout.queryFile),
-        variablesFile: caseFilePath(caseDir, layout.variablesFile),
+        queryFile: safeCaseFile(caseDir, layout.queryFile, fixturesRoot),
+        variablesFile: safeCaseFile(caseDir, layout.variablesFile, fixturesRoot),
         dataPath,
       }),
     };
@@ -61,12 +65,12 @@ function buildApiConfig(
       ...api.soap({
         endpoint,
         soapAction: meta.soapAction ?? 'GetUser',
-        inputFile: caseFilePath(caseDir, layout.soapInputFile),
+        inputFile: safeCaseFile(caseDir, layout.soapInputFile, fixturesRoot),
       }),
     };
   }
 
-  const restInputPath = caseFilePath(caseDir, layout.restInputFile);
+  const restInputPath = safeCaseFile(caseDir, layout.restInputFile, fixturesRoot);
   return {
     endpoint,
     method: meta.method ?? 'GET',
@@ -115,8 +119,9 @@ export async function runApiFixtureCases(
     caseIds,
   } = options;
 
-  const casesRoot = join(fixturesRoot, layout?.casesDir ?? 'cases');
-  const ids = caseIds ?? discoverCaseIds(casesRoot);
+  const resolvedFixturesRoot = resolve(fixturesRoot);
+  const casesRoot = join(resolvedFixturesRoot, layout?.casesDir ?? 'cases');
+  const ids = caseIds ?? discoverCaseIds(casesRoot, resolvedFixturesRoot);
   const results: TestStepResult[] = [];
   let passed = true;
 
@@ -124,27 +129,42 @@ export async function runApiFixtureCases(
 
   let authHeaders = options.authHeaders ?? {};
   if (auth) {
-    const authResult = await auth.initialize();
-    authHeaders = authResult.headers;
-    results.push({
-      step: 'auth',
-      passed: true,
-      token: authResult.token ? '[redacted]' : null,
-    });
-    console.log('  ✓ auth initialized');
+    try {
+      const authResult = await auth.initialize();
+      authHeaders = authResult.headers;
+      results.push({
+        step: 'auth',
+        passed: true,
+        token: authResult.token ? '[redacted]' : null,
+      });
+      console.log('  ✓ auth initialized');
+    } catch (error) {
+      passed = false;
+      const message = error instanceof Error ? error.message : String(error);
+      results.push({ step: 'auth', passed: false, message });
+      console.log(`  ✗ auth failed: ${message}`);
+      return { name: suiteName, passed: false, results };
+    }
   }
 
   for (const caseId of ids) {
-    const caseDir = join(casesRoot, caseId);
+    const caseDir = assertWithinRoot(resolvedFixturesRoot, join(casesRoot, caseId));
     const baseLayout = resolveFixtureLayout(layout, defaults);
-    const meta = readCaseMeta(caseDir, baseLayout);
+    const meta = readCaseMeta(caseDir, baseLayout, resolvedFixturesRoot);
     const caseLayout = resolveFixtureLayout(layout, defaults, meta);
     const expectMatch = meta.expectMatch;
     const expectedStatus = meta.expectStatus ?? 200;
-    const apiConfig = buildApiConfig(caseDir, meta, defaults, caseLayout);
+    const apiConfig = buildApiConfig(caseDir, meta, defaults, caseLayout, resolvedFixturesRoot);
     const request = toApiRequestConfig(apiConfig);
     const caseAuthHeaders = meta.skipAuth ? {} : authHeaders;
-    const response = await executeApi(request, { baseUrl, authHeaders: caseAuthHeaders });
+    const response = await executeApi(request, {
+      baseUrl,
+      authHeaders: caseAuthHeaders,
+      fetchImpl: options.fetchImpl,
+      timeoutMs: options.timeoutMs,
+      blockPrivateNetworks: options.blockPrivateNetworks,
+      blockMetadataHosts: options.blockMetadataHosts,
+    });
 
     if (response.status !== expectedStatus) {
       passed = false;
@@ -178,7 +198,7 @@ export async function runApiFixtureCases(
 
     const assertion = assertAgainstFile(
       response.data,
-      caseFilePath(caseDir, caseLayout.expectedFile),
+      safeCaseFile(caseDir, caseLayout.expectedFile, resolvedFixturesRoot),
       snaplineOptions,
     );
     const casePassed = assertion.match === expectMatch;
@@ -224,24 +244,25 @@ export async function runSnaplineFixtureCases(
   options: RunSnaplineFixtureCasesOptions,
 ): Promise<TestSuiteResult> {
   const { suiteName, fixturesRoot, layout, defaults, presets = {}, caseIds } = options;
-  const casesRoot = join(fixturesRoot, layout?.casesDir ?? 'cases');
-  const ids = caseIds ?? discoverCaseIds(casesRoot);
+  const resolvedFixturesRoot = resolve(fixturesRoot);
+  const casesRoot = join(resolvedFixturesRoot, layout?.casesDir ?? 'cases');
+  const ids = caseIds ?? discoverCaseIds(casesRoot, resolvedFixturesRoot);
   const results: TestStepResult[] = [];
   let passed = true;
 
   console.log(`\n▶ ${suiteName}`);
 
   for (const caseId of ids) {
-    const caseDir = join(casesRoot, caseId);
+    const caseDir = assertWithinRoot(resolvedFixturesRoot, join(casesRoot, caseId));
     const baseLayout = resolveFixtureLayout(layout, defaults);
-    const meta = readCaseMeta(caseDir, baseLayout);
+    const meta = readCaseMeta(caseDir, baseLayout, resolvedFixturesRoot);
     const caseLayout = resolveFixtureLayout(layout, defaults, meta);
-    const liveData = loadJsonFile(caseFilePath(caseDir, caseLayout.liveFile));
+    const liveData = loadJsonFile(safeCaseFile(caseDir, caseLayout.liveFile, resolvedFixturesRoot));
     const snaplineOptions = resolveFixtureSnaplineOptions(meta, defaults, presets);
 
     const assertion = assertAgainstFile(
       liveData,
-      caseFilePath(caseDir, caseLayout.expectedFile),
+      safeCaseFile(caseDir, caseLayout.expectedFile, resolvedFixturesRoot),
       snaplineOptions,
     );
     const casePassed = assertion.match === meta.expectMatch;

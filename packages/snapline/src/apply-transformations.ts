@@ -1,5 +1,4 @@
 import type { TransformationMap } from './types.js';
-import { deepClone } from './utils/deep-clone.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 
 export function applyTransformations(
@@ -31,5 +30,5 @@ export function applyTransformations(
     return result;
   }
 
-  return walk(deepClone(data));
+  return walk(data);
 }

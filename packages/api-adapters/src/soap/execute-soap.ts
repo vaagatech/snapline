@@ -2,7 +2,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { ApiExecuteContext, ApiExecuteResult, SoapApiConfig } from '../types.js';
 import { resolveUrl } from '../resolve-url.js';
-import { buildSoapEnvelope, parseSoapBody } from '../soap/xml-utils.js';
+import { assertSafeUrl } from '../safe-url.js';
+import { DEFAULT_TIMEOUT_MS, fetchWithTimeout } from '../fetch-with-timeout.js';
+import { buildSoapEnvelope, escapeXml, parseSoapBody } from '../soap/xml-utils.js';
 
 function loadEnvelope(config: SoapApiConfig): string {
   if (config.envelope) {
@@ -23,18 +25,20 @@ export async function executeSoap(
     authHeaders = {},
     fetchImpl = globalThis.fetch,
     inputFromRow,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+    blockPrivateNetworks = false,
+    blockMetadataHosts = true,
   } = context;
 
   let envelope = loadEnvelope(config);
 
   if (inputFromRow?.email) {
-    envelope = envelope.replace(
-      /<email>[^<]*<\/email>/i,
-      `<email>${String(inputFromRow.email)}</email>`,
-    );
+    const safeEmail = escapeXml(String(inputFromRow.email));
+    envelope = envelope.replace(/<email>[^<]*<\/email>/i, `<email>${safeEmail}</email>`);
   }
 
   const url = resolveUrl(config.endpoint, baseUrl);
+  assertSafeUrl(url, { blockPrivateNetworks, blockMetadataHosts });
   const headers: Record<string, string> = {
     'Content-Type': 'text/xml; charset=utf-8',
     Accept: 'text/xml',
@@ -46,7 +50,7 @@ export async function executeSoap(
     headers.SOAPAction = config.soapAction;
   }
 
-  const response = await fetchImpl(url, {
+  const response = await fetchWithTimeout(fetchImpl, timeoutMs)(url, {
     method: 'POST',
     headers,
     body: envelope,

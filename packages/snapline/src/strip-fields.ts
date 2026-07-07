@@ -1,4 +1,3 @@
-import { deepClone } from './utils/deep-clone.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 
 function removeNested(target: unknown, fieldPath: string): void {
@@ -61,5 +60,5 @@ export function stripFields(data: unknown, ignoreFields: string[] = []): unknown
     return result;
   }
 
-  return walk(deepClone(data));
+  return walk(data);
 }

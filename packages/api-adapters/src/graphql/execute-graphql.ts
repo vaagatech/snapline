@@ -3,6 +3,8 @@ import { resolve } from 'node:path';
 import { loadJsonFile } from '@vaagatech/snapline-engine';
 import type { ApiExecuteContext, ApiExecuteResult, GraphqlApiConfig } from '../types.js';
 import { resolveUrl } from '../resolve-url.js';
+import { assertSafeUrl } from '../safe-url.js';
+import { DEFAULT_TIMEOUT_MS, fetchWithTimeout } from '../fetch-with-timeout.js';
 
 function loadQuery(config: GraphqlApiConfig): string {
   if (config.query) {
@@ -41,6 +43,9 @@ export async function executeGraphql(
     authHeaders = {},
     fetchImpl = globalThis.fetch,
     inputFromRow,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+    blockPrivateNetworks = false,
+    blockMetadataHosts = true,
   } = context;
 
   let query = loadQuery(config);
@@ -57,7 +62,8 @@ export async function executeGraphql(
   }
 
   const url = resolveUrl(config.endpoint, baseUrl);
-  const response = await fetchImpl(url, {
+  assertSafeUrl(url, { blockPrivateNetworks, blockMetadataHosts });
+  const response = await fetchWithTimeout(fetchImpl, timeoutMs)(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -50,6 +50,7 @@ export function resolveReportConfig(
 
   let cliFormat: ReportFormat | undefined;
   let cliOutput: string | undefined;
+  let cliRedactFields: string[] | undefined;
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
@@ -64,17 +65,28 @@ export function resolveReportConfig(
       cliOutput = arg.split('=')[1];
     } else if (arg === '--report-output') {
       cliOutput = argv[index + 1];
+    } else if (arg.startsWith('--report-redact-fields=')) {
+      cliRedactFields = arg.split('=')[1]?.split(',').map((field) => field.trim()).filter(Boolean);
+    } else if (arg === '--report-redact-fields') {
+      cliRedactFields = argv[index + 1]?.split(',').map((field) => field.trim()).filter(Boolean);
     }
   }
+
+  const envRedactFields = process.env.REPORT_REDACT_FIELDS?.split(',')
+    .map((field) => field.trim())
+    .filter(Boolean);
 
   const format = cliFormat ?? envFormat;
   if (!format) {
     return undefined;
   }
 
+  const redactFields = cliRedactFields ?? envRedactFields;
+
   return {
     format,
     outputPath:
       cliOutput ?? envOutput ?? resolveDefaultOutputPath(format, options.defaultOutputPath),
+    ...(redactFields?.length ? { redactFields } : {}),
   };
 }
