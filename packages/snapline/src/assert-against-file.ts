@@ -1,12 +1,12 @@
-import type { ReconcileOptions, ReconcileResult } from './types.js';
+import type { SnaplineOptions, SnaplineResult } from './types.js';
 import { loadJsonFile } from './io/load-json-file.js';
-import { reconcile } from './reconcile.js';
+import { snapline } from './snapline.js';
 
 export function assertAgainstFile(
   liveData: unknown,
   expectedFilePath: string,
-  options: ReconcileOptions = {},
-): ReconcileResult {
+  options: SnaplineOptions = {},
+): SnaplineResult {
   const expectedData = loadJsonFile(expectedFilePath);
-  return reconcile(liveData, expectedData, options);
+  return snapline(liveData, expectedData, options);
 }

@@ -14,8 +14,7 @@
     "url": "https://github.com/vaagatech/snapline/issues"
   },
   "keywords": [
-    "reconcile",
-    "reconciliation",
+    "snapline",
     "snapshot-testing",
     "declarative-testing",
     "json-fixtures",

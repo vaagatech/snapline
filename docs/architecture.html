@@ -46,7 +46,7 @@
     ┌───────────▼──────────┐  ┌───────▼──────────────────────┐
     │ @vaagatech/snapline- │  │ @vaagatech/snapline-api-     │
     │ engine               │  │ adapters                     │
-    │ reconcile · compare  │  │ REST · GraphQL · SOAP        │
+    │ snapline · compare   │  │ REST · GraphQL · SOAP        │
     └──────────────────────┘  └───────────┬──────────────────┘
                                           │
                               ┌───────────▼──────────────────┐
@@ -68,7 +68,7 @@
           <tr>
             <td><code>@vaagatech/snapline-engine</code></td>
             <td>Pure reconciliation — no I/O</td>
-            <td><code>reconcile</code>, <code>snapline</code>, <code>assertAgainstFile</code></td>
+            <td><code>snapline</code>, <code>assertAgainstFile</code></td>
           </tr>
           <tr>
             <td><code>@vaagatech/snapline-api-adapters</code></td>
@@ -88,13 +88,13 @@
   │
   ├─ auth.initialize()          optional OAuth2 / OpenID / Basic
   │
-  ├─ api                        executeApi → reconcile vs expectedFile
-  ├─ dbComparison               fetch source + target rows → reconcile
-  ├─ apiToDb                    executeApi → fetch DB row → reconcile
-  └─ dbToApi                    fetch DB row → executeApi → reconcile
+  ├─ api                        executeApi → snapline vs expectedFile
+  ├─ dbComparison               fetch source + target rows → snapline
+  ├─ apiToDb                    executeApi → fetch DB row → snapline
+  └─ dbToApi                    fetch DB row → executeApi → snapline
         │
         ▼
-  reconcile(live, expected, { ignoreFields, transformations, dataMapping })
+  snapline(live, expected, { ignoreFields, transformations, dataMapping })
         │
         ▼
   { match, diff, processed, expected }  →  TestSuiteResult</div>

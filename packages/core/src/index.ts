@@ -15,7 +15,8 @@ export type {
   DiffResult,
   DocumentStoreLike,
   FetchImpl,
-  ReconcileOptions,
+  SnaplineOptions,
+  SnaplineResult,
   TestStepResult,
   TestSuiteConfig,
   TestSuiteResult,
@@ -71,10 +72,7 @@ export { testSuite } from './test-suite.js';
 export {
   assertAgainstFile,
   loadJsonFile,
-  reconcile,
   snapline,
-  type SnaplineOptions,
-  type SnaplineResult,
 } from '@vaagatech/snapline-engine';
 
 export { executeApi as executeApiRequest } from '@vaagatech/snapline-api-adapters';

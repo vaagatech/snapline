@@ -17,9 +17,9 @@ npm install @vaagatech/snapline-core
 | Mode | Config key | What it does |
 |------|------------|--------------|
 | **API ↔ file** | `api` | Call API, compare response to JSON fixture |
-| **DB ↔ DB** | `dbComparison` | Query two databases, reconcile rows |
-| **API ↔ DB** | `apiToDb` | Call API, reconcile response with DB row |
-| **DB ↔ API** | `dbToApi` | Read DB, call API, reconcile row with response |
+| **DB ↔ DB** | `dbComparison` | Query two databases, compare rows |
+| **API ↔ DB** | `apiToDb` | Call API, compare response with DB row |
+| **DB ↔ API** | `dbToApi` | Read DB, call API, compare row with response |
 | **SQL warehouse → NoSQL** | `runWarehouseComparison()` | Chunked multi-table SQL→document store consistency with streamed JSONL report |
 
 Combine modes in one `testSuite` — they run in sequence.
@@ -371,7 +371,7 @@ Pass `layout` on `runApiFixtureCases` or `runSnaplineFixtureCases`. Any key can 
 | `baseUrl` | API base URL (`runApiFixtureCases` only) |
 | `auth` / `authHeaders` | Auth for API cases |
 
-Snapline rule types come from `@vaagatech/snapline-engine` as `SnaplineOptions` (alias of `ReconcileOptions`). The engine also exports `snapline()` as an alias of `reconcile()`.
+Snapline rule types come from `@vaagatech/snapline-engine` as `SnaplineOptions`. Use `snapline()` for comparisons.
 
 ### `runWarehouseComparison` — SQL warehouse → NoSQL consistency
 

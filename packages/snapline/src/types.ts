@@ -20,14 +20,11 @@ export type TransformationMap = Record<string, FieldTransformation>;
 
 export type DataMappingMap = Record<string, FieldMapping>;
 
-export interface ReconcileOptions {
+export interface SnaplineOptions {
   ignoreFields?: string[];
   transformations?: TransformationMap;
   dataMapping?: DataMappingMap;
 }
-
-/** @alias ReconcileOptions */
-export type SnaplineOptions = ReconcileOptions;
 
 export interface DiffResult {
   path: string;
@@ -41,10 +38,7 @@ export interface CompareResult {
   diff: DiffResult | null;
 }
 
-export interface ReconcileResult extends CompareResult {
+export interface SnaplineResult extends CompareResult {
   processed: unknown;
   expected: unknown;
 }
-
-/** @alias ReconcileResult */
-export type SnaplineResult = ReconcileResult;

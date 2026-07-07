@@ -1,6 +1,6 @@
 # @vaagatech/snapline-engine
 
-Deep data reconciliation engine for declarative snapshot testing. Compare live API or database payloads against JSON fixtures while ignoring volatile fields, normalizing dynamic values, and mapping cross-system schema differences.
+Deep JSON comparison engine for declarative snapshot testing.
 
 [![npm version](https://img.shields.io/npm/v/@vaagatech/snapline-engine)](https://www.npmjs.com/package/@vaagatech/snapline-engine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -29,7 +29,7 @@ Use `@vaagatech/snapline-engine` when you need to:
 Save as `snapline-demo.mjs` and run with `node snapline-demo.mjs`.
 
 ```javascript
-import { reconcile, assertAgainstFile } from '@vaagatech/snapline-engine';
+import { snapline, assertAgainstFile } from '@vaagatech/snapline-engine';
 import { writeFileSync } from 'node:fs';
 
 // --- Live response from your API (dynamic fields included) ---
@@ -49,7 +49,7 @@ const expected = {
   currentdate: 'VALID_DATE',
 };
 
-const result = reconcile(liveResponse, expected, {
+const result = snapline(liveResponse, expected, {
   ignoreFields: ['pincode'],
   transformations: {
     currentdate: (value) =>
@@ -81,9 +81,9 @@ console.log(fileResult.match ? 'File assertion PASS' : 'File assertion FAIL');
 ### CommonJS
 
 ```javascript
-const { reconcile } = require('@vaagatech/snapline-engine');
+const { snapline } = require('@vaagatech/snapline-engine');
 
-const result = reconcile(
+const result = snapline(
   { id: 1, updatedAt: '2026-07-04T10:00:00Z', traceId: 'abc' },
   { id: 1, updatedAt: 'VALID_DATE' },
   {
@@ -102,7 +102,7 @@ console.log(result.match);
 
 ## API reference
 
-### `reconcile(liveData, expectedData, options?)`
+### `snapline(liveData, expectedData, options?)`
 
 Full pipeline: strip ignored fields → apply transformations → apply data mapping → compare.
 
@@ -116,7 +116,7 @@ Full pipeline: strip ignored fields → apply transformations → apply data map
 
 ### `assertAgainstFile(liveData, expectedFilePath, options?)`
 
-Loads a JSON fixture from disk and runs `reconcile`.
+Loads a JSON fixture from disk and runs `snapline`.
 
 ### Standalone utilities
 
@@ -182,17 +182,12 @@ Full types are exported:
 
 ```typescript
 import {
-  reconcile,
   snapline,
-  type ReconcileOptions,
-  type ReconcileResult,
   type SnaplineOptions,
   type SnaplineResult,
   type DiffResult,
 } from '@vaagatech/snapline-engine';
 ```
-
-`SnaplineOptions` / `SnaplineResult` and `snapline()` are aliases of `ReconcileOptions` / `ReconcileResult` and `reconcile()`.
 
 ## Module formats
 

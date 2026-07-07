@@ -43,19 +43,19 @@
           <tr><th>Goal</th><th>Config key</th><th>What happens</th></tr>
         </thead>
         <tbody>
-          <tr><td>API response vs JSON file</td><td><code>api</code></td><td>HTTP call → reconcile vs <code>expectedFile</code></td></tr>
-          <tr><td>Two database rows</td><td><code>dbComparison</code></td><td>Query source + target → reconcile</td></tr>
-          <tr><td>API response vs DB row</td><td><code>apiToDb</code></td><td>HTTP call → query DB → reconcile</td></tr>
-          <tr><td>DB row vs API response</td><td><code>dbToApi</code></td><td>Query DB → HTTP call → reconcile</td></tr>
+          <tr><td>API response vs JSON file</td><td><code>api</code></td><td>HTTP call → snapline vs <code>expectedFile</code></td></tr>
+          <tr><td>Two database rows</td><td><code>dbComparison</code></td><td>Query source + target → snapline</td></tr>
+          <tr><td>API response vs DB row</td><td><code>apiToDb</code></td><td>HTTP call → query DB → snapline</td></tr>
+          <tr><td>DB row vs API response</td><td><code>dbToApi</code></td><td>Query DB → HTTP call → snapline</td></tr>
         </tbody>
       </table>
       <p>Combine multiple modes in one <code>testSuite</code> — they run sequentially.</p>
 
       <h2>Step 2 — Configure reconciliation</h2>
-      <p>Every comparison accepts three snapline options (processing order: ignore → transform → map → compare):</p>
-      <pre><code>import { reconcile } from '@vaagatech/snapline-core';
+      <p>Every comparison accepts three snapline options (processing order: ignore → transform → map → compare).</p>
+      <pre><code>import { snapline } from '@vaagatech/snapline-core';
 
-const { match, diff, processed } = reconcile(liveData, expectedData, {
+const { match, diff, processed } = snapline(liveData, expectedData, {
   ignoreFields: ['metadata.traceId', 'pincode'],
   transformations: {
     lastLogin: (v) =&gt; isValidDate(v) ? 'VALID_DATE' : 'INVALID_DATE',

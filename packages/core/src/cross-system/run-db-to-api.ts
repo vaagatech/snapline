@@ -1,6 +1,6 @@
 import { executeApi } from '@vaagatech/snapline-api-adapters';
 import type { ApiRequestConfig } from '@vaagatech/snapline-api-adapters';
-import { reconcile } from '@vaagatech/snapline-engine';
+import { snapline } from '@vaagatech/snapline-engine';
 import type { CrossSystemResult, DbToApiConfig, FetchImpl } from '../types.js';
 
 export async function runDbToApi(
@@ -44,7 +44,7 @@ export async function runDbToApi(
     };
   }
 
-  const result = reconcile(dbData, response.data, {
+  const result = snapline(dbData, response.data, {
     ignoreFields,
     transformations,
     dataMapping,

@@ -3,7 +3,8 @@ import type { ApiRequestConfig } from '@vaagatech/snapline-api-adapters';
 import type {
   DataMappingMap,
   DiffResult,
-  ReconcileOptions,
+  SnaplineOptions,
+  SnaplineResult,
   TransformationMap,
 } from '@vaagatech/snapline-engine';
 import type { StreamReportOptions } from './reporting/stream-report-options.js';
@@ -32,7 +33,7 @@ export interface DbQueryConfig {
 }
 
 /** API tested against a JSON fixture file (REST, SOAP, or GraphQL). */
-export interface ApiFileTestConfig extends ReconcileOptions {
+export interface ApiFileTestConfig extends SnaplineOptions {
   /** REST shorthand — omit when using api.rest(), api.soap(), or api.graphql() */
   endpoint?: string;
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD';
@@ -52,7 +53,7 @@ export interface ApiFileTestConfig extends ReconcileOptions {
   dataPath?: string;
 }
 
-export interface DbComparisonConfig extends ReconcileOptions {
+export interface DbComparisonConfig extends SnaplineOptions {
   sourceDb: DbConnectionLike | DocumentStoreLike;
   targetDb: DbConnectionLike | DocumentStoreLike;
   /**
@@ -82,14 +83,14 @@ export interface DbComparisonConfig extends ReconcileOptions {
   targetFilterFromSource?: (sourceRow: DbRow) => Record<string, unknown>;
 }
 
-/** Call API → reconcile response with a DB row. */
-export interface ApiToDbConfig extends ReconcileOptions {
+/** Call API → compare response with a DB row. */
+export interface ApiToDbConfig extends SnaplineOptions {
   api: ApiRequestConfig & { expectedStatus?: number };
   db: DbQueryConfig;
 }
 
-/** Read DB → call API → reconcile DB row with API response. */
-export interface DbToApiConfig extends ReconcileOptions {
+/** Read DB → call API → compare DB row with API response. */
+export interface DbToApiConfig extends SnaplineOptions {
   db: DbQueryConfig;
   api: ApiRequestConfig & { expectedStatus?: number };
   /** Merge first DB row into API body / GraphQL variables */
@@ -152,6 +153,7 @@ export type DbDialect = 'postgres' | 'mysql';
 export type {
   DataMappingMap,
   DiffResult,
-  ReconcileOptions,
+  SnaplineOptions,
+  SnaplineResult,
   TransformationMap,
 };

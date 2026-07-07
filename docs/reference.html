@@ -65,8 +65,8 @@
       <table>
         <thead><tr><th>Export</th><th>Description</th></tr></thead>
         <tbody>
-          <tr><td><code>reconcile(live, expected, options)</code></td><td>Full pipeline; alias <code>snapline()</code></td></tr>
-          <tr><td><code>assertAgainstFile(live, path, options)</code></td><td>Reconcile live data vs JSON file</td></tr>
+          <tr><td><code>snapline(live, expected, options)</code></td><td>Full pipeline</td></tr>
+          <tr><td><code>assertAgainstFile(live, path, options)</code></td><td>Compare live data vs JSON file</td></tr>
           <tr><td><code>loadJsonFile(path, rootDir?)</code></td><td>Load JSON with optional path sandboxing</td></tr>
         </tbody>
       </table>
@@ -148,7 +148,7 @@ moduleDir(import.meta.url)</code></pre>
         <thead><tr><th>Field</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td><code>name</code></td><td>Display name</td></tr>
-          <tr><td><code>expectMatch</code></td><td><code>true</code> = expect reconcile match; <code>false</code> = expect mismatch</td></tr>
+          <tr><td><code>expectMatch</code></td><td><code>true</code> = expect match; <code>false</code> = expect mismatch</td></tr>
           <tr><td><code>expectStatus</code></td><td>Expected HTTP status (default 200)</td></tr>
           <tr><td><code>skipAuth</code></td><td>Skip auth headers for 401 tests</td></tr>
           <tr><td><code>failureType</code></td><td><code>dataMapping</code>, <code>transformation</code>, or <code>auth</code></td></tr>

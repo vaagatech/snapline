@@ -1,4 +1,4 @@
-import { reconcile } from '@vaagatech/snapline-engine';
+import { snapline } from '@vaagatech/snapline-engine';
 import type { CrossSystemResult, DbComparisonConfig } from '../types.js';
 import { fetchSourceRow, fetchTargetRow } from './fetch-store-data.js';
 
@@ -14,7 +14,7 @@ export async function runDbComparison(
   const sourceData = await fetchSourceRow(dbComparison);
   const targetData = await fetchTargetRow(dbComparison, sourceData);
 
-  const result = reconcile(sourceData, targetData, {
+  const result = snapline(sourceData, targetData, {
     ignoreFields,
     transformations,
     dataMapping,

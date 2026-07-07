@@ -1,15 +1,15 @@
-import type { ReconcileOptions, ReconcileResult } from './types.js';
+import type { SnaplineOptions, SnaplineResult } from './types.js';
 import { applyDataMapping } from './apply-data-mapping.js';
 import { applyTransformations } from './apply-transformations.js';
 import { compareObjects } from './compare-objects.js';
 import { stripFields } from './strip-fields.js';
 import { deepClone } from './utils/deep-clone.js';
 
-export function reconcile(
+export function snapline(
   liveData: unknown,
   expectedData: unknown,
-  options: ReconcileOptions = {},
-): ReconcileResult {
+  options: SnaplineOptions = {},
+): SnaplineResult {
   const { ignoreFields = [], transformations = {}, dataMapping = {} } = options;
 
   let processed = deepClone(liveData);
@@ -25,6 +25,3 @@ export function reconcile(
 
   return { match, processed, expected, diff };
 }
-
-/** @alias reconcile */
-export const snapline = reconcile;

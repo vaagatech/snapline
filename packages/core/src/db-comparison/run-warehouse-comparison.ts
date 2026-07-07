@@ -1,4 +1,4 @@
-import { reconcile } from '@vaagatech/snapline-engine';
+import { snapline } from '@vaagatech/snapline-engine';
 import type { TestStepResult, TestSuiteResult } from '../types.js';
 import { fetchTargetRow, isDocumentStore } from './fetch-store-data.js';
 import { iterateSourceChunks } from './iterate-source-chunks.js';
@@ -73,7 +73,7 @@ async function compareWarehouseRow(
     };
   }
 
-  const result = reconcile(sourceRow, targetRow, {
+  const result = snapline(sourceRow, targetRow, {
     ignoreFields: table.ignoreFields ?? [],
     transformations: table.transformations ?? {},
     dataMapping: table.dataMapping ?? {},

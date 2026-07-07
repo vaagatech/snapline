@@ -1,4 +1,4 @@
-import { reconcile } from '@vaagatech/snapline-engine';
+import { snapline } from '@vaagatech/snapline-engine';
 
 const liveResponse = {
   id: 'usr_001',
@@ -15,7 +15,7 @@ const expected = {
   currentdate: 'VALID_DATE',
 };
 
-const result = reconcile(liveResponse, expected, {
+const result = snapline(liveResponse, expected, {
   ignoreFields: ['pincode'],
   transformations: {
     currentdate: (value) =>

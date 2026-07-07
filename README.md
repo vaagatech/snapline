@@ -40,7 +40,7 @@ Suggested layout:
 my-app-integration-tests/
 ├── fixtures/
 │   ├── input.json          # request body (REST POST) or reference data
-│   └── expected.json       # golden snapshot — what you expect after reconcile
+│   └── expected.json       # golden snapshot — what you expect after snapline rules
 ├── tests/
 │   └── user-sync.test.mjs  # one testSuite per scenario (or group related ones)
 ├── .env                    # CLIENT_ID, CLIENT_SECRET, API_BASE_URL (optional)
@@ -70,7 +70,7 @@ Capture a real response once, then normalize volatile fields in the **expected**
 { "email": "alice@example.com" }
 ```
 
-`fixtures/expected.json` — what you assert after reconcile rules are applied:
+`fixtures/expected.json` — what you assert after snapline rules are applied:
 
 ```json
 {
@@ -129,7 +129,7 @@ On failure you get a structured diff (field path, actual vs expected). On succes
 ```
 ▶ User sync — API vs fixture
   ✓ auth initialized
-  ✓ api response reconciled with fixture file
+  ✓ api response matched fixture file
 ✅ User sync — API vs fixture: PASSED
 ```
 
@@ -336,8 +336,8 @@ Full reference: [`packages/core/README.md` — Consumer utilities](./packages/co
 |------|------------|--------------|-----------|
 | **API ↔ file** | `api` | Call an API and compare the response to a JSON fixture | REST, SOAP, GraphQL |
 | **DB ↔ DB** | `dbComparison` | Compare rows from two databases (same or different queries) | Any SQL via `DbConnectionLike`, NoSQL* |
-| **API ↔ DB** | `apiToDb` | Call an API and reconcile the response with a DB row | REST, SOAP, GraphQL |
-| **DB ↔ API** | `dbToApi` | Read a DB row, call an API, reconcile row with response | REST, SOAP, GraphQL |
+| **API ↔ DB** | `apiToDb` | Call an API and compare the response with a DB row | REST, SOAP, GraphQL |
+| **DB ↔ API** | `dbToApi` | Read a DB row, call an API, compare row with response | REST, SOAP, GraphQL |
 
 Combine multiple modes in one `testSuite` — they run in sequence.
 
@@ -356,7 +356,7 @@ Every comparison accepts:
 Processing order: **ignore → transform → map → deep compare**.
 
 ```javascript
-import { reconcile, snapline } from '@vaagatech/snapline-core';
+import { snapline } from '@vaagatech/snapline-core';
 
 const { match, diff } = snapline(liveData, expectedData, {
   ignoreFields: ['metadata.requestId'],
@@ -364,8 +364,6 @@ const { match, diff } = snapline(liveData, expectedData, {
   dataMapping: { status: { ACTIVE: 'ACTV' } },
 });
 ```
-
-`reconcile()` and `snapline()` are equivalent. Prefer `SnaplineOptions` for new code (`ReconcileOptions` remains as an alias).
 
 ## Usage reference
 
@@ -514,7 +512,7 @@ auth.basic({ username, password });
 | Package | npm | Description |
 |---------|-----|-------------|
 | [`@vaagatech/snapline-core`](./packages/core) | [`@vaagatech/snapline-core`](https://www.npmjs.com/package/@vaagatech/snapline-core) | **Start here** — `testSuite`, `DbConnectionLike`, reporting |
-| [`@vaagatech/snapline-engine`](./packages/snapline) | [`@vaagatech/snapline-engine`](https://www.npmjs.com/package/@vaagatech/snapline-engine) | Reconciliation engine — `reconcile`, `assertAgainstFile` |
+| [`@vaagatech/snapline-engine`](./packages/snapline) | [`@vaagatech/snapline-engine`](https://www.npmjs.com/package/@vaagatech/snapline-engine) | Comparison engine — `snapline`, `assertAgainstFile` |
 | [`@vaagatech/snapline-api-adapters`](./packages/api-adapters) | [`@vaagatech/snapline-api-adapters`](https://www.npmjs.com/package/@vaagatech/snapline-api-adapters) | REST, SOAP, GraphQL executors |
 | [`@vaagatech/snapline-auth-adapters`](./packages/auth-adapters) | [`@vaagatech/snapline-auth-adapters`](https://www.npmjs.com/package/@vaagatech/snapline-auth-adapters) | OAuth2, OpenID Connect, Basic Auth |
 

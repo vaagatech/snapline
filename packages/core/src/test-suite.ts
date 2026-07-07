@@ -112,7 +112,7 @@ export async function testSuite(
       results.push(stepResult);
       emitStep(stepResult);
 
-      logStepResult('api response reconciled with fixture file', assertion.match, assertion.diff, fail);
+      logStepResult('api response matched fixture file', assertion.match, assertion.diff, fail);
     } else {
       const stepResult: TestStepResult = { step: 'api', passed: true, data: response.data };
       results.push(stepResult);
