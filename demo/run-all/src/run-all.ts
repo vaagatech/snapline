@@ -1,4 +1,13 @@
-import { buildReport, pushTestReportToHub, resolveHubConfig, resolveReportConfig, writeTestReport } from '@vaagatech/snapline-core';
+import {
+  buildReport,
+  pushTestReportToHub,
+  resolveHubConfig,
+  resolveReportConfig,
+  writeTestReport,
+  type HubConfig,
+  type ReportConfig,
+  type TestSuiteResult,
+} from '@vaagatech/snapline-core';
 import snaplineIgnoreFields from '@vaagatech/snapline-demo-scenario-snapline-ignore-fields';
 import snaplineTransformations from '@vaagatech/snapline-demo-scenario-snapline-transformations';
 import snaplineDataMappingLookup from '@vaagatech/snapline-demo-scenario-snapline-data-mapping-lookup';
@@ -22,28 +31,28 @@ import projectGraphql from '@vaagatech/snapline-demo-scenario-project-graphql';
 import projectDb from '@vaagatech/snapline-demo-scenario-project-db';
 import { createDemoDatabaseEnv, createMockServer } from '@vaagatech/snapline-demo-shared';
 
-const runners = [
-  snaplineIgnoreFields,
-  snaplineTransformations,
-  snaplineDataMappingLookup,
-  dbVsDbSqlite,
-  dbVsDbCrossDialect,
-  nosqlVsNosql,
-  snaplineDataMappingFunction,
-  dbComparisonTransformations,
-  snaplineCombinedOptions,
-  apiVsFileRest,
-  apiVsFileRestCases,
-  apiVsFileGraphql,
-  apiVsFileSoap,
-  apiVsDbRest,
-  apiVsDbGraphql,
-  apiVsDbSoap,
-  dbVsApiRest,
-  dbVsApiGraphql,
-  dbVsApiSoap,
-  projectGraphql,
-  projectDb,
+const scenarios: Array<{ id: string; run: () => Promise<TestSuiteResult> }> = [
+  { id: 'snapline-ignore-fields', run: snaplineIgnoreFields },
+  { id: 'snapline-transformations', run: snaplineTransformations },
+  { id: 'snapline-data-mapping-lookup', run: snaplineDataMappingLookup },
+  { id: 'db-vs-db-sqlite', run: dbVsDbSqlite },
+  { id: 'db-vs-db-cross-dialect', run: dbVsDbCrossDialect },
+  { id: 'nosql-vs-nosql', run: nosqlVsNosql },
+  { id: 'snapline-data-mapping-function', run: snaplineDataMappingFunction },
+  { id: 'db-comparison-transformations', run: dbComparisonTransformations },
+  { id: 'snapline-combined-options', run: snaplineCombinedOptions },
+  { id: 'api-vs-file-rest', run: apiVsFileRest },
+  { id: 'api-vs-file-rest-cases', run: apiVsFileRestCases },
+  { id: 'api-vs-file-graphql', run: apiVsFileGraphql },
+  { id: 'api-vs-file-soap', run: apiVsFileSoap },
+  { id: 'api-vs-db-rest', run: apiVsDbRest },
+  { id: 'api-vs-db-graphql', run: apiVsDbGraphql },
+  { id: 'api-vs-db-soap', run: apiVsDbSoap },
+  { id: 'db-vs-api-rest', run: dbVsApiRest },
+  { id: 'db-vs-api-graphql', run: dbVsApiGraphql },
+  { id: 'db-vs-api-soap', run: dbVsApiSoap },
+  { id: 'project-graphql', run: projectGraphql },
+  { id: 'project-db', run: projectDb },
 ];
 
 function applyDemoEnv(baseUrl: string, databaseEnv: ReturnType<typeof createDemoDatabaseEnv>): void {
@@ -57,11 +66,61 @@ function applyDemoEnv(baseUrl: string, databaseEnv: ReturnType<typeof createDemo
   process.env.AUDIT_TARGET_DATABASE_URL = databaseEnv.AUDIT_TARGET_DATABASE_URL;
 }
 
+function scenarioReportPath(scenarioId: string, format: ReportConfig['format']): string {
+  const extension = format === 'text' ? 'txt' : format;
+  return `./reports/scenarios/${scenarioId}.${extension}`;
+}
+
+async function publishScenarioReports(
+  scenarioId: string,
+  result: TestSuiteResult,
+  opts: {
+    durationMs: number;
+    baseUrl: string;
+    reportConfig?: ReportConfig;
+    hubConfig?: HubConfig;
+  },
+): Promise<void> {
+  if (opts.reportConfig) {
+    try {
+      const reportPath = writeTestReport(
+        [result],
+        { ...opts.reportConfig, outputPath: scenarioReportPath(scenarioId, opts.reportConfig.format) },
+        {
+          durationMs: opts.durationMs,
+          environment: { baseUrl: opts.baseUrl, scenarioId },
+        },
+      );
+      console.log(`  [file] ${scenarioId} → ${reportPath}`);
+    } catch (err) {
+      console.warn(`  [file] ${scenarioId} failed:`, err instanceof Error ? err.message : err);
+    }
+  }
+
+  if (opts.hubConfig) {
+    try {
+      const report = buildReport([result], {
+        durationMs: opts.durationMs,
+        environment: { baseUrl: opts.baseUrl, scenarioId },
+      });
+      const hubResult = await pushTestReportToHub(report, {
+        ...opts.hubConfig,
+        label: result.name,
+        project: scenarioId,
+        tags: [...new Set([...(opts.hubConfig.tags ?? []), 'node', 'demo', scenarioId])],
+      });
+      console.log(`  [hub]  ${scenarioId} → ${hubResult.url}`);
+    } catch (err) {
+      console.warn(`  [hub]  ${scenarioId} push failed:`, err instanceof Error ? err.message : err);
+    }
+  }
+}
+
 async function main(): Promise<void> {
   console.log('═══════════════════════════════════════════════════════');
   console.log('  Snapline — Full Integration Demo (monorepo)');
   console.log('═══════════════════════════════════════════════════════');
-  console.log('  21 scenarios · npm run demo:list to browse');
+  console.log(`  ${scenarios.length} scenarios · npm run demo:list to browse`);
   console.log('  npm run demo:run -- <id> to run one scenario from root');
   console.log('═══════════════════════════════════════════════════════');
 
@@ -76,45 +135,42 @@ async function main(): Promise<void> {
   const startedAt = Date.now();
 
   try {
-    const results = [];
-    for (const run of runners) {
-      results.push(await run());
+    const results: TestSuiteResult[] = [];
+    for (const { id, run } of scenarios) {
+      const scenarioStart = Date.now();
+      console.log(`\n▶ ${id}`);
+      const result = await run();
+      results.push(result);
+      await publishScenarioReports(id, result, {
+        durationMs: Date.now() - scenarioStart,
+        baseUrl,
+        reportConfig,
+        hubConfig,
+      });
     }
 
     const durationMs = Date.now() - startedAt;
     const passed = results.filter((result) => result.passed).length;
     const failed = results.length - passed;
 
-    console.log('───────────────────────────────────────────────────────');
+    console.log('\n───────────────────────────────────────────────────────');
     console.log(`  Summary: ${passed} passed, ${failed} failed (${durationMs}ms)`);
     console.log('───────────────────────────────────────────────────────');
 
     if (reportConfig) {
-      const reportPath = writeTestReport(results, reportConfig, {
-        durationMs,
-        environment: {
-          baseUrl,
-          reportFormat: reportConfig.format,
-        },
-      });
-      console.log(`\nReport written to ${reportPath}`);
-    }
-
-    if (hubConfig) {
-      const report = buildReport(results, {
-        durationMs,
-        environment: {
-          baseUrl,
-          suiteName: 'full-demo',
-        },
-      });
-      const hubResult = await pushTestReportToHub(report, {
-        ...hubConfig,
-        label: hubConfig.label ?? 'Full integration demo (Node.js)',
-        project: hubConfig.project ?? 'snapline-demo',
-        tags: hubConfig.tags ?? ['node', 'demo'],
-      });
-      console.log(`\nReport pushed to Snapline Hub: ${hubResult.url}`);
+      try {
+        const reportPath = writeTestReport(results, reportConfig, {
+          durationMs,
+          environment: {
+            baseUrl,
+            reportFormat: reportConfig.format,
+            suiteName: 'full-demo',
+          },
+        });
+        console.log(`\n[file] Full demo summary → ${reportPath}`);
+      } catch (err) {
+        console.warn('[file] Full demo summary failed:', err instanceof Error ? err.message : err);
+      }
     }
 
     if (failed > 0) {
