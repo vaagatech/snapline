@@ -14,7 +14,7 @@ Compare APIs, databases, and JSON fixtures as data — no imperative assertion c
 npm install @vaagatech/snapline-core
 ```
 
-📖 **Documentation:** [vaagatech.github.io/snapline](https://vaagatech.github.io/snapline/) · [Python edition](https://vaagatech.github.io/snapline-python/)
+📖 **Documentation:** [vaagatech.github.io/snapline](https://vaagatech.github.io/snapline/) · [Python edition](https://vaagatech.github.io/snapline-python/) · [Snapline Hub — optional reporting UI](https://vaagatech.github.io/snapline-hub/)
 
 ## Getting started in 5 minutes
 
@@ -191,6 +191,17 @@ import { writeTestReport } from '@vaagatech/snapline-core';
 const result = await testSuite('User sync', { /* ... */ });
 
 writeTestReport([result], { format: 'html', outputPath: './reports/integration.html' });
+```
+
+**Snapline Hub (optional)** — push reports to a centralized UI for run history and diff visualization. See [Snapline Hub docs](https://vaagatech.github.io/snapline-hub/):
+
+```javascript
+import { buildReport, pushTestReportToHub } from '@vaagatech/snapline-core';
+
+const report = buildReport([result], { durationMs: 1200 });
+await pushTestReportToHub(report, { hubUrl: 'http://localhost:3847' });
+
+// Or: SNAPLINE_HUB_URL=http://localhost:3847 npm run test
 ```
 
 **GraphQL** — swap the `api` block for:
@@ -542,6 +553,7 @@ Snapline lets you declare **what** should match and **how** to normalize differe
 | [End-to-End Guide](https://vaagatech.github.io/snapline/guide.html) | All test modes, fixtures, CI reports |
 | [Demo Scenarios](https://vaagatech.github.io/snapline/demos.html) | 21 runnable reference scenarios |
 | [API Reference](https://vaagatech.github.io/snapline/reference.html) | Config and exports |
+| [Snapline Hub](https://vaagatech.github.io/snapline-hub/) | Optional reporting UI for test results |
 
 Local preview: open `docs/index.html` in a browser, or serve with `npx serve docs`.
 

@@ -3,18 +3,28 @@ export type {
   ApiRequestConfig,
   ApiResponse,
   ApiToDbConfig,
+  AsyncResultResolver,
   CrossSystemResult,
   DbComparisonConfig,
   DbComparisonResult,
   DbConnectionLike,
   DbDialect,
+  DbPollConfig,
   DbQueryConfig,
   DbRow,
   DbToApiConfig,
   DataMappingMap,
   DiffResult,
   DocumentStoreLike,
+  FilePollConfig,
   FetchImpl,
+  MessageConsumerLike,
+  MessagePollConfig,
+  MessagePublisherLike,
+  PollOptions,
+  PollTarget,
+  PublishAndPollConfig,
+  PublishConfig,
   SnaplineOptions,
   SnaplineResult,
   TestStepResult,
@@ -27,6 +37,13 @@ export { toApiRequestConfig } from './api/to-api-request-config.js';
 export { api } from './api/index.js';
 export { runApiToDb } from './cross-system/run-api-to-db.js';
 export { runDbToApi } from './cross-system/run-db-to-api.js';
+export { runPublishAndPoll } from './cross-system/run-publish-and-poll.js';
+export { waitForResult } from './async/wait-for-result.js';
+export {
+  createDbAsyncResultResolver,
+  createFileAsyncResultResolver,
+} from './async/create-resolvers.js';
+export { createMessageAsyncResultResolver } from './async/message-async-resolver.js';
 export { resolveUrl } from '@vaagatech/snapline-api-adapters';
 export { executeApi } from '@vaagatech/snapline-api-adapters';
 export { auth } from './auth/index.js';
@@ -43,6 +60,8 @@ export type { ReportConfig, ReportFormat, TestRunReport, TestRunReportMeta } fro
 export type { ResolveReportConfigOptions } from './reporting/resolve-report-config.js';
 export { resolveReportConfig } from './reporting/resolve-report-config.js';
 export { buildReport, renderReport, writeTestReport } from './reporting/write-report.js';
+export type { HubConfig, PushTestReportResult, ResolveHubConfigOptions } from './reporting/push-to-hub.js';
+export { pushTestReportToHub, resolveHubConfig } from './reporting/push-to-hub.js';
 export { createStreamReportWriter } from './reporting/stream-report.js';
 export type { StreamReportOptions } from './reporting/stream-report-options.js';
 export type { StreamReportWriter } from './reporting/stream-report.js';

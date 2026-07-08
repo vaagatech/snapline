@@ -20,6 +20,7 @@ npm install @vaagatech/snapline-core
 | **DB ↔ DB** | `dbComparison` | Query two databases, compare rows |
 | **API ↔ DB** | `apiToDb` | Call API, compare response with DB row |
 | **DB ↔ API** | `dbToApi` | Read DB, call API, compare row with response |
+| **Queue → poll** | `publishAndPoll` | Publish to Kafka/SQS/queue, poll DB, file, or response topic |
 | **SQL warehouse → NoSQL** | `runWarehouseComparison()` | Chunked multi-table SQL→document store consistency with streamed JSONL report |
 
 Combine modes in one `testSuite` — they run in sequence.
@@ -74,7 +75,61 @@ await testSuite('User sync', {
 });
 ```
 
-### 2. DB vs DB (implement `DbConnectionLike`)
+### 2b. Queue → poll DB or filesystem
+
+Publish to Kafka, SQS, RabbitMQ, or an in-memory queue, then poll for async results in SQL or on disk:
+
+```javascript
+import { messaging } from '@vaagatech/snapline-messaging-adapters';
+import { runPublishAndPoll, testSuite } from '@vaagatech/snapline-core';
+
+const { publisher } = messaging.memory();
+
+await testSuite('Order pipeline', {
+  publishAndPoll: {
+    publish: {
+      publisher,
+      topic: 'orders.request',
+      payload: { orderId: 'ORD-100', total: 42.5 },
+    },
+    poll: {
+      db: {
+        db: myPostgresClient, // implements DbConnectionLike
+        query: 'SELECT orderId, status, total FROM orders WHERE correlationId = :correlationId',
+        until: (rows) => rows.some((r) => r.status === 'PROCESSED'),
+      },
+    },
+    expected: { orderId: 'ORD-100', status: 'PROCESSED', total: 42.5 },
+    pollOptions: { timeoutMs: 30_000 },
+  },
+});
+
+// Or poll a JSON file written by a worker:
+await runPublishAndPoll({
+  publish: { publisher, topic: 'jobs.submit', payload: { jobId: 'JOB-42' } },
+  poll: { file: { directory: '/var/results' } },
+  expectedFile: './fixtures/job-complete.json',
+});
+```
+
+Install messaging adapters:
+
+```bash
+npm install @vaagatech/snapline-messaging-adapters
+# Optional Kafka peer:
+npm install kafkajs
+```
+
+Kafka usage:
+
+```javascript
+import { messaging } from '@vaagatech/snapline-messaging-adapters';
+
+const publisher = messaging.kafkaPublisher({ brokers: ['localhost:9092'] });
+const consumer = messaging.kafkaConsumer({ brokers: ['localhost:9092'], groupId: 'snapline-tests' });
+```
+
+### 2c. DB vs DB (implement `DbConnectionLike`)
 
 Core does not ship database drivers. Provide any object with `async query(sql, params)` — your Postgres/MySQL client, or an in-memory stub for tests:
 
@@ -105,7 +160,7 @@ await testSuite('DB sync', {
 
 See `examples/in-memory-db.mjs` for a reusable stub. Demos use `@vaagatech/snapline-demo-shared` for SQLite.
 
-### 2b. DB vs DB (different queries + primary-key link)
+### 2d. DB vs DB (different queries + primary-key link)
 
 Use `sourceQuery` / `targetQuery` when the source joins multiple tables but the target is looked up by a key from the source row:
 
@@ -133,7 +188,7 @@ await testSuite('Orders sync', {
 
 `linkKeys` maps target parameter names → source row fields. You can also pass `targetParamsFromSource: (row) => ({ ... })` for full control.
 
-### 2c. NoSQL document comparison
+### 2e. NoSQL document comparison
 
 Implement `DocumentStoreLike` (`find(collection, filter)`) or use the built-in in-memory store:
 
@@ -265,6 +320,8 @@ These ship with `@vaagatech/snapline-core` so you can build fixture-driven test 
 | `moduleDir(import.meta.url)` | Resolve the current module directory (CJS or ESM) |
 | `fixturesDir(import.meta.url, { relativePath })` | Fixtures directory (default: `../fixtures`) |
 | `resolveReportConfig({ defaultOutputPath })` | Parse report CLI/env; customize default output path |
+| `pushTestReportToHub(report, { hubUrl })` | Push `TestRunReport` to [Snapline Hub](https://vaagatech.github.io/snapline-hub/) |
+| `resolveHubConfig()` | Parse `SNAPLINE_HUB_URL` / `--hub-url` for optional hub push |
 | `runApiFixtureCases(options)` | Run API fixture cases from a `cases/` directory |
 | `runSnaplineFixtureCases(options)` | Run offline snapline fixture cases |
 | `runWarehouseComparison(options)` | Chunked SQL→NoSQL warehouse consistency (streamed report) |
@@ -332,6 +389,27 @@ const report3 = resolveReportConfig(['node', 'run.mjs', '--report-format=html'])
 ```
 
 Returns `undefined` when no format is configured (reporting is optional).
+
+### Snapline Hub (optional reporting UI)
+
+Push test results to [Snapline Hub](https://vaagatech.github.io/snapline-hub/) for a centralized dashboard with run history, suite drill-down, and diff visualization. Hub is **optional** — Snapline works fully without it.
+
+```javascript
+import { buildReport, pushTestReportToHub, resolveHubConfig } from '@vaagatech/snapline-core';
+
+const report = buildReport([result], { durationMs: 1200 });
+await pushTestReportToHub(report, { hubUrl: 'http://localhost:3847' });
+
+// Or via env / CLI:
+// SNAPLINE_HUB_URL=http://localhost:3847 node run.mjs
+// node run.mjs --hub-url=http://localhost:3847 --hub-label="CI run"
+const hubConfig = resolveHubConfig();
+if (hubConfig) {
+  await pushTestReportToHub(report, hubConfig);
+}
+```
+
+See also: [Python edition](https://vaagatech.github.io/snapline-python/) · [Snapline Hub README](https://vaagatech.github.io/snapline-hub/#readme)
 
 ### `fixturesDir(metaUrl, options?)`
 
@@ -439,7 +517,7 @@ npm run demo
 
 ## Documentation
 
-**https://vaagatech.github.io/snapline/** · [Python edition](https://vaagatech.github.io/snapline-python/)
+**https://vaagatech.github.io/snapline/** · [Python edition](https://vaagatech.github.io/snapline-python/) · [Snapline Hub](https://vaagatech.github.io/snapline-hub/)
 
 ## Related packages
 

@@ -14,6 +14,7 @@ Documentation lives in the `docs/` folder and deploys automatically via `.github
 |------|------------------|
 | [vaagatech/snapline](https://github.com/vaagatech/snapline) | https://vaagatech.github.io/snapline/ |
 | [vaagatech/snapline-python](https://github.com/vaagatech/snapline-python) | https://vaagatech.github.io/snapline-python/ |
+| [vaagatech/snapline-hub](https://github.com/vaagatech/snapline-hub) | Optional reporting UI (self-hosted) |
 
 ## Local preview
 

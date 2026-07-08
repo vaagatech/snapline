@@ -25,6 +25,7 @@
         <a href="https://github.com/vaagatech/snapline">GitHub</a>
         <a href="https://www.npmjs.com/package/@vaagatech/snapline-core">npm</a>
         <a href="https://github.com/vaagatech/snapline-python">Python version</a>
+        <a href="https://vaagatech.github.io/snapline-hub/">Snapline Hub</a>
       </nav>
       <div class="sidebar-company">
         Built by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a>.
@@ -284,6 +285,17 @@ process.exitCode = result.passed ? 0 : 1;</code></pre>
       <pre><code>node tests/run.mjs --report-format=html --report-output=./reports/run.html
 REPORT_FORMAT=json REPORT_OUTPUT=./reports/run.json node tests/run.mjs
 REPORT_REDACT_FIELDS=data,processed node tests/run.mjs</code></pre>
+
+      <h3>Snapline Hub (optional)</h3>
+      <p>Push reports to <a href="https://vaagatech.github.io/snapline-hub/">Snapline Hub</a> for a centralized dashboard with run history and diff visualization. Hub is optional — file-based reports above work without it.</p>
+      <pre><code>import { buildReport, pushTestReportToHub, resolveHubConfig } from '@vaagatech/snapline-core';
+
+const report = buildReport([result], { durationMs: 1200 });
+await pushTestReportToHub(report, { hubUrl: 'http://localhost:3847' });
+
+// Or via env / CLI:
+// SNAPLINE_HUB_URL=http://localhost:3847 node tests/run.mjs
+// node tests/run.mjs --hub-url=http://localhost:3847 --hub-label="CI run"</code></pre>
 
       <h2>Step 9 — Auth adapters</h2>
       <pre><code>import { auth } from '@vaagatech/snapline-core';

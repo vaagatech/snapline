@@ -2,6 +2,7 @@ import { executeApi } from '@vaagatech/snapline-api-adapters';
 import { assertAgainstFile } from '@vaagatech/snapline-engine';
 import { runApiToDb } from './cross-system/run-api-to-db.js';
 import { runDbToApi } from './cross-system/run-db-to-api.js';
+import { runPublishAndPoll } from './cross-system/run-publish-and-poll.js';
 import { runDbComparison } from './db-comparison/run-db-comparison.js';
 import { toApiRequestConfig } from './api/to-api-request-config.js';
 import { createStreamReportWriter } from './reporting/stream-report.js';
@@ -32,6 +33,7 @@ export async function testSuite(
     dbComparison,
     apiToDb,
     dbToApi,
+    publishAndPoll,
     baseUrl,
     fetchImpl = globalThis.fetch,
     streamReport,
@@ -143,6 +145,14 @@ export async function testSuite(
     results.push(stepResult);
     emitStep(stepResult);
     logStepResult('db-to-api reconciliation passed', result.match, result.diff, fail);
+  }
+
+  if (publishAndPoll) {
+    const result = await runPublishAndPoll(publishAndPoll);
+    const stepResult: TestStepResult = { step: 'publish-and-poll', passed: result.match, ...result };
+    results.push(stepResult);
+    emitStep(stepResult);
+    logStepResult('publish-and-poll reconciliation passed', result.match, result.diff, fail);
   }
 
   if (writer) {

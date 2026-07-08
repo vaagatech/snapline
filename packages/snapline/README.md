@@ -218,7 +218,7 @@ node packages/snapline/examples/basic-snapline.mjs
 
 ## Documentation
 
-**https://vaagatech.github.io/snapline/** · [Python edition](https://vaagatech.github.io/snapline-python/)
+**https://vaagatech.github.io/snapline/** · [Python edition](https://vaagatech.github.io/snapline-python/) · [Snapline Hub](https://github.com/vaagatech/snapline-hub)
 
 ## Related packages
 

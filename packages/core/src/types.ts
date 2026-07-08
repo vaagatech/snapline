@@ -30,6 +30,101 @@ export interface DbQueryConfig {
   db: DbConnectionLike;
   query: string;
   params?: Record<string, unknown>;
+  /** Poll until rows are available (used by async DB resolvers). */
+  poll?: PollOptions;
+}
+
+export interface PollOptions {
+  timeoutMs?: number;
+  intervalMs?: number;
+}
+
+/** Wait for an async side-effect (DB row, file, message) after publishing to a queue. */
+export interface AsyncResultResolver {
+  waitForResult(correlationId: string, options?: PollOptions): Promise<unknown>;
+}
+
+export interface DbPollConfig {
+  db: DbConnectionLike;
+  query: string;
+  params?: Record<string, unknown>;
+  /** Query parameter name bound to the correlation id (default: correlationId). */
+  correlationParam?: string;
+  /** Return true when polled rows are ready (e.g. status = COMPLETE). */
+  until?: (rows: DbRow[]) => boolean;
+  /** Map rows to the value compared against expected (default: first row). */
+  extract?: (rows: DbRow[]) => unknown;
+}
+
+export interface FilePollConfig {
+  directory: string;
+  fileName?: (correlationId: string) => string;
+}
+
+export interface MessagePublishInput {
+  payload: unknown;
+  headers?: Record<string, string>;
+  correlationId?: string;
+  key?: string;
+}
+
+export interface MessagePublishResult {
+  correlationId: string;
+  messageId?: string;
+  topic: string;
+}
+
+/** Publish to Kafka, SQS, RabbitMQ, or an in-memory queue. */
+export interface MessagePublisherLike {
+  publish(topic: string, message: MessagePublishInput): Promise<MessagePublishResult>;
+}
+
+export interface MessageReceived {
+  topic: string;
+  payload: unknown;
+  headers: Record<string, string>;
+  correlationId?: string;
+  messageId?: string;
+}
+
+export interface MessageWaitOptions {
+  correlationId?: string;
+  timeoutMs?: number;
+}
+
+export interface MessageConsumerLike {
+  waitForMessage(topic: string, options?: MessageWaitOptions): Promise<MessageReceived>;
+}
+
+export interface MessagePollConfig {
+  consumer: MessageConsumerLike;
+  topic: string;
+  timeoutMs?: number;
+  extract?: (message: MessageReceived) => unknown;
+}
+
+export interface PublishConfig {
+  publisher: MessagePublisherLike;
+  topic: string;
+  payload: unknown;
+  headers?: Record<string, string>;
+  correlationId?: string;
+  key?: string;
+}
+
+export type PollTarget =
+  | { resolver: AsyncResultResolver }
+  | { db: DbPollConfig }
+  | { file: FilePollConfig }
+  | { message: MessagePollConfig };
+
+/** Publish to a queue, then poll DB / filesystem / response topic for the result. */
+export interface PublishAndPollConfig extends SnaplineOptions {
+  publish: PublishConfig;
+  poll: PollTarget;
+  pollOptions?: PollOptions;
+  expectedFile?: string;
+  expected?: unknown;
 }
 
 /** API tested against a JSON fixture file (REST, SOAP, or GraphQL). */
@@ -107,6 +202,8 @@ export interface TestSuiteConfig {
   apiToDb?: ApiToDbConfig;
   /** DB vs API */
   dbToApi?: DbToApiConfig;
+  /** Queue / messaging → poll DB, file, or response topic */
+  publishAndPoll?: PublishAndPollConfig;
   baseUrl?: string;
   fetchImpl?: FetchImpl;
   /** Append JSONL events per step (memory-safe for long runs) */

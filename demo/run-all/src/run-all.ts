@@ -1,4 +1,4 @@
-import { resolveReportConfig, writeTestReport } from '@vaagatech/snapline-core';
+import { buildReport, pushTestReportToHub, resolveHubConfig, resolveReportConfig, writeTestReport } from '@vaagatech/snapline-core';
 import snaplineIgnoreFields from '@vaagatech/snapline-demo-scenario-snapline-ignore-fields';
 import snaplineTransformations from '@vaagatech/snapline-demo-scenario-snapline-transformations';
 import snaplineDataMappingLookup from '@vaagatech/snapline-demo-scenario-snapline-data-mapping-lookup';
@@ -72,6 +72,7 @@ async function main(): Promise<void> {
   applyDemoEnv(baseUrl, databaseEnv);
 
   const reportConfig = resolveReportConfig();
+  const hubConfig = resolveHubConfig();
   const startedAt = Date.now();
 
   try {
@@ -97,6 +98,23 @@ async function main(): Promise<void> {
         },
       });
       console.log(`\nReport written to ${reportPath}`);
+    }
+
+    if (hubConfig) {
+      const report = buildReport(results, {
+        durationMs,
+        environment: {
+          baseUrl,
+          suiteName: 'full-demo',
+        },
+      });
+      const hubResult = await pushTestReportToHub(report, {
+        ...hubConfig,
+        label: hubConfig.label ?? 'Full integration demo (Node.js)',
+        project: hubConfig.project ?? 'snapline-demo',
+        tags: hubConfig.tags ?? ['node', 'demo'],
+      });
+      console.log(`\nReport pushed to Snapline Hub: ${hubResult.url}`);
     }
 
     if (failed > 0) {

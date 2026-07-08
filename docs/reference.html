@@ -25,6 +25,7 @@
         <a href="https://github.com/vaagatech/snapline">GitHub</a>
         <a href="https://www.npmjs.com/package/@vaagatech/snapline-core">npm</a>
         <a href="https://github.com/vaagatech/snapline-python">Python version</a>
+        <a href="https://vaagatech.github.io/snapline-hub/">Snapline Hub</a>
       </nav>
       <div class="sidebar-company">
         Built by <a href="https://www.vaagatech.com" target="_blank" rel="noopener noreferrer">VaagaTech</a>.
@@ -125,6 +126,8 @@ nosql.seed(store, collection, documents);</code></pre>
         <tbody>
           <tr><td><code>resolveReportConfig(options)</code></td><td>Parse CLI args and env vars</td></tr>
           <tr><td><code>writeTestReport(suites, config, meta?)</code></td><td>Write JSON, HTML, or text report</td></tr>
+          <tr><td><code>pushTestReportToHub(report, { hubUrl })</code></td><td>Push report to <a href="https://vaagatech.github.io/snapline-hub/">Snapline Hub</a></td></tr>
+          <tr><td><code>resolveHubConfig(options)</code></td><td>Parse <code>SNAPLINE_HUB_URL</code> / <code>--hub-url</code></td></tr>
           <tr><td><code>redactFields(data, fields)</code></td><td>Mask sensitive fields in report data</td></tr>
           <tr><td><code>redactSuiteResults(suites, fields)</code></td><td>Redact all step results in suites</td></tr>
         </tbody>
