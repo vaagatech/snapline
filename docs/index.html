@@ -43,7 +43,8 @@
         <div class="badges">
           <span class="badge">Node.js 18+</span>
           <span class="badge">REST · GraphQL · SOAP</span>
-          <span class="badge">Postgres · MySQL · NoSQL (bring your own driver)</span>
+          <span class="badge">SQL · NoSQL · Queues</span>
+          <span class="badge">Kafka (optional)</span>
           <span class="badge">MIT License</span>
         </div>
       </header>
@@ -82,6 +83,10 @@
           <h3>Fixture cases</h3>
           <p>Run many pass/fail scenarios from a <code>fixtures/cases/</code> directory with minimal per-case JSON.</p>
         </div>
+        <div class="card">
+          <h3>Queue → poll</h3>
+          <p>Publish to Kafka or a message queue, then poll SQL or the filesystem for async results.</p>
+        </div>
       </div>
 
       <h2>Why Snapline?</h2>
@@ -107,9 +112,14 @@ expect(response.body.currentdate).toMatch(/^\d{4}-\d{2}-\d{2}/);</code></pre>
 process.exitCode = result.passed ? 0 : 1;</code></pre>
 
       <h2>Install</h2>
-      <pre><code>npm install @vaagatech/snapline-core</code></pre>
+      <pre><code>npm install @vaagatech/snapline-core
+
+# Optional — messaging queues (Kafka, in-memory):
+npm install @vaagatech/snapline-messaging-adapters</code></pre>
       <p>
-        One package re-exports the engine, API adapters, auth adapters, fixture runners, reporting, and the <code>DbConnectionLike</code> contract for SQL databases.
+        One package re-exports the engine, API adapters, auth adapters, fixture runners, and reporting.
+        SQL uses the <code>DbConnectionLike</code> contract (bring your own driver).
+        Queues use <code>@vaagatech/snapline-messaging-adapters</code> with <code>publishAndPoll</code>.
         See <a href="getting-started.html">Getting Started</a> for a 5-minute walkthrough.
       </p>
 

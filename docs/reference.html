@@ -58,6 +58,7 @@
           <tr><td><code>dbComparison</code></td><td>DB ↔ DB (SQL or NoSQL)</td></tr>
           <tr><td><code>apiToDb</code></td><td>API response vs DB row</td></tr>
           <tr><td><code>dbToApi</code></td><td>DB row vs API response (<code>inputFromDb</code>)</td></tr>
+          <tr><td><code>publishAndPoll</code></td><td>Publish to queue → poll DB, file, or response topic</td></tr>
           <tr><td><code>fetchImpl</code></td><td>Custom fetch for mocking</td></tr>
         </tbody>
       </table>
@@ -102,6 +103,39 @@ const appDb: DbConnectionLike = {
 };</code></pre>
       <p>Demos use <code>@vaagatech/snapline-demo-shared</code> for SQLite and in-memory stubs (<code>createSqliteConnection</code>, <code>seedDb</code>, <code>db.postgres/mysql/sqlite</code>). See <code>packages/core/examples/in-memory-db.mjs</code> for a minimal stub you can copy.</p>
 
+      <h2>Queue &amp; async polling</h2>
+      <p>Install <code>@vaagatech/snapline-messaging-adapters</code> for queue publishers. Core provides polling and comparison:</p>
+      <table>
+        <thead><tr><th>Export</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>runPublishAndPoll(config)</code></td><td>Publish message, wait for async result, compare</td></tr>
+          <tr><td><code>createDbAsyncResultResolver(config)</code></td><td>Poll SQL until rows match <code>until</code> predicate</td></tr>
+          <tr><td><code>createFileAsyncResultResolver(config)</code></td><td>Poll <code>{correlationId}.json</code> on disk</td></tr>
+          <tr><td><code>createMessageAsyncResultResolver(config)</code></td><td>Wait on response topic via <code>MessageConsumerLike</code></td></tr>
+          <tr><td><code>waitForResult(check, options)</code></td><td>Generic poll-until-ready helper</td></tr>
+        </tbody>
+      </table>
+      <pre><code>import { messaging } from '@vaagatech/snapline-messaging-adapters';
+import { testSuite } from '@vaagatech/snapline-core';
+
+const { publisher } = messaging.memory();
+
+await testSuite('Order pipeline', {
+  publishAndPoll: {
+    publish: { publisher, topic: 'orders.request', payload: { orderId: 'ORD-1' } },
+    poll: {
+      db: {
+        db: appDb,
+        query: 'SELECT status FROM orders WHERE correlationId = :correlationId',
+        until: (rows) =&gt; rows[0]?.status === 'PROCESSED',
+      },
+    },
+    expected: { status: 'PROCESSED' },
+    pollOptions: { timeoutMs: 30_000 },
+  },
+});</code></pre>
+      <p>Poll targets: <code>{ db }</code>, <code>{ file: { directory } }</code>, <code>{ message: { consumer, topic } }</code>, or <code>{ resolver }</code>.</p>
+
       <h2>Warehouse comparison</h2>
       <pre><code>import { runWarehouseComparison, nosql, createStreamReportWriter } from '@vaagatech/snapline-core';
 
@@ -126,7 +160,7 @@ nosql.seed(store, collection, documents);</code></pre>
         <tbody>
           <tr><td><code>resolveReportConfig(options)</code></td><td>Parse CLI args and env vars</td></tr>
           <tr><td><code>writeTestReport(suites, config, meta?)</code></td><td>Write JSON, HTML, or text report</td></tr>
-          <tr><td><code>pushTestReportToHub(report, { hubUrl })</code></td><td>Push report to <a href="https://vaagatech.github.io/snapline-hub/">Snapline Hub</a></td></tr>
+          <tr><td><code>pushTestReportToHub(report, { hubUrl, project, tags })</code></td><td>Push report to <a href="https://vaagatech.github.io/snapline-hub/">Snapline Hub</a></td></tr>
           <tr><td><code>resolveHubConfig(options)</code></td><td>Parse <code>SNAPLINE_HUB_URL</code> / <code>--hub-url</code></td></tr>
           <tr><td><code>redactFields(data, fields)</code></td><td>Mask sensitive fields in report data</td></tr>
           <tr><td><code>redactSuiteResults(suites, fields)</code></td><td>Redact all step results in suites</td></tr>
@@ -162,7 +196,8 @@ moduleDir(import.meta.url)</code></pre>
       <h2>Package examples</h2>
       <p>Runnable examples ship in the repo under <code>packages/*/examples/</code>:</p>
       <ul>
-        <li><code>packages/core/examples/</code> — api-to-db, db-to-api, db-comparison, graphql, soap, nosql</li>
+        <li><code>packages/core/examples/</code> — api-to-db, db-to-api, publish-and-poll-db, publish-and-poll-file</li>
+        <li><code>packages/messaging-adapters/</code> — in-memory and Kafka adapters</li>
         <li><code>packages/snapline/examples/basic-snapline.mjs</code></li>
         <li><code>packages/api-adapters/examples/</code> — rest, graphql, soap</li>
         <li><code>packages/auth-adapters/examples/basic-auth.mjs</code></li>

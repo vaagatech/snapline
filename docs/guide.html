@@ -48,6 +48,7 @@
           <tr><td>Two database rows</td><td><code>dbComparison</code></td><td>Query source + target → snapline</td></tr>
           <tr><td>API response vs DB row</td><td><code>apiToDb</code></td><td>HTTP call → query DB → snapline</td></tr>
           <tr><td>DB row vs API response</td><td><code>dbToApi</code></td><td>Query DB → HTTP call → snapline</td></tr>
+          <tr><td>Queue → async result</td><td><code>publishAndPoll</code></td><td>Publish message → poll DB / file / topic → snapline</td></tr>
         </tbody>
       </table>
       <p>Combine multiple modes in one <code>testSuite</code> — they run sequentially.</p>
@@ -213,6 +214,42 @@ await runWarehouseComparison({
   report: { outputPath: './reports/warehouse.jsonl', format: 'jsonl' },
 });</code></pre>
 
+      <h2>Step 6b — Queue → poll (async pipelines)</h2>
+      <p>When your system processes work asynchronously — via Kafka, SQS, RabbitMQ, or an internal queue — use <code>publishAndPoll</code> to publish a message and poll for the result in SQL or on disk.</p>
+      <pre><code>npm install @vaagatech/snapline-messaging-adapters
+
+import { messaging } from '@vaagatech/snapline-messaging-adapters';
+import { runPublishAndPoll } from '@vaagatech/snapline-core';
+
+const { publisher } = messaging.memory();
+
+await runPublishAndPoll({
+  publish: {
+    publisher,
+    topic: 'jobs.submit',
+    payload: { jobId: 'JOB-42' },
+  },
+  poll: { file: { directory: '/var/results' } },
+  expectedFile: './fixtures/job-complete.json',
+  pollOptions: { timeoutMs: 30_000 },
+});
+
+// Or poll SQL:
+await testSuite('Order pipeline', {
+  publishAndPoll: {
+    publish: { publisher, topic: 'orders.request', payload: { orderId: 'ORD-1' } },
+    poll: {
+      db: {
+        db: appDb,
+        query: 'SELECT * FROM orders WHERE correlationId = :correlationId',
+        until: (rows) =&gt; rows[0]?.status === 'PROCESSED',
+      },
+    },
+    expected: { orderId: 'ORD-1', status: 'PROCESSED' },
+  },
+});</code></pre>
+      <p>Kafka: <code>messaging.kafkaPublisher({ brokers: ['localhost:9092'] })</code> (requires optional <code>kafkajs</code> peer).</p>
+
       <h2>Step 7 — Fixture-driven cases</h2>
       <p>For many scenarios (happy path, expected failures, auth errors), use fixture case runners instead of one <code>testSuite</code> per case.</p>
       <pre><code>fixtures/
@@ -291,7 +328,11 @@ REPORT_REDACT_FIELDS=data,processed node tests/run.mjs</code></pre>
       <pre><code>import { buildReport, pushTestReportToHub, resolveHubConfig } from '@vaagatech/snapline-core';
 
 const report = buildReport([result], { durationMs: 1200 });
-await pushTestReportToHub(report, { hubUrl: 'http://localhost:3847' });
+await pushTestReportToHub(report, {
+  hubUrl: 'http://localhost:3847',
+  project: 'my-app',
+  tags: ['node', 'ci'],
+});
 
 // Or via env / CLI:
 // SNAPLINE_HUB_URL=http://localhost:3847 node tests/run.mjs

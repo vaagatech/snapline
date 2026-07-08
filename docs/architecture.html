@@ -35,26 +35,24 @@
     <main class="content">
       <header class="hero">
         <h1>Architecture</h1>
-        <p class="lead">Snapline is an npm monorepo. Consumers install one package; maintainers split concerns across four published libraries plus a private demo workspace.</p>
+        <p class="lead">Snapline is an npm monorepo. Consumers install one package; maintainers split concerns across five published libraries plus a private demo workspace.</p>
       </header>
 
       <h2>Package layers</h2>
       <div class="diagram">┌─────────────────────────────────────────────────────────────┐
 │              @vaagatech/snapline-core (entry point)          │
-│  testSuite · fixture runners · DB/NoSQL · reporting          │
-└───────────────┬─────────────────────┬────────────────────────┘
-                │                     │
-    ┌───────────▼──────────┐  ┌───────▼──────────────────────┐
-    │ @vaagatech/snapline- │  │ @vaagatech/snapline-api-     │
-    │ engine               │  │ adapters                     │
-    │ snapline · compare   │  │ REST · GraphQL · SOAP        │
-    └──────────────────────┘  └───────────┬──────────────────┘
-                                          │
-                              ┌───────────▼──────────────────┐
-                              │ @vaagatech/snapline-auth-    │
-                              │ adapters                     │
-                              │ OAuth2 · OpenID · Basic      │
-                              └──────────────────────────────┘</div>
+│  testSuite · fixture runners · DB/NoSQL · publishAndPoll     │
+└───────┬─────────────────┬───────────────────┬───────────────┘
+        │                 │                   │
+┌───────▼────────┐ ┌──────▼──────────┐ ┌──────▼────────────────┐
+│ snapline-engine│ │ api-adapters    │ │ messaging-adapters      │
+│ compare pipeline│ │ REST·GraphQL·SOAP│ │ Kafka · in-memory    │
+└────────────────┘ └────────┬────────┘ └─────────────────────────┘
+                              │
+                    ┌─────────▼──────────┐
+                    │ auth-adapters      │
+                    │ OAuth2·OpenID·Basic│
+                    └────────────────────┘</div>
 
       <table>
         <thead>
@@ -81,6 +79,11 @@
             <td>Token acquisition for API calls</td>
             <td><code>auth.oauth2</code>, <code>auth.openid</code>, <code>auth.basic</code></td>
           </tr>
+          <tr>
+            <td><code>@vaagatech/snapline-messaging-adapters</code></td>
+            <td>Queue publish/consume — Kafka, in-memory, custom</td>
+            <td><code>messaging.memory</code>, <code>messaging.kafkaPublisher</code>, <code>publishMessage</code></td>
+          </tr>
         </tbody>
       </table>
 
@@ -95,7 +98,8 @@
   ├─ api                        executeApi → snapline vs expectedFile
   ├─ dbComparison               fetch source + target rows → snapline
   ├─ apiToDb                    executeApi → fetch DB row → snapline
-  └─ dbToApi                    fetch DB row → executeApi → snapline
+  ├─ dbToApi                    fetch DB row → executeApi → snapline
+  └─ publishAndPoll             publish queue → poll DB / file / topic → snapline
         │
         ▼
   snapline(live, expected, { ignoreFields, transformations, dataMapping })
@@ -117,7 +121,8 @@
 │   ├── core/           @vaagatech/snapline-core
 │   ├── snapline/       @vaagatech/snapline-engine
 │   ├── api-adapters/   @vaagatech/snapline-api-adapters
-│   └── auth-adapters/  @vaagatech/snapline-auth-adapters
+│   ├── auth-adapters/  @vaagatech/snapline-auth-adapters
+│   └── messaging-adapters/  @vaagatech/snapline-messaging-adapters
 └── demo/               private — mock server + 21 scenarios
     ├── shared/         @vaagatech/snapline-demo-shared (mock API + SQLite)
     ├── scenarios/      one package per scenario
