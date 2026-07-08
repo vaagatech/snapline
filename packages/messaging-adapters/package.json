@@ -39,7 +39,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@vaagatech/snapline-engine": "^0.2.2"
+    "@vaagatech/snapline-engine": "^0.2.3"
   },
   "peerDependencies": {
     "kafkajs": ">=2.0.0"
