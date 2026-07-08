@@ -1,6 +1,6 @@
 {
   "name": "@vaagatech/snapline-messaging-adapters",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Messaging queue adapters for Snapline — in-memory, Kafka, and custom publishers",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",
