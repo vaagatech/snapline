@@ -7,6 +7,8 @@ export interface HubConfig {
   project?: string;
   /** Searchable tags, e.g. ['node', 'demo'] */
   tags?: string[];
+  /** When Hub has HUB_API_KEY set, pass the same value here or via SNAPLINE_HUB_API_KEY */
+  apiKey?: string;
   fetchImpl?: typeof fetch;
 }
 
@@ -32,9 +34,13 @@ export async function pushTestReportToHub(
 ): Promise<PushTestReportResult> {
   const fetchImpl = config.fetchImpl ?? fetch;
   const hubUrl = normalizeHubUrl(config.hubUrl);
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (config.apiKey) {
+    headers['X-Hub-Api-Key'] = config.apiKey;
+  }
   const response = await fetchImpl(`${hubUrl}/api/reports`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({
       ...report,
       ...(config.label ? { label: config.label } : {}),
@@ -113,5 +119,6 @@ export function resolveHubConfig(
     label: cliLabel ?? process.env.SNAPLINE_HUB_LABEL,
     project: cliProject ?? process.env.SNAPLINE_HUB_PROJECT,
     tags: parseTagsValue(cliTags ?? process.env.SNAPLINE_HUB_TAGS),
+    apiKey: process.env.SNAPLINE_HUB_API_KEY,
   };
 }
