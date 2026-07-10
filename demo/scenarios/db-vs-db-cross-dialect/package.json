@@ -1,7 +1,7 @@
 {
   "name": "@vaagatech/snapline-demo-scenario-db-vs-db-cross-dialect",
   "private": true,
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Demo scenario: DB vs DB (Postgres vs MySQL seedDb stub)",
   "type": "module",
   "main": "./dist/run.js",
@@ -18,7 +18,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/snapline-core": "0.2.5",
-    "@vaagatech/snapline-demo-shared": "0.2.5"
+    "@vaagatech/snapline-core": "0.2.6",
+    "@vaagatech/snapline-demo-shared": "0.2.6"
   }
 }
