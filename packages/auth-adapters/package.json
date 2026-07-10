@@ -1,6 +1,6 @@
 {
   "name": "@vaagatech/snapline-auth-adapters",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Pluggable authentication adapters for OAuth2, OpenID Connect, and Basic Auth in test automation",
   "author": "VaagaTech (https://www.vaagatech.com)",
   "license": "MIT",

@@ -1,7 +1,7 @@
 {
   "name": "@vaagatech/snapline-demo-scenario-api-vs-db-rest",
   "private": true,
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Demo scenario: 3. API vs DB (REST + SQLite)",
   "type": "module",
   "main": "./dist/run.js",
@@ -18,7 +18,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vaagatech/snapline-core": "0.2.4",
-    "@vaagatech/snapline-demo-shared": "0.2.4"
+    "@vaagatech/snapline-core": "0.2.5",
+    "@vaagatech/snapline-demo-shared": "0.2.5"
   }
 }
