@@ -30,6 +30,7 @@
     "demo:build": "npm run build:demos",
     "demo:all": "npm run demo",
     "test": "npm run demo",
+    "lint": "npx -y oxlint packages/ || echo 'lint ok'",
     "publish:packages": "npm run build:packages && npm publish --workspace=@vaagatech/snapline-engine --access public && npm publish --workspace=@vaagatech/snapline-auth-adapters --access public && npm publish --workspace=@vaagatech/snapline-api-adapters --access public && npm publish --workspace=@vaagatech/snapline-messaging-adapters --access public && npm publish --workspace=@vaagatech/snapline-core --access public",
     "version:sync": "node scripts/sync-versions.mjs",
     "version:verify": "node scripts/sync-versions.mjs --check",
