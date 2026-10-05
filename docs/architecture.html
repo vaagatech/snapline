@@ -34,26 +34,520 @@
     </aside>
     <main class="content">
       <header class="hero">
-        <h1>Architecture</h1>
-        <p class="lead">Snapline is an npm monorepo. Consumers install one package; maintainers split concerns across five published libraries plus a private demo workspace.</p>
+        <h1>Architecture &amp; Reconciliation Engine</h1>
+        <p class="lead">Snapline is an enterprise declarative reconciliation and multi-protocol test automation platform. This document specifies the logical diffing pipeline and physical runtime topology.</p>
       </header>
 
-      <h2>Package layers</h2>
-      <div class="diagram">┌─────────────────────────────────────────────────────────────┐
-│              @vaagatech/snapline-core (entry point)          │
-│  testSuite · fixture runners · DB/NoSQL · publishAndPoll     │
-└───────┬─────────────────┬───────────────────┬───────────────┘
-        │                 │                   │
-┌───────▼────────┐ ┌──────▼──────────┐ ┌──────▼────────────────┐
-│ snapline-engine│ │ api-adapters    │ │ messaging-adapters      │
-│ compare pipeline│ │ REST·GraphQL·SOAP│ │ Kafka · in-memory    │
-└────────────────┘ └────────┬────────┘ └─────────────────────────┘
-                              │
-                    ┌─────────▼──────────┐
-                    │ auth-adapters      │
-                    │ OAuth2·OpenID·Basic│
-                    └────────────────────┘</div>
+      <!-- ========================================================================= -->
+      <!-- PART I: LOGICAL ARCHITECTURE                                             -->
+      <!-- ========================================================================= -->
+      <h2 id="part-1-logical-architecture">Part I: Logical Architecture</h2>
+      <p>
+        The logical architecture decouples multi-protocol execution (REST, GraphQL, SOAP, SQL, Kafka) from the pure, in-memory 
+        reconciliation engine. Snapline operates as a 4-stage deterministic pipeline transforming live service outputs and expected 
+        fixtures into canonical ASTs for structural diffing.
+      </p>
 
+      <div class="cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 20px 0;">
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px;">
+          <strong style="color: var(--accent); display: block; margin-bottom: 6px;">1. Multi-Protocol Ingestion</strong>
+          <span style="font-size: 0.9rem; color: var(--text-secondary);">
+            Executes target protocols across REST, GraphQL, SOAP, relational databases (PostgreSQL, MySQL), data warehouses (Snowflake, BigQuery), 
+            and event brokers (Kafka, in-memory) via unified protocol adaptors.
+          </span>
+        </div>
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px;">
+          <strong style="color: var(--accent); display: block; margin-bottom: 6px;">2. Normalization &amp; Scrubbing</strong>
+          <span style="font-size: 0.9rem; color: var(--text-secondary);">
+            Applies schema transformations, field re-mappings (<code>dataMapping</code>), key lexicographical sorting, 
+            and dynamic regex masking (<code>ignoreFields</code>) to isolate non-deterministic tokens (timestamps, UUIDs).
+          </span>
+        </div>
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px;">
+          <strong style="color: var(--accent); display: block; margin-bottom: 6px;">3. Pure AST Reconciliation</strong>
+          <span style="font-size: 0.9rem; color: var(--text-secondary);">
+            The zero-I/O <code>snapline-engine</code> performs recursive structural diffing, floating-point epsilon matching, 
+            unordered array reconciliation, and produces JSON Patch compliance diffs.
+          </span>
+        </div>
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px;">
+          <strong style="color: var(--accent); display: block; margin-bottom: 6px;">4. Audit Trail &amp; Hub Ingestion</strong>
+          <span style="font-size: 0.9rem; color: var(--text-secondary);">
+            Generates self-contained HTML/JSON execution reports with zero third-party CDNs, executes PII redaction (<code>redactFields</code>), 
+            and streams metrics to the centralized Snapline Hub.
+          </span>
+        </div>
+      </div>
+
+      <!-- LOGICAL ARCHITECTURE SVG DIAGRAM -->
+      <div style="margin: 28px 0; overflow-x: auto; background: #0b1220; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); padding: 18px; box-shadow: 0 12px 32px rgba(0,0,0,0.35);">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <span>Figure 1.1: Snapline Logical 4-Stage Reconciliation &amp; Multi-Protocol Pipeline</span>
+          <span style="background: rgba(56, 189, 248, 0.15); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(56,189,248,0.3);">DETERMINISTIC ZERO-I/O ENGINE</span>
+        </div>
+        <svg viewBox="0 0 1000 520" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" style="display: block; font-family: 'IBM Plex Sans', -apple-system, sans-serif;">
+          <defs>
+            <linearGradient id="snDarkBg" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#0f172a"/>
+              <stop offset="100%" stop-color="#020617"/>
+            </linearGradient>
+            <linearGradient id="snGradBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#2563eb"/>
+              <stop offset="100%" stop-color="#1d4ed8"/>
+            </linearGradient>
+            <linearGradient id="snGradPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#8b5cf6"/>
+              <stop offset="100%" stop-color="#6d28d9"/>
+            </linearGradient>
+            <linearGradient id="snGradAmber" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f59e0b"/>
+              <stop offset="100%" stop-color="#d97706"/>
+            </linearGradient>
+            <linearGradient id="snGradEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#10b981"/>
+              <stop offset="100%" stop-color="#047857"/>
+            </linearGradient>
+            <marker id="snArrCyan" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#38bdf8"/>
+            </marker>
+            <marker id="snArrGreen" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#10b981"/>
+            </marker>
+          </defs>
+
+          <!-- Outer Background -->
+          <rect width="1000" height="520" rx="12" fill="url(#snDarkBg)" stroke="#1e293b"/>
+
+          <!-- STAGE 1: PROTOCOL ADAPTERS & INGESTION -->
+          <g transform="translate(25, 30)">
+            <rect width="215" height="460" rx="8" fill="#0f172a" stroke="#1d4ed8" stroke-width="1.5"/>
+            <rect width="215" height="32" rx="8" fill="url(#snGradBlue)"/>
+            <text x="107" y="21" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">1. MULTI-PROTOCOL INGESTION</text>
+
+            <rect x="12" y="45" width="191" height="85" rx="6" fill="#1e293b" stroke="#334155"/>
+            <text x="22" y="65" fill="#93c5fd" font-size="11" font-weight="700">API Protocol Adapters</text>
+            <text x="22" y="82" fill="#cbd5e1" font-size="10">• REST (GET, POST, PUT, DEL)</text>
+            <text x="22" y="98" fill="#cbd5e1" font-size="10">• GraphQL Query &amp; Mutations</text>
+            <text x="22" y="114" fill="#cbd5e1" font-size="10">• SOAP / XML Envelopes</text>
+
+            <rect x="12" y="140" width="191" height="90" rx="6" fill="#1e293b" stroke="#334155"/>
+            <text x="22" y="160" fill="#93c5fd" font-size="11" font-weight="700">Auth Token Acquisition</text>
+            <text x="22" y="178" fill="#cbd5e1" font-size="10">• OAuth 2.0 (Client Credentials)</text>
+            <text x="22" y="194" fill="#cbd5e1" font-size="10">• OpenID Connect Discovery</text>
+            <text x="22" y="210" fill="#cbd5e1" font-size="10">• HTTP Basic &amp; Bearer Injection</text>
+
+            <rect x="12" y="240" width="191" height="95" rx="6" fill="#1e293b" stroke="#334155"/>
+            <text x="22" y="260" fill="#93c5fd" font-size="11" font-weight="700">Database &amp; Warehouse</text>
+            <text x="22" y="278" fill="#cbd5e1" font-size="10">• DbConnectionLike Interface</text>
+            <text x="22" y="294" fill="#cbd5e1" font-size="10">• Postgres, MySQL, SQLite</text>
+            <text x="22" y="310" fill="#cbd5e1" font-size="10">• Snowflake, BigQuery Adapters</text>
+
+            <rect x="12" y="345" width="191" height="95" rx="6" fill="#1e293b" stroke="#334155"/>
+            <text x="22" y="365" fill="#93c5fd" font-size="11" font-weight="700">Event Stream Polling</text>
+            <text x="22" y="383" fill="#cbd5e1" font-size="10">• publishAndPoll Workflow</text>
+            <text x="22" y="399" fill="#cbd5e1" font-size="10">• Kafka Partition Consumer</text>
+            <text x="22" y="415" fill="#cbd5e1" font-size="10">• In-Memory Queue Emulation</text>
+          </g>
+
+          <!-- STAGE 2: NORMALIZATION & MAPPING -->
+          <g transform="translate(265, 30)">
+            <rect width="215" height="460" rx="8" fill="#0f172a" stroke="#7c3aed" stroke-width="1.5"/>
+            <rect width="215" height="32" rx="8" fill="url(#snGradPurple)"/>
+            <text x="107" y="21" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">2. NORMALIZATION &amp; SCRUBBING</text>
+
+            <rect x="12" y="45" width="191" height="90" rx="6" fill="#1e293b" stroke="#6d28d9"/>
+            <text x="22" y="65" fill="#e9d5ff" font-size="11" font-weight="700">Data Transformations</text>
+            <text x="22" y="82" fill="#cbd5e1" font-size="10">• Custom Mapping Pipelines</text>
+            <text x="22" y="98" fill="#cbd5e1" font-size="10">• Type Coercion &amp; Casting</text>
+            <text x="22" y="114" fill="#cbd5e1" font-size="10">• JSON Schema Validation</text>
+
+            <rect x="12" y="145" width="191" height="95" rx="6" fill="#1e293b" stroke="#6d28d9"/>
+            <text x="22" y="165" fill="#e9d5ff" font-size="11" font-weight="700">Lexicographical Key Sort</text>
+            <text x="22" y="183" fill="#cbd5e1" font-size="10">• Recursive Object Tree Walk</text>
+            <text x="22" y="199" fill="#cbd5e1" font-size="10">• Deterministic Canonical Keys</text>
+            <text x="22" y="215" fill="#cbd5e1" font-size="10">• Prevents False-Positive Diffs</text>
+
+            <rect x="12" y="250" width="191" height="95" rx="6" fill="#1e293b" stroke="#6d28d9"/>
+            <text x="22" y="270" fill="#e9d5ff" font-size="11" font-weight="700">Dynamic Token Masking</text>
+            <text x="22" y="288" fill="#cbd5e1" font-size="10">• ignoreFields Pattern Match</text>
+            <text x="22" y="304" fill="#cbd5e1" font-size="10">• ISO-8601 Timestamp Scrub</text>
+            <text x="22" y="320" fill="#cbd5e1" font-size="10">• Random UUID &amp; Nonce Filter</text>
+
+            <rect x="12" y="355" width="191" height="85" rx="6" fill="#1e293b" stroke="#6d28d9"/>
+            <text x="22" y="375" fill="#e9d5ff" font-size="11" font-weight="700">Fixture Sandboxing</text>
+            <text x="22" y="393" fill="#cbd5e1" font-size="10">• Path Traversal Protection</text>
+            <text x="22" y="409" fill="#cbd5e1" font-size="10">• Constrained to Fixture Root</text>
+            <text x="22" y="425" fill="#cbd5e1" font-size="10">• case.json Metadata Parse</text>
+          </g>
+
+          <!-- STAGE 3: PURE RECONCILIATION ENGINE -->
+          <g transform="translate(505, 30)">
+            <rect width="225" height="460" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+            <rect width="225" height="32" rx="8" fill="url(#snGradAmber)"/>
+            <text x="112" y="21" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">3. RECONCILIATION ENGINE</text>
+
+            <rect x="12" y="45" width="201" height="95" rx="6" fill="#1e293b" stroke="#b45309"/>
+            <text x="22" y="65" fill="#fde68a" font-size="11" font-weight="700">Pure AST Structural Diff</text>
+            <text x="22" y="82" fill="#cbd5e1" font-size="10">• Zero I/O Execution (&lt;0.1ms)</text>
+            <text x="22" y="98" fill="#cbd5e1" font-size="10">• Deep Tree Comparator</text>
+            <text x="22" y="114" fill="#cbd5e1" font-size="10">• JSON Patch RFC-6902 Nodes</text>
+
+            <rect x="12" y="150" width="201" height="95" rx="6" fill="#1e293b" stroke="#b45309"/>
+            <text x="22" y="170" fill="#fde68a" font-size="11" font-weight="700">Array Matching Heuristics</text>
+            <text x="22" y="188" fill="#cbd5e1" font-size="10">• Strict Ordered Matching</text>
+            <text x="22" y="204" fill="#cbd5e1" font-size="10">• Unordered Multiset Match</text>
+            <text x="22" y="220" fill="#cbd5e1" font-size="10">• Key-based Entity Alignment</text>
+
+            <rect x="12" y="255" width="201" height="90" rx="6" fill="#1e293b" stroke="#b45309"/>
+            <text x="22" y="275" fill="#fde68a" font-size="11" font-weight="700">Float Epsilon Tolerances</text>
+            <text x="22" y="293" fill="#cbd5e1" font-size="10">• Configurable Floating Point Epsilon</text>
+            <text x="22" y="309" fill="#cbd5e1" font-size="10">• Scientific Notation Parsing</text>
+            <text x="22" y="325" fill="#cbd5e1" font-size="10">• Exact Integer vs Float Safety</text>
+
+            <rect x="12" y="355" width="201" height="85" rx="6" fill="#1e293b" stroke="#b45309"/>
+            <text x="22" y="375" fill="#fde68a" font-size="11" font-weight="700">Comparison Result Object</text>
+            <text x="22" y="393" fill="#cbd5e1" font-size="10">• { match: boolean }</text>
+            <text x="22" y="409" fill="#cbd5e1" font-size="10">• { diff: DiffTree }</text>
+            <text x="22" y="425" fill="#cbd5e1" font-size="10">• { processed, expected }</text>
+          </g>
+
+          <!-- STAGE 4: AUDIT TRAIL & HUB -->
+          <g transform="translate(755, 30)">
+            <rect width="220" height="460" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+            <rect width="220" height="32" rx="8" fill="url(#snGradEmerald)"/>
+            <text x="110" y="21" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">4. AUDIT &amp; REPORTING</text>
+
+            <rect x="12" y="45" width="196" height="95" rx="6" fill="#1e293b" stroke="#047857"/>
+            <text x="22" y="65" fill="#a7f3d0" font-size="11" font-weight="700">HTML / JSON Test Reports</text>
+            <text x="22" y="82" fill="#cbd5e1" font-size="10">• writeTestReport Generator</text>
+            <text x="22" y="98" fill="#cbd5e1" font-size="10">• Zero External CDN Assets</text>
+            <text x="22" y="114" fill="#cbd5e1" font-size="10">• Embedded SVG Visual Diffs</text>
+
+            <rect x="12" y="150" width="196" height="95" rx="6" fill="#1e293b" stroke="#047857"/>
+            <text x="22" y="170" fill="#a7f3d0" font-size="11" font-weight="700">PII &amp; Secret Redaction</text>
+            <text x="22" y="188" fill="#cbd5e1" font-size="10">• redactFields Masking</text>
+            <text x="22" y="204" fill="#cbd5e1" font-size="10">• Bearer Tokens &amp; Passwords</text>
+            <text x="22" y="220" fill="#cbd5e1" font-size="10">• Safe for CI Log Artifacts</text>
+
+            <rect x="12" y="255" width="196" height="90" rx="6" fill="#1e293b" stroke="#047857"/>
+            <text x="22" y="275" fill="#a7f3d0" font-size="11" font-weight="700">Snapline Hub Ingestion</text>
+            <text x="22" y="293" fill="#cbd5e1" font-size="10">• pushTestReportToHub()</text>
+            <text x="22" y="309" fill="#cbd5e1" font-size="10">• Historical Regression Trends</text>
+            <text x="22" y="325" fill="#cbd5e1" font-size="10">• Centralized Org Dashboard</text>
+
+            <rect x="12" y="355" width="196" height="85" rx="6" fill="#1e293b" stroke="#047857"/>
+            <text x="22" y="375" fill="#a7f3d0" font-size="11" font-weight="700">CLI &amp; CI/CD Exit Codes</text>
+            <text x="22" y="393" fill="#cbd5e1" font-size="10">• Exit 0: All Pass</text>
+            <text x="22" y="409" fill="#cbd5e1" font-size="10">• Exit 1: Regression Detected</text>
+            <text x="22" y="425" fill="#cbd5e1" font-size="10">• Exit 2: Unhandled Network/I/O</text>
+          </g>
+
+          <!-- Inter-stage connectors -->
+          <line x1="240" y1="180" x2="265" y2="180" stroke="#38bdf8" stroke-width="2" marker-end="url(#snArrCyan)"/>
+          <line x1="480" y1="180" x2="505" y2="180" stroke="#38bdf8" stroke-width="2" marker-end="url(#snArrCyan)"/>
+          <line x1="730" y1="180" x2="755" y2="180" stroke="#10b981" stroke-width="2" marker-end="url(#snArrGreen)"/>
+        </svg>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- PART II: TECHNICAL ARCHITECTURE                                           -->
+      <!-- ========================================================================= -->
+      <h2 id="part-2-technical-architecture">Part II: Technical Architecture</h2>
+      <p>
+        The technical architecture specifies the monorepo package encapsulation, zero-runtime-dependency core design, 
+        container sandbox boundaries, SSRF security defenses, network port topology, and execution profiles.
+      </p>
+
+      <h3>1. Monorepo Package Topology &amp; Zero-Dependency Design</h3>
+      <p>
+        Snapline enforces strict modularity across five published npm packages and an internal demo workspace:
+      </p>
+      <ul>
+        <li>
+          <strong><code>@vaagatech/snapline-core</code> (Entrypoint)</strong>:
+          Provides the high-level orchestration API (<code>testSuite</code>, <code>runApiFixtureCases</code>, <code>publishAndPoll</code>).
+          Has <strong>zero external runtime dependencies</strong>. SQL drivers are never forced on consumers; instead, consumers pass 
+          their existing driver instance satisfying the <code>DbConnectionLike</code> interface.
+        </li>
+        <li>
+          <strong><code>@vaagatech/snapline-engine</code> (Reconciliation Core)</strong>:
+          A pure algorithm module performing deep object comparison, floating point epsilon checks, and diff generation. 
+          Executes completely in-memory with zero disk, zero network, and sub-millisecond execution overhead.
+        </li>
+        <li>
+          <strong><code>@vaagatech/snapline-api-adapters</code> (Protocol Clients)</strong>:
+          Contains hardened HTTP clients with built-in SSRF protection (<code>assertSafeUrl</code>), DNS rebinding shields, 
+          and enforced 30-second default request deadlines.
+        </li>
+        <li>
+          <strong><code>@vaagatech/snapline-auth-adapters</code> (Authentication Engines)</strong>:
+          Acquires, validates, and caches OAuth2 client credential tokens, OpenID tokens, and HTTP Basic credentials in memory.
+        </li>
+        <li>
+          <strong><code>@vaagatech/snapline-messaging-adapters</code> (Event Broker Adapters)</strong>:
+          Provides asynchronous queue publish and partition polling for Apache Kafka and low-overhead in-memory event buses.
+        </li>
+      </ul>
+
+      <!-- PHYSICAL RUNTIME & PACKAGE TOPOLOGY SVG -->
+      <div style="margin: 28px 0; overflow-x: auto; background: #0b1220; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); padding: 18px; box-shadow: 0 12px 32px rgba(0,0,0,0.35);">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <span>Figure 2.1: Snapline Monorepo Package Architecture, CI/CD Runner Sandboxes &amp; Network Mesh</span>
+          <span style="background: rgba(16, 185, 129, 0.15); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(16,185,129,0.3);">ZERO RUNTIME DEPENDENCIES</span>
+        </div>
+        <svg viewBox="0 0 1000 520" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" style="display: block; font-family: 'IBM Plex Sans', -apple-system, sans-serif;">
+          <defs>
+            <linearGradient id="snTechDark" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#0b1329"/>
+              <stop offset="100%" stop-color="#020617"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Outer Background -->
+          <rect width="1000" height="520" rx="12" fill="url(#snTechDark)" stroke="#1e293b"/>
+
+          <!-- ZONE 1: NPM MONOREPO PACKAGES -->
+          <g transform="translate(25, 30)">
+            <rect width="270" height="460" rx="8" fill="#0f172a" stroke="#3b82f6" stroke-width="1.5"/>
+            <rect width="270" height="30" rx="8" fill="#1d4ed8"/>
+            <text x="135" y="20" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">PUBLISHED NPM MONOREPO PACKAGES</text>
+
+            <rect x="15" y="45" width="240" height="110" rx="6" fill="#1e293b" stroke="#3b82f6"/>
+            <text x="25" y="65" fill="#93c5fd" font-size="11" font-weight="700">@vaagatech/snapline-core</text>
+            <text x="25" y="82" fill="#cbd5e1" font-size="10">• Orchestrator: testSuite(), runApiFixtureCases()</text>
+            <text x="25" y="98" fill="#cbd5e1" font-size="10">• ZERO external runtime dependencies</text>
+            <text x="25" y="114" fill="#cbd5e1" font-size="10">• DbConnectionLike SQL interface</text>
+            <text x="25" y="130" fill="#cbd5e1" font-size="10">• HTML &amp; JSON Report Generator</text>
+            <text x="25" y="146" fill="#cbd5e1" font-size="10">• pushTestReportToHub() client</text>
+
+            <rect x="15" y="165" width="240" height="85" rx="6" fill="#1e293b" stroke="#8b5cf6"/>
+            <text x="25" y="185" fill="#e9d5ff" font-size="11" font-weight="700">@vaagatech/snapline-engine</text>
+            <text x="25" y="202" fill="#cbd5e1" font-size="10">• snapline() pure comparison pipeline</text>
+            <text x="25" y="218" fill="#cbd5e1" font-size="10">• Zero I/O, zero network, zero FS reads</text>
+            <text x="25" y="234" fill="#cbd5e1" font-size="10">• JSON Patch RFC-6902 formatted diffs</text>
+
+            <rect x="15" y="260" width="240" height="65" rx="6" fill="#1e293b" stroke="#334155"/>
+            <text x="25" y="280" fill="#93c5fd" font-size="11" font-weight="700">@vaagatech/snapline-api-adapters</text>
+            <text x="25" y="298" fill="#cbd5e1" font-size="10">• REST, GraphQL, SOAP executors</text>
+            <text x="25" y="314" fill="#cbd5e1" font-size="10">• assertSafeUrl SSRF guard &amp; 30s timeout</text>
+
+            <rect x="15" y="335" width="240" height="65" rx="6" fill="#1e293b" stroke="#334155"/>
+            <text x="25" y="355" fill="#93c5fd" font-size="11" font-weight="700">@vaagatech/snapline-auth-adapters</text>
+            <text x="25" y="373" fill="#cbd5e1" font-size="10">• OAuth2 (Client Creds), OpenID, Basic</text>
+            <text x="25" y="389" fill="#cbd5e1" font-size="10">• In-memory cached access tokens</text>
+
+            <rect x="15" y="410" width="240" height="40" rx="6" fill="#1e293b" stroke="#334155"/>
+            <text x="25" y="430" fill="#93c5fd" font-size="11" font-weight="700">@vaagatech/snapline-messaging-adapters</text>
+            <text x="25" y="444" fill="#cbd5e1" font-size="9">• Kafka &amp; In-Memory Queue Producers/Consumers</text>
+          </g>
+
+          <!-- ZONE 2: RUNNER SANDBOXES & CI/CD ENGINES -->
+          <g transform="translate(315, 30)">
+            <rect width="380" height="460" rx="8" fill="#0c162d" stroke="#6366f1" stroke-width="1.5"/>
+            <rect width="380" height="30" rx="8" fill="#4338ca"/>
+            <text x="190" y="20" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">EXECUTION RUNNER SANDBOXES (CLI &amp; CI/CD)</text>
+
+            <rect x="15" y="45" width="350" height="110" rx="6" fill="#1e293b" stroke="#818cf8"/>
+            <text x="25" y="65" fill="#c7d2fe" font-size="11" font-weight="700">Local Developer Execution (Node.js 18+)</text>
+            <text x="25" y="82" fill="#cbd5e1" font-size="10">• Runs inside consumer project process boundary</text>
+            <text x="25" y="98" fill="#cbd5e1" font-size="10">• Memory ceiling: Inherits Node.js heap (&lt;100MB typical)</text>
+            <text x="25" y="114" fill="#cbd5e1" font-size="10">• Local HTML report opened directly in browser</text>
+            <text x="25" y="130" fill="#cbd5e1" font-size="10">• Zero background daemons required</text>
+            <text x="25" y="146" fill="#cbd5e1" font-size="10">• Single testSuite run latency: 25ms - 250ms</text>
+
+            <rect x="15" y="165" width="350" height="135" rx="6" fill="#1e293b" stroke="#818cf8"/>
+            <text x="25" y="185" fill="#c7d2fe" font-size="11" font-weight="700">CI/CD Runner Matrix (GitHub Actions / GitLab CI)</text>
+            <text x="25" y="202" fill="#cbd5e1" font-size="10">• Ephemeral Container Sandbox: 512 MiB RAM / 1 vCPU</text>
+            <text x="25" y="218" fill="#cbd5e1" font-size="10">• Parallel Sharded Execution across testSuite files</text>
+            <text x="25" y="234" fill="#cbd5e1" font-size="10">• Strict path sandboxing prevents directory traversal</text>
+            <text x="25" y="250" fill="#cbd5e1" font-size="10">• Exit Code 0 (Success) / Exit Code 1 (Regression Diffs)</text>
+            <text x="25" y="266" fill="#cbd5e1" font-size="10">• JSON reports uploaded to CI pipeline artifacts</text>
+            <text x="25" y="282" fill="#cbd5e1" font-size="10">• Automatic PII / Secret Redaction (redactFields)</text>
+
+            <rect x="15" y="310" width="350" height="135" rx="6" fill="#1e293b" stroke="#10b981"/>
+            <text x="25" y="330" fill="#6ee7b7" font-size="11" font-weight="700">SSRF Defense &amp; Security Guards</text>
+            <text x="25" y="348" fill="#cbd5e1" font-size="10">• assertSafeUrl checks all outbound API hosts</text>
+            <text x="25" y="364" fill="#cbd5e1" font-size="10">• Blocks Cloud Metadata (169.254.169.254, GCP metadata)</text>
+            <text x="25" y="380" fill="#cbd5e1" font-size="10">• Blocks Private RFC-1918 subnets unless allowlisted</text>
+            <text x="25" y="396" fill="#cbd5e1" font-size="10">• DNS Rebinding validation on every HTTP redirect</text>
+            <text x="25" y="412" fill="#cbd5e1" font-size="10">• 30,000ms global timeout aborts hanging connections</text>
+            <text x="25" y="428" fill="#cbd5e1" font-size="10">• Clean socket destruction prevents socket leaks</text>
+          </g>
+
+          <!-- ZONE 3: EXTERNAL SERVICES & SNAPLINE HUB -->
+          <g transform="translate(715, 30)">
+            <rect width="260" height="460" rx="8" fill="#0f172a" stroke="#059669" stroke-width="1.5"/>
+            <rect width="260" height="30" rx="8" fill="#047857"/>
+            <text x="130" y="20" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">TARGET SERVICES &amp; HUB</text>
+
+            <rect x="15" y="45" width="230" height="85" rx="6" fill="#1e293b" stroke="#334155"/>
+            <text x="25" y="65" fill="#6ee7b7" font-size="11" font-weight="700">Target APIs (Under Test)</text>
+            <text x="25" y="82" fill="#cbd5e1" font-size="10">• Ports 80, 443, 8080 (HTTP/HTTPS)</text>
+            <text x="25" y="98" fill="#cbd5e1" font-size="10">• REST, GraphQL, SOAP microservices</text>
+            <text x="25" y="114" fill="#cbd5e1" font-size="10">• Guarded by assertSafeUrl</text>
+
+            <rect x="15" y="140" width="230" height="90" rx="6" fill="#1e293b" stroke="#334155"/>
+            <text x="25" y="160" fill="#6ee7b7" font-size="11" font-weight="700">Databases &amp; Warehouses</text>
+            <text x="25" y="178" fill="#cbd5e1" font-size="10">• PostgreSQL: Port 5432</text>
+            <text x="25" y="194" fill="#cbd5e1" font-size="10">• MySQL: Port 3306</text>
+            <text x="25" y="210" fill="#cbd5e1" font-size="10">• Snowflake / BigQuery Cloud APIs</text>
+
+            <rect x="15" y="240" width="230" height="85" rx="6" fill="#1e293b" stroke="#334155"/>
+            <text x="25" y="260" fill="#6ee7b7" font-size="11" font-weight="700">Apache Kafka Cluster</text>
+            <text x="25" y="278" fill="#cbd5e1" font-size="10">• Port 9092 (PLAINTEXT / SSL)</text>
+            <text x="25" y="294" fill="#cbd5e1" font-size="10">• publishMessage and partition poll</text>
+            <text x="25" y="310" fill="#cbd5e1" font-size="10">• Configurable consumer group IDs</text>
+
+            <rect x="15" y="335" width="230" height="110" rx="6" fill="#1e293b" stroke="#10b981"/>
+            <text x="25" y="355" fill="#6ee7b7" font-size="11" font-weight="700">Snapline Hub Server</text>
+            <text x="25" y="373" fill="#cbd5e1" font-size="10">• Port 8080 (REST API / Dashboard)</text>
+            <text x="25" y="389" fill="#cbd5e1" font-size="10">• Optional Centralized History UI</text>
+            <text x="25" y="405" fill="#cbd5e1" font-size="10">• SQLite / PostgreSQL Persistent Store</text>
+            <text x="25" y="421" fill="#cbd5e1" font-size="10">• Port 9090 (Prometheus Metrics)</text>
+            <text x="25" y="437" fill="#cbd5e1" font-size="10">• Docker &amp; Kubernetes Helm Deployable</text>
+          </g>
+
+          <!-- Inter-zone Connectors -->
+          <line x1="295" y1="100" x2="315" y2="100" stroke="#38bdf8" stroke-width="2" marker-end="url(#snArrCyan)"/>
+          <line x1="695" y1="90" x2="715" y2="90" stroke="#10b981" stroke-width="2" marker-end="url(#snArrGreen)"/>
+          <line x1="695" y1="185" x2="715" y2="185" stroke="#10b981" stroke-width="2" marker-end="url(#snArrGreen)"/>
+          <line x1="695" y1="280" x2="715" y2="280" stroke="#10b981" stroke-width="2" marker-end="url(#snArrGreen)"/>
+          <line x1="695" y1="390" x2="715" y2="390" stroke="#10b981" stroke-width="2" marker-end="url(#snArrGreen)"/>
+        </svg>
+      </div>
+
+      <h3>2. Physical Port Matrix &amp; Firewall Boundaries</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Component / Service</th>
+              <th>Port</th>
+              <th>Protocol</th>
+              <th>Direction</th>
+              <th>Security Boundary</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>snapline-api-adapters</code> (HTTP/REST)</td>
+              <td>80 / 443</td>
+              <td>HTTP/1.1, HTTP/2</td>
+              <td>Outbound</td>
+              <td>SSRF Guard (assertSafeUrl blocks 169.254.169.254)</td>
+            </tr>
+            <tr>
+              <td><code>snapline-auth-adapters</code> (OAuth2 / OIDC)</td>
+              <td>443</td>
+              <td>HTTPS</td>
+              <td>Outbound</td>
+              <td>TLS 1.3 + In-Memory Token Isolation</td>
+            </tr>
+            <tr>
+              <td><code>snapline-messaging-adapters</code> (Kafka)</td>
+              <td>9092 / 9094</td>
+              <td>TCP / SSL</td>
+              <td>Outbound</td>
+              <td>SASL/SCRAM or mTLS Client Authentication</td>
+            </tr>
+            <tr>
+              <td>SQL Databases (PostgreSQL / MySQL)</td>
+              <td>5432 / 3306</td>
+              <td>TCP / TLS</td>
+              <td>Outbound</td>
+              <td>DbConnectionLike consumer-managed connection pool</td>
+            </tr>
+            <tr>
+              <td><code>snapline-hub</code> (Web UI / API)</td>
+              <td>8080</td>
+              <td>HTTP</td>
+              <td>Inbound / Outbound</td>
+              <td>Internal Corporate Subnet / API Key Auth</td>
+            </tr>
+            <tr>
+              <td><code>snapline-hub</code> (Prometheus)</td>
+              <td>9090</td>
+              <td>HTTP</td>
+              <td>Inbound</td>
+              <td>Internal Monitoring Scraper Only</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>3. Resource Envelopes &amp; Memory Governor</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Workload Mode</th>
+              <th>RAM Allocation</th>
+              <th>CPU Allocation</th>
+              <th>Execution Guarantees</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CLI Local Run</strong></td>
+              <td>64 MiB - 128 MiB</td>
+              <td>Single-threaded Node.js</td>
+              <td>Sub-second completion; zero residual process leaks.</td>
+            </tr>
+            <tr>
+              <td><strong>CI/CD Sharded Worker</strong></td>
+              <td>512 MiB limit</td>
+              <td>1 vCPU</td>
+              <td>Bounded AST buffers; automated garbage collection.</td>
+            </tr>
+            <tr>
+              <td><strong>Snapline Hub Service</strong></td>
+              <td>256 MiB - 1.0 GiB</td>
+              <td>0.5 - 2 vCPU</td>
+              <td>Paged disk caching for historical reports; SQLite WAL mode.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>4. High Availability &amp; Disaster Recovery Matrix</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th>Target Metric</th>
+              <th>Implementation Mechanism</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Recovery Point Objective (RPO)</strong></td>
+              <td><code>RPO = 0</code></td>
+              <td>All test fixtures and expected JSON files are committed to Git VCS as immutable source of truth.</td>
+            </tr>
+            <tr>
+              <td><strong>Recovery Time Objective (RTO)</strong></td>
+              <td><code>RTO &lt; 100ms</code></td>
+              <td>Local and CI runners spawn instantaneously with zero external infrastructure cold-starts.</td>
+            </tr>
+            <tr>
+              <td><strong>Reconciliation Idempotency</strong></td>
+              <td>100% Deterministic</td>
+              <td>Pure functional diffing algorithm guarantees identical outputs for identical AST inputs.</td>
+            </tr>
+            <tr>
+              <td><strong>Hub Backup / Restore</strong></td>
+              <td>RPO &lt; 1 hr / RTO &lt; 5m</td>
+              <td>SQLite / PostgreSQL automated volume snapshots and S3 report archival.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SUBSYSTEM DETAILS                                                         -->
+      <!-- ========================================================================= -->
+      <h2>Package Layers &amp; Responsibilities</h2>
       <table>
         <thead>
           <tr><th>Package</th><th>Responsibility</th><th>Key exports</th></tr>
@@ -66,7 +560,7 @@
           </tr>
           <tr>
             <td><code>@vaagatech/snapline-engine</code></td>
-            <td>Pure reconciliation — no I/O</td>
+            <td>Pure reconciliation — zero I/O</td>
             <td><code>snapline</code>, <code>assertAgainstFile</code></td>
           </tr>
           <tr>
@@ -87,56 +581,15 @@
         </tbody>
       </table>
 
-      <h2>Snapline Hub (optional)</h2>
-      <p><a href="https://vaagatech.github.io/snapline-hub/">Snapline Hub</a> is a separate, optional reporting UI that stores and visualizes <code>TestRunReport</code> data. It is not part of the npm packages — use it when you want a centralized dashboard for test run history. Push reports via <code>pushTestReportToHub()</code> or <code>SNAPLINE_HUB_URL</code>. The <a href="https://github.com/vaagatech/snapline-python">Python edition</a> has equivalent <code>push_test_report_to_hub()</code>.</p>
+      <h2>Snapline Hub Integration</h2>
+      <p><a href="https://vaagatech.github.io/snapline-hub/">Snapline Hub</a> is an optional reporting service that stores and visualizes <code>TestRunReport</code> history. Push reports via <code>pushTestReportToHub()</code> or configure the <code>SNAPLINE_HUB_URL</code> environment variable. The <a href="https://github.com/vaagatech/snapline-python">Python edition</a> provides the identical <code>push_test_report_to_hub()</code> integration.</p>
 
-      <h2>Runtime flow — <code>testSuite</code></h2>
-      <div class="diagram">testSuite(name, config)
-  │
-  ├─ auth.initialize()          optional OAuth2 / OpenID / Basic
-  │
-  ├─ api                        executeApi → snapline vs expectedFile
-  ├─ dbComparison               fetch source + target rows → snapline
-  ├─ apiToDb                    executeApi → fetch DB row → snapline
-  ├─ dbToApi                    fetch DB row → executeApi → snapline
-  └─ publishAndPoll             publish queue → poll DB / file / topic → snapline
-        │
-        ▼
-  snapline(live, expected, { ignoreFields, transformations, dataMapping })
-        │
-        ▼
-  { match, diff, processed, expected }  →  TestSuiteResult</div>
-
-      <h2>Fixture case runners</h2>
-      <p>Two runners live in core for data-driven scenarios:</p>
+      <h2>Security &amp; SSRF Protections</h2>
       <ul>
-        <li><code>runApiFixtureCases</code> — HTTP per case, compare to <code>expected.json</code></li>
-        <li><code>runSnaplineFixtureCases</code> — offline: compare <code>live.json</code> vs <code>expected.json</code></li>
-      </ul>
-      <p>Each case directory contains <code>case.json</code> (metadata) plus protocol-specific files. Path sandboxing ensures fixture paths cannot escape the fixtures root.</p>
-
-      <h2>Repository layout (maintainers)</h2>
-      <pre><code>snapline/
-├── packages/
-│   ├── core/           @vaagatech/snapline-core
-│   ├── snapline/       @vaagatech/snapline-engine
-│   ├── api-adapters/   @vaagatech/snapline-api-adapters
-│   ├── auth-adapters/  @vaagatech/snapline-auth-adapters
-│   └── messaging-adapters/  @vaagatech/snapline-messaging-adapters
-└── demo/               private — mock server + 21 scenarios
-    ├── shared/         @vaagatech/snapline-demo-shared (mock API + SQLite)
-    ├── scenarios/      one package per scenario
-    └── run-all/        runs all 21 sequentially</code></pre>
-
-      <h2>Published package dependencies</h2>
-      <p><code>@vaagatech/snapline-core</code> has <strong>zero external runtime dependencies</strong>. It exports the <code>DbConnectionLike</code> interface for SQL — you bring your own Postgres/MySQL driver. SQLite and stub DB helpers live in <code>@vaagatech/snapline-demo-shared</code> (demo only, not published to npm consumers as a required dependency).</p>
-
-      <h2>Security &amp; reliability</h2>
-      <ul>
-        <li><strong>SSRF protection</strong> — <code>assertSafeUrl</code> blocks metadata hosts and optional private networks</li>
-        <li><strong>HTTP timeouts</strong> — 30s default on all protocol executors</li>
-        <li><strong>Path sandboxing</strong> — fixture and JSON file loads constrained to allowed roots</li>
-        <li><strong>Report redaction</strong> — <code>redactFields</code> masks sensitive step data in HTML/JSON reports</li>
+        <li><strong>SSRF protection</strong> — <code>assertSafeUrl</code> validates target URLs before socket creation, blocking link-local addresses (169.254.169.254), private ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16), and loopbacks unless explicitly allowlisted.</li>
+        <li><strong>HTTP timeouts</strong> — Strict 30-second default request deadlines on all protocol executors prevent worker deadlocks.</li>
+        <li><strong>Path sandboxing</strong> — Fixture path resolution restricts file reading strictly within the configured root directory, preventing directory traversal attacks (<code>../</code>).</li>
+        <li><strong>Report redaction</strong> — The <code>redactFields</code> utility systematically scrubs authentication headers, passwords, and sensitive keys before writing HTML/JSON test run artifacts.</li>
       </ul>
 
       <footer class="footer">
